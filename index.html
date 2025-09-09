@@ -3,22 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Mini Postman Viewer (Swagger-like)</title>
+<title>Driver team collections</title>
 <style>
   :root{
     /* светлая палитра */
-    --bg:#f6f8fb;           /* фон страницы */
-    --panel:#ffffff;        /* карточки/панели */
-    --muted:#6b7280;        /* приглушённый текст */
-    --fg:#0a0d14;           /* обычный текст */
-    --accent:#0b6cff;       /* акцент / кнопка Send */
-    --ok:#16a34a;           /* зелёный статус */
-    --warn:#b45309;         /* жёлто-коричневый */
-    --err:#dc2626;          /* красный */
-    --divider:#e5e7eb;      /* границы/разделители */
-    --code:#0f172a;         /* фон блока кода (тёмный, как в Swagger) */
+    --bg:#f6f8fb; --panel:#ffffff; --muted:#6b7280; --fg:#0a0d14; --accent:#0b6cff;
+    --ok:#16a34a; --warn:#b45309; --err:#dc2626; --divider:#e5e7eb; --code:#0f172a;
   }
-
   *{box-sizing:border-box}
   body{
     margin:0; font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;
@@ -27,7 +18,6 @@
     grid-template-areas: "top top" "left right";
   }
 
-  /* header / layout */
   header{
     grid-area:top; display:flex; gap:12px; align-items:center; padding:8px 12px;
     background:var(--panel); border-bottom:1px solid var(--divider);
@@ -40,155 +30,84 @@
   }
   .btn:hover, button:hover{background:#eef2f7}
   input[type="file"]{display:none}
-  label.file{
-    padding:8px 10px; border:1px dashed var(--divider); border-radius:8px; cursor:pointer; background:#fafafa
-  }
-  .left{
-    grid-area:left; border-right:1px solid var(--divider); overflow:auto; background:var(--panel)
-  }
+  label.file{padding:8px 10px; border:1px dashed var(--divider); border-radius:8px; cursor:pointer; background:#fafafa}
+  .left{grid-area:left; border-right:1px solid var(--divider); overflow:auto; background:var(--panel)}
   .right{grid-area:right; overflow:auto; background:var(--bg)}
   .section{padding:12px}
-  .search{
-    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider);
-    background:#f9fafb; color:var(--fg)
-  }
+  .search{width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider); background:#f9fafb; color:var(--fg)}
   .pane{max-width:1100px; margin:18px auto; padding:0 18px 80px}
 
-  /* cards / tables / forms */
-  .card{
-    background:var(--panel); border:1px solid var(--divider); border-radius:12px; overflow:hidden; margin-bottom:16px
-  }
-  .card h3{
-    margin:0; padding:12px 14px; border-bottom:1px solid var(--divider);
-    font-size:14px; letter-spacing:.2px; color:#0b1220; background:#f3f4f6
-  }
+  .card{background:var(--panel); border:1px solid var(--divider); border-radius:12px; overflow:hidden; margin-bottom:16px}
+  .card h3{margin:0; padding:12px 14px; border-bottom:1px solid var(--divider); font-size:14px; letter-spacing:.2px; color:#0b1220; background:#f3f4f6}
   .row{display:grid; grid-template-columns: 110px 1fr; gap:8px; padding:10px 12px; align-items:center}
-  .row input, .row textarea, .row select{
-    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider);
-    background:#ffffff; color:var(--fg); font-family:inherit; font-size:14px
-  }
+  .row input, .row textarea, .row select{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider); background:#ffffff; color:var(--fg); font-family:inherit; font-size:14px }
   textarea.code{min-height:160px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#ffffff}
   .kvs{padding:10px 12px}
   table{width:100%; border-collapse:collapse; font-size:14px; background:#fff}
   th, td{border-bottom:1px solid var(--divider); padding:8px}
   th{color:#374151; text-align:left; background:#f3f4f6; position:sticky; top:0}
-  .actions{
-    display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--divider);
-    background:#f8fafc; position:sticky; bottom:0
-  }
+  .actions{display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--divider); background:#f8fafc; position:sticky; bottom:0}
   .send{background:var(--accent); color:#ffffff; font-weight:700; border:none}
-  .meta{display:flex; gap:12px; font-size:12px; color:var(--muted)}
-  .status.ok{color:var(--ok)} .status.err{color:var(--err)}
-  pre{margin:0; padding:12px; background:var(--code); color:#e5edff; overflow:auto; border-top:1px solid var(--divider)}
   .pill{border:1px solid var(--divider); padding:4px 8px; border-radius:999px; font-size:12px; color:#334155; background:#ffffff}
-  .small{font-size:12px; color:var(--muted)}
-  .muted{color:var(--muted)}
-  .inline{display:flex; gap:8px; align-items:center}
+  .small{font-size:12px; color:var(--muted)} .muted{color:var(--muted)} .inline{display:flex; gap:8px; align-items:center}
   .rightInfo{font-size:12px; color:#475569}
 
-  /* ---------- Swagger-like список API (светлая версия) ---------- */
+  /* Список API */
   .tree{margin-top:12px}
-  .folder{
-    color:#0b1220; font-weight:800; text-transform:none; letter-spacing:.2px;
-    font-size:18px; margin:18px 10px 6px;
-  }
-  .op{
-    display:flex; align-items:center; gap:12px;
-    border-radius:8px; padding:10px 12px; margin:8px 6px;
-    border:1px solid var(--divider); cursor:pointer; background:#ffffff;
-    transition: transform .05s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
-    box-shadow: 0 1px 0 rgba(15,23,42,.03);
-  }
+  .folder{color:#0b1220; font-weight:800; text-transform:none; letter-spacing:.2px; font-size:18px; margin:18px 10px 6px;}
+  .op{display:flex; align-items:center; gap:12px; border-radius:8px; padding:10px 12px; margin:8px 6px; border:1px solid var(--divider); cursor:pointer; background:#ffffff; transition: transform .05s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease; box-shadow: 0 1px 0 rgba(15,23,42,.03);}
   .op:hover{ background:#f9fafb; border-color:#dbe3ed; transform: translateY(-1px); }
   .op.active{ outline:2px solid #2b8cff33; }
-
-  .op .op-method{
-    min-width:66px; text-align:center; font-weight:800; font-size:12px;
-    padding:6px 8px; border-radius:6px; letter-spacing:.5px; border:1px solid rgba(0,0,0,.06);
-  }
-  .op .op-path{
-    flex:1; min-width:0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size:13px; color:#0b1220; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-
-  /* мягкие цветовые заливки по методу */
-  .op.GET      { background:#e8f5ee; }
-  .op.GET .op-method{ background:#dff3e7; color:#0a7c3a; }
-
-  .op.POST     { background:#f3e9ff; }
-  .op.POST .op-method{ background:#efe4ff; color:#7a3cff; }
-
-  .op.PUT      { background:#f6f7dd; }
-  .op.PUT .op-method{ background:#f2f4c9; color:#7a7f17; }
-
-  .op.PATCH    { background:#ffe9d9; }
-  .op.PATCH .op-method{ background:#ffe1cd; color:#c05621; }
-
-  .op.DELETE   { background:#ffe5e7; }
-  .op.DELETE .op-method{ background:#ffdadd; color:#c81e1e; }
-
-  .op.HEAD, .op.OPTIONS, .op.TRACE{ background:#eaf2ff; }
-  .op.HEAD .op-method, .op.OPTIONS .op-method, .op.TRACE .op-method{ background:#e2ecff; color:#0b6cff; }
-
+  .op .op-method{min-width:66px; text-align:center; font-weight:800; font-size:12px; padding:6px 8px; border-radius:6px; letter-spacing:.5px; border:1px solid rgba(0,0,0,.06);}
+  .op .op-path{flex:1; min-width:0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; color:#0b1220; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .op.GET{background:#e8f5ee} .op.GET .op-method{background:#dff3e7; color:#0a7c3a}
+  .op.POST{background:#f3e9ff} .op.POST .op-method{background:#efe4ff; color:#7a3cff}
+  .op.PUT{background:#f6f7dd} .op.PUT .op-method{background:#f2f4c9; color:#7a7f17}
+  .op.PATCH{background:#ffe9d9} .op.PATCH .op-method{background:#ffe1cd; color:#c05621}
+  .op.DELETE{background:#ffe5e7} .op.DELETE .op-method{background:#ffdadd; color:#c81e1e}
+  .op.HEAD,.op.OPTIONS,.op.TRACE{background:#eaf2ff} .op.HEAD .op-method,.op.OPTIONS .op-method,.op.TRACE .op-method{background:#e2ecff; color:#0b6cff}
   .item,.title,.path{display:none}
 
-  /* --------- редактор запроса (светлый) --------- */
-  .reqHeader{
-    display:flex; align-items:center; gap:12px; padding:12px 14px;
-    background:#fff7e8; border-bottom:1px solid var(--divider);
-  }
-  .reqHeader .badge{
-    font-weight:800; font-size:12px; padding:6px 8px; border-radius:6px; border:1px solid rgba(0,0,0,.08);
-    background:#ffefd2; color:#8a5a00;
-  }
-  .reqHeader .path{
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#0b1220;
-  }
+  /* Редактор запроса */
+  .reqHeader{display:flex; align-items:center; gap:12px; padding:12px 14px; background:#fff7e8; border-bottom:1px solid var(--divider)}
+  .reqHeader .badge{font-weight:800; font-size:12px; padding:6px 8px; border-radius:6px; border:1px solid rgba(0,0,0,.08); background:#ffefd2; color:#8a5a00}
+  .reqHeader .path{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#0b1220}
   .tabs{ display:flex; gap:6px; padding:8px 10px; border-bottom:1px solid var(--divider); background:#f3f4f6 }
   .tab{ padding:8px 12px; border:1px solid transparent; border-radius:8px; cursor:pointer; color:#0b1220; background:#ffffff }
   .tab.active{ border-color:#cfd7e3; background:#f9fafb }
-  .tabPane{ display:none; }
-  .tabPane.active{ display:block; }
+  .tabPane{ display:none } .tabPane.active{ display:block }
   .kvTable{ width:100%; border-collapse:collapse; background:#fff }
-  .kvTable th, .kvTable td{ border-bottom:1px solid var(--divider); padding:8px }
+  .kvTable th,.kvTable td{ border-bottom:1px solid var(--divider); padding:8px }
   .kvTable th{ background:#f3f4f6; color:#374151; position:sticky; top:0; text-align:left }
-  .kvAddBtn{ margin-top:8px }
-
   .scriptsSwitcher{ display:flex; gap:8px; padding:10px 12px; background:#f9fafb; border-bottom:1px solid var(--divider) }
-  .scriptsSwitcher button{
-    padding:6px 10px; border-radius:6px; background:#ffffff; border:1px solid #dbe3ed; color:#0b1220; cursor:pointer
-  }
+  .scriptsSwitcher button{ padding:6px 10px; border-radius:6px; background:#ffffff; border:1px solid #dbe3ed; color:#0b1220; cursor:pointer }
   .scriptsSwitcher button.active{ background:#eef4ff; border-color:#c9dcff }
-
   .scriptsArea{ padding:12px; background:#ffffff }
-  .scriptsArea textarea{
-    width:100%; min-height:160px; border:1px solid var(--divider); border-radius:8px;
-    background:#ffffff; color:var(--fg); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding:10px
-  }
-
+  .scriptsArea textarea{ width:100%; min-height:160px; border:1px solid var(--divider); border-radius:8px; background:#ffffff; color:#0b1220; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding:10px }
   .reqBodyWrap{ padding:12px 14px; background:#fff7e8; color:#1d1408; border-top:1px solid var(--divider) }
   .reqBodyToolbar{ display:flex; gap:8px; align-items:center; margin-bottom:8px }
   .reqBodyToolbar .clear{ background:#ffd7cf; color:#7a1d16; border:1px solid #ffc0b6 }
-  .reqBodyWrap textarea{
-    width:100%; min-height:220px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px;
-    border:1px solid #e6d7c8; border-radius:8px; padding:10px; background:#ffffff; color:#1d1408
-  }
+  .reqBodyWrap textarea{ width:100%; min-height:220px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px; border:1px solid #e6d7c8; border-radius:8px; padding:10px; background:#ffffff; color:#1d1408 }
+
+  /* Authorize modal */
+  .modal{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:10000 }
+  .modal[hidden]{ display:none }
+  .modalCard{ width:420px; background:#fff; border:1px solid var(--divider); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.08); padding:16px }
+  .modalCard h3{ margin:0 0 10px 0; font-size:16px }
+  .modalCard .row{ grid-template-columns: 1fr }
+  .modalActions{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px }
+  .auth-ok{ background:#10b981; color:#fff; border:none }
+  .auth-bad{ background:#f3f4f6; color:#111827 }
+  .authState{ font-size:12px; color:#065f46; }
+
   /* loader */
-.loaderOverlay{
-  position:fixed; inset:56px 0 0 0; display:flex; align-items:center; justify-content:center;
-  background:rgba(255,255,255,.6); z-index:9999; backdrop-filter:saturate(1.2) blur(2px);
-}
-.loaderOverlay[hidden]{ display:none }
-.spinner{
-  width:40px; height:40px; border-radius:50%;
-  border:4px solid #dbe3ed; border-top-color: var(--accent);
-  animation: spin 0.9s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+  .loaderOverlay{ position:fixed; inset:56px 0 0 0; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.6); z-index:9999; backdrop-filter:saturate(1.2) blur(2px); }
+  .loaderOverlay[hidden]{ display:none }
+  .spinner{ width:40px; height:40px; border-radius:50%; border:4px solid #dbe3ed; border-top-color: var(--accent); animation: spin 0.9s linear infinite }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
-  
+
 <body>
   <header>
     <h1>Driver team collections</h1>
@@ -200,8 +119,10 @@
         <input id="envFile" type="file" accept=".json,application/json" />
       </label>
       <button id="clearBtn" title="Очистить сессию">Сброс</button>
+
+      <button id="authBtn" title="Глобальный Bearer">Authorize</button>
       <span class="small muted">Proxy prefix:</span>
-      <input id="proxyPrefix" placeholder="например, http://localhost:8080/" style="width:280px;padding:8px;border-radius:8px;border:1px solid var(--divider);background:#0f141b;color:#e7ecf3" />
+      <input id="proxyPrefix" placeholder="например, http://localhost:8080/" style="width:280px;padding:8px;border-radius:8px;border:1px solid var(--divider);background:#fff;color:#111" />
       <span id="loadedInfo" class="rightInfo"></span>
     </div>
   </header>
@@ -219,7 +140,7 @@
         <h3>Добро пожаловать</h3>
         <div class="section">
           Если в корне есть <code>postman_collection.json</code> и <code>postman_environment.json</code>, они автозагрузятся.
-          Иначе — загрузите вручную. Можно задать пути: <code>?collection=./api/col.json&amp;env=./envs/dev.json</code>.
+          Иначе — загрузите вручную. Переопределить пути можно так: <code>?collection=./api/col.json&amp;env=./envs/dev.json</code>.
         </div>
       </div>
 
@@ -227,6 +148,24 @@
       <div id="resPane"></div>
     </div>
   </main>
+
+  <!-- Authorize modal -->
+  <div id="authModal" class="modal" hidden>
+    <div class="modalCard">
+      <h3>Authorize</h3>
+      <div class="row">
+        <input id="authToken" placeholder="Bearer token" />
+      </div>
+      <div class="modalActions">
+        <button id="authClear" class="auth-bad">Очистить</button>
+        <button id="authCancel">Отмена</button>
+        <button id="authSave" class="auth-ok">Сохранить</button>
+      </div>
+      <div id="authState" class="authState" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div id="loader" class="loaderOverlay" hidden><div class="spinner"></div></div>
 
 <script>
 /* ========= Config ========= */
@@ -244,25 +183,33 @@ const el = (tag, attrs={}, ...children) => { const n=document.createElement(tag)
 function debounce(fn, ms=250){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
 function prettyJSON(x){ try{ return typeof x==='string'?JSON.stringify(JSON.parse(x),null,2):JSON.stringify(x,null,2);}catch{ return String(x);} }
 function sizeBytes(val){ try{ const b=(new TextEncoder()).encode(typeof val==='string'?val:JSON.stringify(val)).length; if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }catch{ return '—'; } }
-function showLoader(on){
-  const l = $('#loader');
-  if (!l) return;
-  l.hidden = !on;
-}
+function showLoader(on){ const l = $('#loader'); if (!l) return; l.hidden = !on; }
 
 /* ========= State ========= */
 let COLLECTION = null, ENV = null, VARS = {};
 let ITEMS_FLAT = [];
 let CURRENT_REQ_ID = null;
+let GLOBAL_BEARER = localStorage.getItem('global_bearer') || '';
 
 /* ========= Variables & helpers ========= */
 function buildVarMap(){
   const map = {};
   if (ENV && Array.isArray(ENV.values)){
-    ENV.values.forEach(v=>{ if(!v) return; const key=v.key??v.name; const val=(v.value ?? v.currentValue ?? v.initialValue); if(key) map[key]=val; });
+    ENV.values.forEach(v=>{
+      if(!v) return;
+      if (v.enabled === false) return;
+      const key = v.key ?? v.name;
+      const val = (v.currentValue ?? v.value ?? v.initialValue);
+      if (key) map[key] = val;
+    });
   }
   if (COLLECTION && Array.isArray(COLLECTION.variable)){
-    COLLECTION.variable.forEach(v=>{ if(!v) return; const key=v.key??v.name; const val=(v.value ?? v.currentValue ?? v.initialValue); if(key && map[key]==null) map[key]=val; });
+    COLLECTION.variable.forEach(v=>{
+      if(!v) return;
+      const key = v.key ?? v.name;
+      const val = (v.currentValue ?? v.value ?? v.initialValue);
+      if (key && map[key]==null) map[key]=val;
+    });
   }
   VARS = map;
 }
@@ -282,17 +229,25 @@ function normalizeUrl(u){
 function flattenItems(node, path=[]){
   if(!node) return;
   if(Array.isArray(node)){ node.forEach(n=>flattenItems(n, path)); return; }
-  if(node.item){
-    const newPath = node.name ? path.concat(node.name) : path;
-    node.item.forEach(child=>flattenItems(child, newPath));
-    return;
-  }
-  if(node.request){
-    ITEMS_FLAT.push({ id: crypto.randomUUID(), path: path.join(' / '), name: node.name || '(без названия)', request: node.request });
-  }
+  if(node.item){ const newPath = node.name ? path.concat(node.name) : path; node.item.forEach(child=>flattenItems(child, newPath)); return; }
+  if(node.request){ ITEMS_FLAT.push({ id: crypto.randomUUID(), path: path.join(' / '), name: node.name || '(без названия)', request: node.request }); }
+}
+function safeBuildUrl(url, queryArr){
+  // подставим переменные в базовый url, плюс query из таблицы
+  let u = resolveVars(url || '');
+  // добавим query вручную (не полагаемся на URL(...) если базовый невалидный)
+  const extra = new URLSearchParams();
+  (queryArr||[]).filter(x=>x.key).forEach(p=> extra.set(p.key, resolveVars(String(p.value??''))));
+  const glue = u.includes('?') ? (u.endsWith('?') || u.endsWith('&') ? '' : '&') : (extra.toString()? '?' : '');
+  const composed = u + (glue ? glue + extra.toString() : '');
+  // попытка нормализовать (если абсолютный/относительный) — необязательно
+  try{
+    const urlObj = new URL(composed, composed.startsWith('http') ? undefined : location.origin);
+    return urlObj.href.replace(location.origin,'') || urlObj.href;
+  }catch{ return composed; }
 }
 
-/* ========= Sidebar rendering ========= */
+/* ========= Sidebar ========= */
 function renderTree(filter = '') {
   const tree = $('#tree'); tree.innerHTML = '';
   const q = (filter || '').toLowerCase();
@@ -312,8 +267,7 @@ function renderTree(filter = '') {
       const urlResolved = resolveVars(urlRaw);
       const method = (it.request.method || 'GET').toUpperCase();
       const row = el('div',
-        { class: 'op ' + method, onclick: () => openRequest(it),
-          title: (it.name ? it.name + ' • ' : '') + (urlResolved || urlRaw || '') },
+        { class: 'op ' + method, onclick: () => openRequest(it), title: (it.name ? it.name + ' • ' : '') + (urlResolved || urlRaw || '') },
         el('div', { class: 'op-method' }, method),
         el('div', { class: 'op-path' }, urlResolved || urlRaw || '(no url)')
       );
@@ -324,7 +278,7 @@ function renderTree(filter = '') {
   if (!tree.children.length) tree.append(el('div', { class:'section muted small' }, 'Ничего не найдено'));
 }
 
-/* ========= Request UI (Params / Headers / Scripts + Body) ========= */
+/* ========= Request UI ========= */
 function buildKVTable(rows){
   const t = el('table', {class:'kvTable'});
   t.append(el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'))));
@@ -335,7 +289,6 @@ function buildKVTable(rows){
     tr.append(el('td', {}, el('input', {value: r.value ?? '', 'data-field':'value'})));
     tb.append(tr);
   });
-  // пустая строка для добавления
   const trNew = el('tr');
   trNew.append(el('td', {}, el('input', {'data-field':'key', placeholder:'key'})));
   trNew.append(el('td', {}, el('input', {'data-field':'value', placeholder:'value'})));
@@ -352,53 +305,44 @@ function tableToSimpleArray(tbody){
   });
   return out;
 }
-
 function getScriptStoreKey(reqId){ return `pm_scripts_${reqId}`; }
-function loadScripts(reqId){
-  try{ return JSON.parse(localStorage.getItem(getScriptStoreKey(reqId))||'{}'); }catch{ return {}; }
-}
-function saveScripts(reqId, pre, post){
-  localStorage.setItem(getScriptStoreKey(reqId), JSON.stringify({pre, post}));
-}
+function loadScripts(reqId){ try{ return JSON.parse(localStorage.getItem(getScriptStoreKey(reqId))||'{}'); }catch{ return {}; } }
+function saveScripts(reqId, pre, post){ localStorage.setItem(getScriptStoreKey(reqId), JSON.stringify({pre, post})); }
 
 function openRequest(item){
   CURRENT_REQ_ID = item.id;
   const req = item.request;
 
-  // 1) метод/URL строго из коллекции
   const methodOrig = String(req.method || 'GET').toUpperCase();
   const urlRaw     = normalizeUrl(req.url);
-  const urlInit    = resolveVars(urlRaw); // подставляем {{vars}}
+  const urlDisplay = resolveVars(urlRaw); // для верхней строки
 
-  // 2) исходные массивы (простые key/value)
   const paramsInit = (typeof req.url==='object' && Array.isArray(req.url.query))
     ? req.url.query.map(q=>({key:q.key, value: resolveVars(q.value??'')})) : [];
-
   let headersInit = Array.isArray(req.header)
     ? req.header.map(h=>({key:h.key, value: resolveVars(h.value??'')})) : [];
 
-  // 3) bearer -> Authorization если нет
-  if (req.auth && req.auth.type==='bearer'){
+  // bearer из env/collection — если есть
+  if (GLOBAL_BEARER && !headersInit.some(h=>String(h.key||'').toLowerCase()==='authorization')){
+    headersInit.unshift({key:'Authorization', value:'Bearer '+GLOBAL_BEARER});
+  } else if (req.auth && req.auth.type==='bearer'){
     const token = (req.auth.bearer||[]).find(x=>x.key==='token')?.value || VARS.token || VARS.access_token || '';
     if (token && !headersInit.some(h=>String(h.key||'').toLowerCase()==='authorization')){
       headersInit.unshift({key:'Authorization', value:'Bearer '+resolveVars(token)});
     }
   }
 
-  // 4) тело
-  let bodyText = req.body?.raw != null ? resolveVars(req.body.raw) : '';
+  // Тело: оставляем как в коллекции (с {{vars}}), подставим только при отправке
+  let bodyText = req.body?.raw != null ? (typeof req.body.raw === 'string' ? req.body.raw : JSON.stringify(req.body.raw, null, 2)) : '';
 
-  // ===== UI =====
   const pane = $('#reqPane'); pane.innerHTML='';
   const card = el('div', {class:'card'});
 
-  // шапка (как у Swagger)
   const header = el('div', {class:'reqHeader'},
     el('span', {class:'badge'}, methodOrig),
-    el('div', {class:'path', id:'topPath'}, urlInit || urlRaw)
+    el('div', {class:'path', id:'topPath'}, urlDisplay || urlRaw)
   );
 
-  // Tabs
   const tabs = el('div', {class:'tabs'},
     el('div', {class:'tab active', id:'tabParams'}, 'Params'),
     el('div', {class:'tab', id:'tabHeaders'}, 'Headers'),
@@ -409,30 +353,26 @@ function openRequest(item){
   const headersPane= el('div', {class:'tabPane',        id:'paneHeaders'});
   const scriptsPane= el('div', {class:'tabPane',        id:'paneScripts'});
 
-  // конструктор Method / URL
   const methodSel = el('select', {id:'methodSel'},
     ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected:m===methodOrig}, m))
   );
-  const urlInput = el('input', {id:'urlInp', value: urlInit || urlRaw});
+  const urlInput = el('input', {id:'urlInp', value: urlRaw}); // показываем оригинал с {{vars}}
   const methodRow = el('div', {class:'row'},
     el('div', {class:'inline'}, el('span', {class:'muted'}, 'Method / URL')),
     el('div', {class:'inline', style:'gap:8px; width:100%'}, methodSel, urlInput)
   );
 
-  // Params
   const paramsTable = buildKVTable(paramsInit);
   paramsPane.append(methodRow, el('div', {class:'kvs'}, paramsTable));
   paramsPane.addEventListener('input', debounce(()=>{
     const p = tableToSimpleArray(paramsTable.tBodies[0]);
-    const built = buildFinalUrl(urlInput.value, p);
+    const built = safeBuildUrl(urlInput.value, p);
     $('#topPath').textContent = built;
   }, 120));
 
-  // Headers
   const headersTable = buildKVTable(headersInit);
   headersPane.append(el('div', {class:'kvs'}, headersTable));
 
-  // Scripts
   const {pre:preSaved='', post:postSaved=''} = loadScripts(item.id);
   const sw = el('div', {class:'scriptsSwitcher'},
     el('button', {id:'btnPre',  class:'active', onclick:()=>switchScript('pre')},  'PRE-Request'),
@@ -441,9 +381,9 @@ function openRequest(item){
   const preTA  = el('textarea', {id:'preScript'},  preSaved);
   const postTA = el('textarea', {id:'postScript', style:'display:none'}, postSaved);
   const scriptsArea = el('div', {class:'scriptsArea'}, preTA, postTA);
-  scriptsPane.append(sw, scriptsArea);
+  const scriptsPaneInfo = el('div', {class:'small muted', style:'padding:0 12px 12px'}, 'Доступно: ctx.request (method,url,params,headers,body), ctx.response (status, headers, bodyText)');
+  scriptsPane.append(sw, scriptsArea, scriptsPaneInfo);
 
-  // Body + Очистить
   const bodyWrap = el('div', {class:'reqBodyWrap'});
   const bodyToolbar = el('div', {class:'reqBodyToolbar'},
     el('span', {}, 'Request body'),
@@ -452,7 +392,6 @@ function openRequest(item){
   const bodyArea = el('textarea', {id:'bodyRawArea'}, bodyText);
   bodyWrap.append(bodyToolbar, bodyArea);
 
-  // Actions
   const actions = el('div', {class:'actions'});
   const sendBtn = el('button', {class:'send', id:'sendBtn'}, 'Send');
   const curlBtn = el('button', {id:'curlBtn'}, 'Copy cURL');
@@ -461,7 +400,6 @@ function openRequest(item){
   card.append(header, tabs, paramsPane, headersPane, scriptsPane, bodyWrap, actions);
   pane.append(card);
 
-  // табы
   function activateTab(name){
     ['Params','Headers','Scripts'].forEach(t=>{
       $('#tab'+t).classList.toggle('active', t===name);
@@ -485,9 +423,16 @@ function openRequest(item){
     const hdrArr = tableToSimpleArray(headersTable.tBodies[0]);
     let headers  = Object.fromEntries(hdrArr.filter(x=>x.key).map(x=>[x.key, resolveVars(x.value)]));
 
+    // глобальный Bearer если не задан явно
+    if (GLOBAL_BEARER && !Object.keys(headers).some(h=>h.toLowerCase()==='authorization')){
+      headers['Authorization'] = 'Bearer ' + GLOBAL_BEARER;
+    }
+
     let method = methodSel.value;
-    let finalUrl = buildFinalUrl(urlInput.value.trim(), params);
-    let body = bodyArea.value || '';
+    let finalUrl = safeBuildUrl(urlInput.value.trim(), params);
+
+    // тело с подстановкой переменных на отправку
+    let body = resolveVars(bodyArea.value || '');
 
     // PRE
     const preCode = preTA.value.trim();
@@ -499,29 +444,24 @@ function openRequest(item){
         finalUrl = ctx.request.url;
         headers  = ctx.request.headers;
         body     = ctx.request.body;
-      }catch(e){ alert('Ошибка PRE-скрипта: '+e.message); return; }
+      }catch(e){ renderResponse(null, 'PRE error: '+e.message, 0, finalUrl); return; }
     }
 
-    // content-type если JSON
     if (body && !Object.keys(headers).some(h=>h.toLowerCase()==='content-type')){
       try{ JSON.parse(body); headers['Content-Type'] = 'application/json'; }catch{}
     }
 
-    // proxy
     const proxy = $('#proxyPrefix').value.trim();
     const targetUrl = proxy ? proxy + finalUrl : finalUrl;
 
-    // loader ON
     showLoader(true); sendBtn.disabled = true;
-
     const started = performance.now();
     let res, text;
     try{
       res = await fetch(targetUrl, { method, headers, body: (method==='GET'||method==='HEAD')?undefined:body });
-      text = await res.text();
+      text = await res.text(); // fetch не бросает на 4xx/5xx — это ок
     }catch(e){
       renderResponse(null, String(e), performance.now()-started, finalUrl);
-      // POST с ошибкой
       const postCode = postTA.value.trim();
       if (postCode){
         try{ const ctxPost = makePostCtx({request:{method,url:finalUrl,headers,body}, response:null, error:String(e)}); runUserScript(postCode, ctxPost); }catch(_){}
@@ -540,7 +480,7 @@ function openRequest(item){
         });
         runUserScript(postCode, ctxPost);
         if (ctxPost.response && typeof ctxPost.response.bodyText === 'string') text = ctxPost.response.bodyText;
-      }catch(e){ alert('Ошибка POST-скрипта: '+e.message); }
+      }catch(e){ /* не блокируем рендер */ }
     }
 
     renderResponse(res, text, performance.now()-started, finalUrl);
@@ -551,9 +491,9 @@ function openRequest(item){
   $('#curlBtn').onclick = ()=>{
     const m = methodSel.value;
     const params = tableToSimpleArray(paramsTable.tBodies[0]);
-    const finalUrl = buildFinalUrl(urlInput.value.trim(), params);
+    const finalUrl = safeBuildUrl(urlInput.value.trim(), params);
     const headers  = Object.fromEntries(tableToSimpleArray(headersTable.tBodies[0]).map(p=>[p.key, resolveVars(p.value)]));
-    const body     = (m==='GET' || m==='HEAD') ? '' : (bodyArea.value || '');
+    const body     = (m==='GET' || m==='HEAD') ? '' : resolveVars(bodyArea.value || '');
     const hdrStr = Object.entries(headers).map(([k,v])=>` -H '${k}: ${String(v).replace(/'/g,"'\\''")}'`).join('');
     const bodyStr = body ? ` --data '${String(body).replace(/'/g,"'\\''")}'` : '';
     const cmd = `curl -X ${m}${hdrStr}${bodyStr} '${finalUrl.replace(/'/g,"'\\''")}'`;
@@ -561,39 +501,25 @@ function openRequest(item){
   };
 }
 
-/* === tiny “sandbox” for scripts === */
+/* ==== sandbox for scripts ==== */
 function runUserScript(code, ctx){
-  // изолированный new Function без доступа к глобалам
-  const fn = new Function('ctx', `
-    "use strict";
-    const console = { log: (...a)=> (ctx._logs.push(a.map(String).join(' '))) };
-    ${code}
-  `);
+  const fn = new Function('ctx', `"use strict"; const console = { log: (...a)=> (ctx._logs.push(a.map(String).join(' '))) }; ${code}`);
   fn(ctx);
 }
 function makePreCtx({method, url, params, headers, body}){
   const ctx = {
-    _logs: [],
-    vars: {...VARS},
-    setVar: (k,v)=>{ VARS[k]=v; },
-    request: {
-      method, url, params: JSON.parse(JSON.stringify(params)), headers: JSON.parse(JSON.stringify(headers)), body
-    },
+    _logs: [], vars: {...VARS}, setVar: (k,v)=>{ VARS[k]=v; },
+    request: { method, url, params: JSON.parse(JSON.stringify(params)), headers: JSON.parse(JSON.stringify(headers)), body },
     setHeader: (k,v)=>{ ctx.request.headers[k]=v; },
     setParam: (k,v)=>{ const p=ctx.request.params.find(x=>x.key===k); if(p) p.value=v; else ctx.request.params.push({key:k,value:v}); },
-    setBody: v=>{ ctx.request.body = v; },
-    setMethod: m=>{ ctx.request.method = String(m||'GET').toUpperCase(); },
-    setUrl: u=>{ ctx.request.url = String(u||''); },
+    setBody: v=>{ ctx.request.body = v; }, setMethod: m=>{ ctx.request.method = String(m||'GET').toUpperCase(); }, setUrl: u=>{ ctx.request.url = String(u||''); },
     log: (...a)=>ctx._logs.push(a.map(String).join(' '))
   };
   return ctx;
 }
 function makePostCtx({request, response, error}){
   const ctx = {
-    _logs: [],
-    request,
-    response, // {status,statusText,headers,bodyText} | null
-    error: error || null,
+    _logs: [], request, response, error: error || null,
     setResponseBody: (text)=>{ if(ctx.response) ctx.response.bodyText = String(text); },
     log: (...a)=>ctx._logs.push(a.map(String).join(' '))
   };
@@ -606,12 +532,12 @@ function renderResponse(res, text, ms, url){
   const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Ответ'));
   const head = el('div', {class:'actions'});
   const status = res ? `${res.status} ${res.statusText}` : 'Network error';
-  head.append(el('span', {class:'pill status '+(res && res.ok?'ok':'err')}, status));
+  head.append(el('span', {class:'pill', style:`color:${res ? (res.ok?'#16a34a':'#dc2626'):'#dc2626'}`}, status));
   head.append(el('span', {class:'pill'}, `Время: ${ms.toFixed(0)} ms`));
   head.append(el('span', {class:'pill'}, `URL: ${url}`));
   card.append(head);
   let formatted = text; try{ formatted = JSON.stringify(JSON.parse(text),null,2);}catch{}
-  card.append(el('pre', {}, formatted || '—'));
+  card.append(el('pre', {}, formatted || (text || '—')));
   if (res){
     const hdrsCard = el('div', {class:'card'}); hdrsCard.append(el('h3', {}, 'Response headers'));
     const table = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Header'), el('th', {}, 'Value'))));
@@ -623,15 +549,48 @@ function renderResponse(res, text, ms, url){
   }
 }
 
+/* ========= Authorize ========= */
+function updateAuthUI(){
+  const btn = $('#authBtn');
+  if (GLOBAL_BEARER){
+    btn.textContent = 'Authorized';
+    btn.style.background = '#d1fae5';
+    btn.style.color = '#065f46';
+  }else{
+    btn.textContent = 'Authorize';
+    btn.style.background = '';
+    btn.style.color = '';
+  }
+}
+$('#authBtn').addEventListener('click', ()=>{
+  $('#authModal').hidden = false;
+  $('#authToken').value = GLOBAL_BEARER || '';
+  $('#authState').style.display = GLOBAL_BEARER ? '' : 'none';
+  $('#authState').textContent = GLOBAL_BEARER ? 'Токен установлен' : '';
+});
+$('#authCancel').addEventListener('click', ()=> $('#authModal').hidden = true);
+$('#authSave').addEventListener('click', ()=>{
+  GLOBAL_BEARER = $('#authToken').value.trim();
+  localStorage.setItem('global_bearer', GLOBAL_BEARER);
+  updateAuthUI();
+  $('#authModal').hidden = true;
+});
+$('#authClear').addEventListener('click', ()=>{
+  GLOBAL_BEARER = '';
+  localStorage.removeItem('global_bearer');
+  updateAuthUI();
+  $('#authState').style.display = 'none';
+  $('#authToken').value = '';
+});
 
 /* ========= Loaders & session ========= */
 $('#collectionFile').addEventListener('change', onCollectionUpload);
 $('#envFile').addEventListener('change', onEnvUpload);
 $('#clearBtn').addEventListener('click', ()=>{
-  localStorage.removeItem('pm_collection'); localStorage.removeItem('pm_env');
-  COLLECTION=null; ENV=null; VARS={}; ITEMS_FLAT=[]; CURRENT_REQ_ID=null;
+  localStorage.removeItem('pm_collection'); localStorage.removeItem('pm_env'); localStorage.removeItem('global_bearer');
+  COLLECTION=null; ENV=null; VARS={}; ITEMS_FLAT=[]; CURRENT_REQ_ID=null; GLOBAL_BEARER='';
   $('#tree').innerHTML=''; $('#reqPane').innerHTML=''; $('#resPane').innerHTML='';
-  $('#loadedInfo').textContent = '';
+  $('#loadedInfo').textContent = ''; updateAuthUI();
   $('#colLabel').style.display=''; $('#envLabel').style.display='';
   alert('Сессия очищена');
 });
@@ -670,6 +629,7 @@ function autoOpenFirst(){
 
 /* === Автозагрузка из корня (или путей из query) === */
 (async function bootstrap(){
+  updateAuthUI();
   let loadedSomething = false;
   try{
     const colRes = await fetch(DEFAULT_COLLECTION_PATH, {cache:'no-cache'});
@@ -693,8 +653,5 @@ function autoOpenFirst(){
   }
 })();
 </script>
-<div id="loader" class="loaderOverlay" hidden>
-  <div class="spinner"></div>
-</div>
 </body>
 </html>
