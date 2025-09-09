@@ -1,644 +1,600 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Аналізатор .har файлів</title>
-    <!-- Подключение библиотеки EmailJS -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-radius: 10px;
-            background-color: #fff;
-        }
-        h1 {
-            color: #1a1a1a;
-            text-align: center;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-        input[type="url"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        .controls-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px auto;
-            flex-wrap: wrap;
-        }
-        #har-file-input {
-            opacity: 0;
-            position: absolute;
-            z-index: -1;
-        }
-        .file-upload-label {
-            display: inline-block;
-            padding: 12px 30px;
-            border: 2px dashed #007aff;
-            border-radius: 8px;
-            cursor: pointer;
-            color: #007aff;
-            background-color: #f4f7ff;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .file-upload-label:hover {
-            background-color: #eaf2ff;
-        }
-        #compare-button {
-            padding: 14px 30px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-            background-color: #007aff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        #compare-button:hover:not(:disabled) {
-            background-color: #0056b3;
-        }
-        #compare-button:disabled {
-            background-color: #c7c7cc;
-            cursor: not-allowed;
-        }
-        #file-name {
-            width: 100%;
-            text-align: center;
-            margin-top: 10px;
-            font-style: italic;
-            color: #5f6368;
-        }
-        #status-message {
-            text-align: center;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        .results-section {
-            margin-top: 30px;
-            border-top: 1px solid #e0e0e0;
-            padding-top: 20px;
-        }
-        h2 {
-            color: #1a1a1a;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            background-color: #f9f9f9;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 8px;
-            word-break: break-all;
-            transition: background-color 0.2s;
-        }
-        #device-info-details li {
-             border-left: 4px solid #007aff;
-        }
-        /* Стили для пропущенных событий */
-        #missing-event-list li {
-            border-left: 4px solid #af52de;
-            cursor: pointer;
-        }
-        #missing-event-list li:hover {
-             background-color: #f0f0f0;
-        }
-        #missing-event-list li.active {
-             background-color: #e9e9f0;
-        }
-        /* Стили для новых/неизвестных событий */
-        #unknown-event-list li {
-             border-left: 4px solid #ff9500;
-        }
-        .spoiler-content {
-            display: none;
-            padding: 10px;
-            margin-top: 10px;
-            background-color: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            color: #555;
-        }
-        .error {
-            color: #d93025;
-            font-weight: bold;
-            border-left-color: #d93025;
-            cursor: default;
-        }
-        .empty {
-             color: #5f6368;
-             border-left-color: #34c759; /* Зеленый, если все в порядке */
-             cursor: default;
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mini Postman Viewer (Swagger-like)</title>
+<style>
+  :root{
+    --bg:#0f1216; --panel:#151a21; --muted:#677285; --fg:#e7ecf3; --accent:#7cc0ff; --ok:#1ec28b; --warn:#ffcc66; --err:#ff7b7b; --divider:#223042;
+    --code:#0b0f14;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;
+    background:var(--bg); color:var(--fg);
+    display:grid; grid-template-columns: 320px 1fr; grid-template-rows: 56px calc(100dvh - 56px);
+    grid-template-areas: "top top" "left right";
+  }
+  header{
+    grid-area:top; display:flex; gap:12px; align-items:center; padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--divider);
+  }
+  header h1{font-size:16px; margin:0; letter-spacing:.2px; color:var(--accent)}
+  .bar{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .btn, button{background:#202938; color:var(--fg); border:1px solid var(--divider); padding:8px 10px; border-radius:8px; cursor:pointer}
+  .btn:hover, button:hover{border-color:#3a4b66}
+  input[type="file"]{display:none}
+  label.file{padding:8px 10px; border:1px dashed var(--divider); border-radius:8px; cursor:pointer}
+  .left{grid-area:left; border-right:1px solid var(--divider); overflow:auto; background:var(--panel)}
+  .right{grid-area:right; overflow:auto}
+  .section{padding:12px}
+  .search{width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider); background:#0f141b; color:var(--fg)}
+  .tree{margin-top:12px}
+  .node{padding:8px 10px; border-bottom:1px dashed rgba(255,255,255,0.05)}
+  .folder{color:var(--muted); font-weight:600; text-transform:uppercase; font-size:12px}
+  .item{display:flex; align-items:center; gap:10px; cursor:pointer}
+  .method{font-weight:700; font-size:11px; padding:2px 6px; border-radius:6px; min-width:42px; text-align:center}
+  .mGET{background:#123a2d; color:var(--ok)}
+  .mPOST{background:#2b2033; color:#d39bff}
+  .mPUT{background:#2b2e15; color:#d7df66}
+  .mPATCH{background:#2e1f12; color:#ffa36b}
+  .mDELETE{background:#3a1416; color:var(--err)}
+  .item:hover{background:#10151d}
+  .title{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#d8deea}
+  .path{color:var(--muted); font-size:12px}
+  .pane{max-width:1100px; margin:18px auto; padding:0 18px 80px}
+  .card{background:var(--panel); border:1px solid var(--divider); border-radius:12px; overflow:hidden; margin-bottom:16px}
+  .card h3{margin:0; padding:12px 14px; border-bottom:1px solid var(--divider); font-size:14px; letter-spacing:.2px; color:#cfe7ff; background:#12161c}
+  .row{display:grid; grid-template-columns: 110px 1fr; gap:8px; padding:10px 12px; align-items:center}
+  .row input, .row textarea, .row select{
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider); background:#0f141b; color:var(--fg); font-family:inherit; font-size:14px
+  }
+  textarea.code{min-height:160px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+  .kvs{padding:10px 12px}
+  table{width:100%; border-collapse:collapse; font-size:14px}
+  th, td{border-bottom:1px solid var(--divider); padding:8px}
+  th{color:#b0bfd8; text-align:left; background:#10151d; position:sticky; top:0}
+  .actions{display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--divider); background:#10151d; position:sticky; bottom:0}
+  .send{background:var(--accent); color:#001428; font-weight:700; border:none}
+  .meta{display:flex; gap:12px; font-size:12px; color:var(--muted)}
+  .status.ok{color:var(--ok)} .status.err{color:var(--err)}
+  pre{margin:0; padding:12px; background:var(--code); color:#cfe7ff; overflow:auto}
+  .pill{border:1px solid var(--divider); padding:4px 8px; border-radius:999px; font-size:12px; color:#b8c7de}
+  .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
+  .small{font-size:12px; color:var(--muted)}
+  .muted{color:var(--muted)}
+  .inline{display:flex; gap:8px; align-items:center}
+</style>
 </head>
 <body>
-
-    <h1>Завантажувач та аналізатор .har файлів</h1>
-
-    <div class="input-group">
-        <label for="sheet-url-input">URL Google Таблиці:</label>
-        <input type="url" id="sheet-url-input" placeholder="Вставте посилання на публічну Google Таблицю...">
+  <header>
+    <h1>Postman → Swagger-like Viewer</h1>
+    <div class="bar">
+      <label class="file">Коллекция
+        <input id="collectionFile" type="file" accept=".json,application/json" />
+      </label>
+      <label class="file">Окружение
+        <input id="envFile" type="file" accept=".json,application/json" />
+      </label>
+      <button id="clearBtn" title="Очистить сессию">Сброс</button>
+      <span class="small muted">Proxy prefix:</span>
+      <input id="proxyPrefix" placeholder="например, http://localhost:8080/" style="width:280px;padding:8px;border-radius:8px;border:1px solid var(--divider);background:#0f141b;color:var(--fg)" />
     </div>
+  </header>
 
-    <div class="controls-wrapper">
-        <label for="har-file-input" class="file-upload-label">Оберіть .har файл</label>
-        <input type="file" id="har-file-input" accept=".har">
-        <button id="compare-button" disabled>Зробити порівняння</button>
+  <aside class="left">
+    <div class="section">
+      <input id="search" class="search" placeholder="Поиск по названию/пути…" />
+      <div id="tree" class="tree"></div>
     </div>
-    <div id="file-name">Файл не обрано</div>
-    
-    <div id="status-message"></div>
+  </aside>
 
-    <div id="device-info-container" class="results-section">
-        <h2>Інформація про пристрій та версію:</h2>
-        <ul id="device-info-details">
-             <li class="empty">Інформація не знайдена...</li>
-        </ul>
+  <main class="right">
+    <div class="pane">
+      <div class="card">
+        <h3>Добро пожаловать</h3>
+        <div class="section">
+          Загрузите <strong>Postman-коллекцию</strong> и при желании <strong>Environment</strong>.
+          Мы подтянем переменные <code>{{var}}</code>, распарсим запросы и дадим возможность выполнить их прямо отсюда.
+          <div style="margin-top:10px" class="muted small">
+            Поддерживается: folders, request.url (string/object), params, headers, raw JSON body, Bearer-auth, env & collection variables.<br/>
+            Подводные камни: CORS. Если ваш API не выдаёт CORS-заголовки — используйте прокси (укажите префикс выше).
+          </div>
+        </div>
+      </div>
+
+      <div id="reqPane"></div>
+      <div id="resPane"></div>
     </div>
+  </main>
 
-    <div id="results-container" class="results-section">
-        <h2>Події з таблиці, які не знайдено у файлі:</h2>
-        <ul id="missing-event-list">
-            <li class="empty">Тут буде список пропущених подій...</li>
-        </ul>
-    </div>
+<script>
+/* ========= Utilities ========= */
+const $ = sel => document.querySelector(sel);
+const el = (tag, attrs={}, ...children) => {
+  const n = document.createElement(tag);
+  Object.entries(attrs).forEach(([k,v])=>{
+    if (k === 'class') n.className = v;
+    else if (k === 'dataset') Object.assign(n.dataset, v);
+    else if (k.startsWith('on') && typeof v === 'function') n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v);
+  });
+  children.forEach(c => n.append(c));
+  return n;
+};
 
-    <div id="unknown-results-container" class="results-section">
-        <h2>Події, знайдені у файлі, але відсутні у таблиці:</h2>
-        <ul id="unknown-event-list">
-            <li class="empty">Тут буде список нових/невідомих подій...</li>
-        </ul>
-    </div>
+function debounce(fn, ms=250){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
 
-    <script>
-        // --- НАСТРОЙКА EMAILJS ---
-        // ЗАМЕНИТЕ НА ВАШИ ДАННЫЕ С САЙТА emailjs.com
-        const EMAILJS_SERVICE_ID = 'service_3kwzdot';
-        const EMAILJS_TEMPLATE_ID = 'template_q5xaywa';
-        const EMAILJS_USER_ID = 'qZLCGx6dDb35IBL6p';
+function prettyJSON(objOrText){
+  try{
+    if (typeof objOrText === 'string') return JSON.stringify(JSON.parse(objOrText), null, 2);
+    return JSON.stringify(objOrText, null, 2);
+  }catch{ return String(objOrText); }
+}
 
-        // Инициализация EmailJS
-        (function() {
-            emailjs.init(EMAILJS_USER_ID);
-        })();
-        // -------------------------
+function sizeBytes(val){
+  try{
+    const bytes = (new TextEncoder()).encode(typeof val==='string'?val:JSON.stringify(val)).length;
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(1)+' KB';
+    return (bytes/1024/1024).toFixed(1)+' MB';
+  }catch{ return '—'; }
+}
 
-        const fileInput = document.getElementById('har-file-input');
-        const missingEventList = document.getElementById('missing-event-list');
-        const unknownEventList = document.getElementById('unknown-event-list');
-        const deviceInfoDetails = document.getElementById('device-info-details');
-        const fileNameSpan = document.getElementById('file-name');
-        const statusMessage = document.getElementById('status-message');
-        const sheetUrlInput = document.getElementById('sheet-url-input');
-        const compareButton = document.getElementById('compare-button');
+/* ========= Postman parsing & variable resolution ========= */
+let COLLECTION = null;
+let ENV = null;
+let VARS = {}; // merged env + collection variables
+let ITEMS_FLAT = []; // flattened {id,path,name,request}
 
-        let selectedHarFile = null;
+function buildVarMap(){
+  const map = {};
+  // env
+  if (ENV && Array.isArray(ENV.values)){
+    ENV.values.forEach(v=>{
+      if (!v) return;
+      const key = v.key ?? v.name;
+      const val = (v.value ?? v.currentValue ?? v.initialValue);
+      if (key) map[key] = val;
+    });
+  }
+  // collection variables (v2.1)
+  if (COLLECTION && Array.isArray(COLLECTION.variable)){
+    COLLECTION.variable.forEach(v=>{
+      if (!v) return;
+      const key = v.key ?? v.name;
+      const val = (v.value ?? v.currentValue ?? v.initialValue);
+      if (key && map[key]==null) map[key] = val;
+    });
+  }
+  VARS = map;
+}
 
-        fileInput.addEventListener('change', handleFileSelect);
-        sheetUrlInput.addEventListener('input', updateButtonState);
-        compareButton.addEventListener('click', startComparison);
-        
-        function updateButtonState() {
-            const urlEntered = sheetUrlInput.value.trim() !== '';
-            const fileSelected = selectedHarFile !== null;
-            compareButton.disabled = !(urlEntered && fileSelected);
-        }
+function resolveVars(str, extra={}){
+  if (typeof str !== 'string') return str;
+  return str.replace(/{{\s*([^}]+)\s*}}/g, (_, k)=>{
+    const val = (extra && extra[k] != null) ? extra[k] : (VARS[k] != null ? VARS[k] : '');
+    return String(val);
+  });
+}
 
-        function handleFileSelect(event) {
-            selectedHarFile = event.target.files[0];
-            if (selectedHarFile) {
-                fileNameSpan.textContent = `Обрано файл: ${selectedHarFile.name}`;
-            } else {
-                fileNameSpan.textContent = 'Файл не обрано';
-            }
-            updateButtonState();
-        }
-        
-        function convertGoogleSheetUrlToCsvUrl(url) {
-            const idRegex = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/;
-            const idMatch = url.match(idRegex);
+function normalizeUrl(u){
+  if (!u) return '';
+  if (typeof u === 'string') return u;
+  // Postman URL object
+  let raw = u.raw || '';
+  if (!raw){
+    const protocol = u.protocol ? u.protocol + '://' : '';
+    const host = Array.isArray(u.host) ? u.host.join('.') : (u.host||'');
+    const path = Array.isArray(u.path) ? '/'+u.path.join('/') : (u.path||'');
+    const query = Array.isArray(u.query) && u.query.length
+      ? '?' + u.query.filter(q=>!q.disabled).map(q=>`${q.key}=${q.value??''}`).join('&') : '';
+    raw = protocol + host + path + query;
+  }
+  return raw;
+}
 
-            if (!idMatch || !idMatch[1]) {
-                return null;
-            }
-            const sheetId = idMatch[1];
+function flattenItems(node, path=[]){
+  if (!node) return;
+  if (Array.isArray(node)) { node.forEach(n=>flattenItems(n, path)); return; }
+  if (node.item){ // folder
+    const newPath = node.name ? path.concat(node.name) : path;
+    node.item.forEach(child=>flattenItems(child, newPath));
+    return;
+  }
+  // leaf request
+  if (node.request){
+    ITEMS_FLAT.push({
+      id: crypto.randomUUID(),
+      path: path.join(' / '),
+      name: node.name || '(без названия)',
+      request: node.request
+    });
+  }
+}
 
-            const gidRegex = /[#&]gid=(\d+)/;
-            const gidMatch = url.match(gidRegex);
-            
-            let csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+function methodColorCls(m){
+  const up = (m||'GET').toUpperCase();
+  return 'method m'+up;
+}
 
-            if (gidMatch && gidMatch[1]) {
-                const gid = gidMatch[1];
-                csvUrl += `&gid=${gid}`;
-            }
-            
-            return csvUrl;
-        }
+/* ========= UI: tree ========= */
+function renderTree(filter=''){
+  const tree = $('#tree');
+  tree.innerHTML = '';
+  const match = (s) => s.toLowerCase().includes(filter.toLowerCase());
+  // Build a grouped map path -> items
+  const groups = {};
+  ITEMS_FLAT.forEach(it=>{
+    const key = it.path || 'ROOT';
+    if (filter && !(match(it.name) || match(key) || match(normalizeUrl(it.request.url)))) return;
+    groups[key] ??= [];
+    groups[key].push(it);
+  });
 
-        async function fetchKnownEvents(userUrl) {
-            const csvUrl = convertGoogleSheetUrlToCsvUrl(userUrl);
-            if (!csvUrl) {
-                throw new Error('Невірний URL Google Таблиці. Переконайтеся, що посилання коректне.');
-            }
-            
-            statusMessage.textContent = 'Завантаження списку відомих подій з Google Sheets...';
-            statusMessage.style.color = '#007aff';
+  Object.entries(groups).forEach(([folder, items])=>{
+    const g = el('div', {class:'node'});
+    g.append(el('div', {class:'folder'}, folder === 'ROOT' ? 'Без папки' : folder));
+    items.forEach(it=>{
+      const urlRaw = normalizeUrl(it.request.url);
+      const urlResolved = resolveVars(urlRaw);
+      const row = el('div', {class:'item', onclick:()=>openRequest(it)});
+      row.append(el('span', {class:methodColorCls(it.request.method)}, it.request.method || 'GET'));
+      row.append(el('div', {style:'flex:1;min-width:0'},
+        el('div', {class:'title'}, it.name),
+        el('div', {class:'path'}, urlResolved || urlRaw)
+      ));
+      g.append(row);
+    });
+    tree.append(g);
+  });
+}
 
-            try {
-                const response = await fetch(csvUrl);
-                if (!response.ok) {
-                    throw new Error(`Мережева помилка: ${response.statusText}`);
-                }
-                const csvText = await response.text();
-                
-                const knownEventsMap = new Map();
-                const rows = csvText.split('\n');
-                const startIndex = rows[0].toLowerCase().includes("event_type") ? 1 : 0;
+/* ========= UI: request editor ========= */
+let CURRENT_REQ_ID = null;
+let LAST_REQUEST_OPTS = null;
 
-                for (let i = startIndex; i < rows.length; i++) {
-                    const row = rows[i].trim();
-                    if (row.length === 0) continue;
-                    
-                    const cleanedRow = row.startsWith('"') && row.endsWith('"') ? row.slice(1, -1) : row;
-                    const columns = cleanedRow.split('","');
-                    
-                    const eventType = columns[0];
-                    const description = columns[1] || 'Опис не надано.';
+function buildKVRows(arr){
+  const tbody = el('tbody');
+  (arr||[]).forEach((x,i)=>{
+    const tr = el('tr');
+    tr.append(el('td', {}, el('input', {value: x.key ?? '', 'data-idx': i, 'data-field':'key'})));
+    tr.append(el('td', {}, el('input', {value: x.value ?? '', 'data-idx': i, 'data-field':'value'})));
+    tr.append(el('td', {}, el('input', {value: x.description?.toString() ?? '', 'data-idx': i, 'data-field':'desc'})));
+    tr.append(el('td', {}, el('input', {type:'checkbox', checked: !x.disabled, 'data-idx': i, 'data-field':'enabled'})));
+    tbody.append(tr);
+  });
+  // + blank row
+  const tr = el('tr');
+  tr.append(el('td', {}, el('input', {'data-idx':'new','data-field':'key', placeholder:'key'})));
+  tr.append(el('td', {}, el('input', {'data-idx':'new','data-field':'value', placeholder:'value'})));
+  tr.append(el('td', {}, el('input', {'data-idx':'new','data-field':'desc', placeholder:'desc'})));
+  tr.append(el('td', {}, el('input', {type:'checkbox','data-idx':'new','data-field':'enabled', checked:true})));
+  tbody.append(tr);
+  return tbody;
+}
 
-                    if (eventType) {
-                        knownEventsMap.set(eventType, description);
-                    }
-                }
-                
-                statusMessage.textContent = 'Список відомих подій успішно завантажено.';
-                statusMessage.style.color = '#34c759';
-                return knownEventsMap;
+function tableToArray(tbody){
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const out = [];
+  rows.forEach(tr=>{
+    const inputs = tr.querySelectorAll('input');
+    const entry = {key:'',value:'',description:'',disabled:false};
+    inputs.forEach(inp=>{
+      const field = inp.dataset.field;
+      if (field==='enabled') entry.disabled = !inp.checked;
+      else entry[field] = inp.value;
+    });
+    if (entry.key || entry.value) out.push(entry);
+  });
+  return out;
+}
 
-            } catch (error) {
-                statusMessage.textContent = `Помилка завантаження таблиці: ${error.message}`;
-                statusMessage.style.color = '#d93025';
-                console.error('Ошибка при загрузке Google Sheet:', error);
-                throw error;
-            }
-        }
+function openRequest(item){
+  CURRENT_REQ_ID = item.id;
+  const pane = $('#reqPane');
+  const req = item.request;
+  const method = (req.method || 'GET').toUpperCase();
+  const urlRaw = normalizeUrl(req.url);
+  const urlResolved = resolveVars(urlRaw);
 
-        async function startComparison() {
-            const userUrl = sheetUrlInput.value.trim();
-            missingEventList.innerHTML = '<li class="empty">...</li>';
-            unknownEventList.innerHTML = '<li class="empty">...</li>';
-            deviceInfoDetails.innerHTML = '<li class="empty">...</li>';
+  // Params from URL.query if object-form
+  let queryArr = [];
+  if (typeof req.url === 'object' && Array.isArray(req.url.query)){
+    queryArr = req.url.query.map(q=>({key:q.key, value: resolveVars(q.value??''), description:q.description||'', disabled: !!q.disabled}));
+  }
 
-            try {
-                const knownEventsMap = await fetchKnownEvents(userUrl);
+  // Headers
+  let headersArr = [];
+  if (Array.isArray(req.header)){
+    headersArr = req.header.map(h=>({key:h.key, value: resolveVars(h.value??''), description:h.description||'', disabled: !!h.disabled}));
+  }
 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const harData = JSON.parse(e.target.result);
-                        
-                        const deviceInfo = findDeviceObject(harData);
-                        const appVersion = findAppVersion(harData);
-                        displayDeviceInfo(deviceInfo, appVersion);
-                        
-                        const harEventsArray = findEventTypesAdvanced(harData);
-                        const harEventsSet = new Set(harEventsArray);
-                        
-                        const missingEvents = Array.from(knownEventsMap.keys()).filter(event => !harEventsSet.has(event));
-                        const unknownEvents = harEventsArray.filter(event => !knownEventsMap.has(event));
-                        
-                        displayMissingEvents(missingEvents, knownEventsMap);
-                        displayUnknownEvents(unknownEvents);
+  // Auth: bearer
+  if (req.auth && req.auth.type === 'bearer'){
+    const token = (req.auth.bearer||[]).find(x=>x.key==='token')?.value || VARS.token || VARS.access_token || '';
+    if (token){
+      const hasAuth = headersArr.some(h=>!h.disabled && h.key.toLowerCase()==='authorization');
+      if (!hasAuth){
+        headersArr.unshift({key:'Authorization', value:'Bearer '+resolveVars(token), description:'(from auth bearer)', disabled:false});
+      }
+    }
+  }
 
-                        // После анализа отправляем отчет
-                        sendEmailReport(missingEvents, unknownEvents, userUrl, deviceInfo, appVersion);
+  // Body
+  let bodyMode = req.body?.mode || 'raw';
+  let bodyRaw = '';
+  if (req.body?.raw != null) bodyRaw = resolveVars(req.body.raw);
+  // x-www-form-urlencoded / formdata (basic support)
+  let formArr = [];
+  if (Array.isArray(req.body?.urlencoded)){
+    formArr = req.body.urlencoded.map(p=>({key:p.key, value:resolveVars(p.value??''), description:p.description||'', disabled:!!p.disabled}));
+    bodyMode = 'urlencoded';
+  }
+  if (Array.isArray(req.body?.formdata)){
+    formArr = req.body.formdata.filter(p=>p.type!=='file').map(p=>({key:p.key, value:resolveVars(p.value??''), description:p.description||'', disabled:!!p.disabled}));
+    bodyMode = 'formdata';
+  }
 
-                    } catch (error) {
-                        displayError("Помилка! Не вдалося прочитати файл. Переконайтеся, що це коректний .har (JSON) файл.");
-                        console.error("Ошибка парсинга HAR файла:", error);
-                    }
-                };
-                reader.readAsText(selectedHarFile);
+  pane.innerHTML = '';
+  const card = el('div', {class:'card'});
+  card.append(el('h3', {}, 'Запрос'));
+  const body = el('div');
 
-            } catch (error) {
-                return;
-            }
-        }
+  // Method & URL
+  const methodSel = el('select', {id:'methodSel'},
+    ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected: m===method}, m))
+  );
+  const urlInp = el('input', {id:'urlInp', value: urlResolved || urlRaw});
 
-        function findDeviceObject(harData) {
-            let deviceObject = null;
-            const requiredKeys = ['brand', 'model', 'os_version', 'os'];
+  body.append(el('div', {class:'row'},
+    el('div', {class:'inline'}, el('span', {class:methodColorCls(method)}, method), methodSel),
+    urlInp
+  ));
 
-            function recursiveDeviceSearch(obj) {
-                if (deviceObject) return; // Stop if already found
-                if (typeof obj !== 'object' || obj === null) return;
+  // Query
+  const queryCard = el('div', {class:'card'});
+  queryCard.append(el('h3', {}, 'Query params'));
+  const qWrap = el('div', {class:'kvs'});
+  const qTable = el('table', {},
+    el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))),
+    buildKVRows(queryArr)
+  );
+  qWrap.append(qTable); queryCard.append(qWrap);
 
-                if (obj.hasOwnProperty('device')) {
-                    const potentialDevice = obj.device;
-                    const hasAllKeys = requiredKeys.every(key => potentialDevice.hasOwnProperty(key));
-                    if (hasAllKeys) {
-                        deviceObject = potentialDevice;
-                        return;
-                    }
-                }
+  // Headers
+  const hdrCard = el('div', {class:'card'});
+  hdrCard.append(el('h3', {}, 'Headers'));
+  const hWrap = el('div', {class:'kvs'});
+  const hTable = el('table', {},
+    el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))),
+    buildKVRows(headersArr)
+  );
+  hWrap.append(hTable); hdrCard.append(hWrap);
 
-                for (const k in obj) {
-                    if (obj.hasOwnProperty(k)) {
-                        recursiveDeviceSearch(obj[k]);
-                    }
-                }
-            }
-            
-            if (harData && harData.log && harData.log.entries) {
-                for (const entry of harData.log.entries) {
-                    if (deviceObject) break;
-                    const textSources = [];
-                    if (entry.request?.postData?.text) textSources.push(entry.request.postData.text);
-                    if (entry.response?.content?.text) textSources.push(entry.response.content.text);
-                    
-                    for (const text of textSources) {
-                        try {
-                            recursiveDeviceSearch(JSON.parse(text));
-                            if(deviceObject) break;
-                        } catch (e) { /* ignore */ }
-                    }
-                }
-            }
-            return deviceObject;
-        }
+  // Body
+  const bodyCard = el('div', {class:'card'});
+  bodyCard.append(el('h3', {}, 'Body'));
+  const bWrap = el('div', {class:'section'});
+  const bodyModeSel = el('select', {id:'bodyModeSel'},
+    el('option', {value:'raw', selected: bodyMode==='raw'}, 'raw (JSON/text)'),
+    el('option', {value:'urlencoded', selected: bodyMode==='urlencoded'}, 'x-www-form-urlencoded'),
+    el('option', {value:'formdata', selected: bodyMode==='formdata'}, 'multipart/form-data (text only)')
+  );
+  const bodyArea = el('textarea', {id:'bodyRaw', class:'code', placeholder:'Тело запроса…'}, bodyMode==='raw'?bodyRaw:'');
+  const formTable = el('table', {id:'formTable', style: bodyMode==='raw'?'display:none':''},
+    el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))),
+    buildKVRows(formArr)
+  );
 
-        function findAppVersion(harData) {
-            let appVersion = null;
+  bWrap.append(el('div', {class:'row'},
+    el('div', {}, el('span', {class:'muted'}, 'Тип тела')), bodyModeSel
+  ));
+  bWrap.append(bodyArea);
+  bWrap.append(el('div', {class:'kvs'}, formTable));
+  bodyCard.append(bWrap);
 
-            function recursiveSearch(obj) {
-                if (appVersion) return; // Stop if already found
-                if (typeof obj !== 'object' || obj === null) return;
+  // Actions
+  const actions = el('div', {class:'actions'});
+  const sendBtn = el('button', {class:'send', id:'sendBtn'}, 'Send');
+  const curlBtn = el('button', {id:'curlBtn'}, 'Copy cURL');
+  const meta = el('div', {class:'meta', style:'margin-left:auto'});
+  actions.append(sendBtn, curlBtn, meta);
 
-                if (obj.hasOwnProperty('app') && typeof obj.app === 'object' && obj.app !== null && obj.app.hasOwnProperty('version')) {
-                    appVersion = obj.app.version;
-                    return;
-                }
-                
-                if (obj.hasOwnProperty('event_type') && obj.event_type === 'app' && obj.hasOwnProperty('version')) {
-                    appVersion = obj.version;
-                    return;
-                }
+  card.append(body, queryCard, hdrCard, bodyCard, actions);
+  pane.append(card);
 
-                for (const k in obj) {
-                    if (obj.hasOwnProperty(k)) {
-                        recursiveSearch(obj[k]);
-                    }
-                }
-            }
+  // handlers
+  bodyModeSel.addEventListener('change', ()=>{
+    if (bodyModeSel.value==='raw'){ bodyArea.style.display='block'; formTable.style.display='none'; }
+    else{ bodyArea.style.display='none'; formTable.style.display='table'; }
+  });
 
-            if (harData && harData.log && harData.log.entries) {
-                for (const entry of harData.log.entries) {
-                    if (appVersion) break;
-                    const textSources = [];
-                    if (entry.request?.postData?.text) textSources.push(entry.request.postData.text);
-                    if (entry.response?.content?.text) textSources.push(entry.response.content.text);
+  sendBtn.addEventListener('click', async ()=>{
+    const finalUrl = buildFinalUrl(urlInp.value, tableToArray(qTable.tBodies[0]));
+    const headers = kvToObj(tableToArray(hTable.tBodies[0]));
+    const method = methodSel.value;
+    const bodyMode = bodyModeSel.value;
 
-                    for (const text of textSources) {
-                        try {
-                            recursiveSearch(JSON.parse(text));
-                            if (appVersion) break;
-                        } catch (e) { /* ignore */ }
-                    }
-                }
-            }
-            return appVersion;
-        }
+    let body = undefined;
+    if (method !== 'GET' && method !== 'HEAD'){
+      if (bodyMode==='raw'){
+        body = bodyArea.value || '';
+        // infer JSON header if looks like JSON and header not present
+        try{ JSON.parse(body); if (!Object.keys(headers).some(h=>h.toLowerCase()==='content-type')) headers['Content-Type']='application/json'; }catch{}
+      }else if (bodyMode==='urlencoded'){
+        const params = tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled);
+        body = new URLSearchParams(); params.forEach(p=>body.append(p.key, p.value));
+        if (!Object.keys(headers).some(h=>h.toLowerCase()==='content-type')) headers['Content-Type']='application/x-www-form-urlencoded';
+      }else if (bodyMode==='formdata'){
+        const params = tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled);
+        const fd = new FormData(); params.forEach(p=>fd.append(p.key, p.value));
+        body = fd;
+        // let browser set proper boundary; do not set Content-Type
+      }
+    }
 
-        function findEventTypesAdvanced(harData) {
-            const foundEvents = new Set();
-            const searchKey = 'event_type';
+    const proxy = $('#proxyPrefix').value.trim();
+    const targetUrl = proxy ? proxy + finalUrl : finalUrl;
 
-            function recursiveSearch(obj) {
-                if (typeof obj !== 'object' || obj === null) return;
-                if (searchKey in obj) foundEvents.add(String(obj[searchKey]));
-                for (const k in obj) if (obj.hasOwnProperty(k)) recursiveSearch(obj[k]);
-            }
-            
-            function parseUrlEncoded(text) {
-                try {
-                    const params = new URLSearchParams(text);
-                    if (params.has(searchKey)) foundEvents.add(params.get(searchKey));
-                } catch(e) { /* Игнорируем */ }
-            }
+    const ctrl = new AbortController();
+    const started = performance.now();
+    let res, text, ok=false, error=null;
+    try{
+      res = await fetch(targetUrl, { method, headers, body, signal: ctrl.signal });
+      const ct = res.headers.get('content-type') || '';
+      text = await res.text();
+      ok = res.ok;
+      renderResponse(res, text, performance.now()-started, finalUrl);
+    }catch(e){
+      error = e;
+      renderResponse(null, String(e), performance.now()-started, finalUrl);
+    }
 
-            if (harData && harData.log && harData.log.entries) {
-                for (const entry of harData.log.entries) {
-                    if (entry.request && entry.request.url) {
-                        try {
-                            const url = new URL(entry.request.url);
-                            if (url.searchParams.has(searchKey)) foundEvents.add(url.searchParams.get(searchKey));
-                        } catch(e) { /* Игнорируем */ }
-                    }
+    LAST_REQUEST_OPTS = {method, finalUrl, headers, body, bodyMode};
+    meta.innerHTML = '';
+  });
 
-                    if (entry.request && entry.request.postData && entry.request.postData.text) {
-                        const text = entry.request.postData.text;
-                        try {
-                            recursiveSearch(JSON.parse(text));
-                        } catch (e) {
-                            parseUrlEncoded(text);
-                        }
-                    }
-                    
-                     if (entry.response && entry.response.content && entry.response.content.text) {
-                        try {
-                            recursiveSearch(JSON.parse(entry.response.content.text));
-                        } catch (e) { /* Игнорируем */ }
-                    }
-                }
-            }
-            return Array.from(foundEvents);
-        }
+  curlBtn.addEventListener('click', ()=>{
+    const finalUrl = buildFinalUrl(urlInp.value, tableToArray(qTable.tBodies[0]));
+    const headers = kvToObj(tableToArray(hTable.tBodies[0]));
+    const method = methodSel.value;
+    const bodyMode = bodyModeSel.value;
+    let bodyStr = '';
 
-        function displayDeviceInfo(deviceInfo, appVersion) {
-            deviceInfoDetails.innerHTML = '';
-            let infoFound = false;
-            if (deviceInfo) {
-                infoFound = true;
-                for (const key in deviceInfo) {
-                    if (deviceInfo.hasOwnProperty(key)) {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<strong>${key}:</strong> ${deviceInfo[key]}`;
-                        deviceInfoDetails.appendChild(li);
-                    }
-                }
-            }
-            if (appVersion) {
-                infoFound = true;
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>version:</strong> ${appVersion}`;
-                deviceInfoDetails.appendChild(li);
-            }
+    if (bodyMode==='raw'){
+      const val = $('#bodyRaw').value || '';
+      if (val) bodyStr = ` --data '${val.replace(/'/g,"'\\''")}'`;
+    }else if (bodyMode==='urlencoded'){
+      const params = tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled);
+      const usp = new URLSearchParams(); params.forEach(p=>usp.append(p.key, p.value));
+      const val = usp.toString();
+      if (val) bodyStr = ` --data '${val.replace(/'/g,"'\\''")}'`;
+    }else if (bodyMode==='formdata'){
+      const params = tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled);
+      bodyStr = params.map(p=>` -F ${shEsc(p.key)}=${shEsc(p.value)}`).join('');
+    }
 
-            if (!infoFound) {
-                const li = document.createElement('li');
-                li.className = 'empty';
-                li.textContent = 'Інформація про пристрій та версію не знайдена...';
-                deviceInfoDetails.appendChild(li);
-            }
-        }
+    const hdrStr = Object.entries(headers).map(([k,v])=>` -H ${shEsc(k+': '+v)}`).join('');
+    const cmd = `curl -X ${method}${hdrStr}${bodyStr} ${shEsc(finalUrl)}`;
+    navigator.clipboard.writeText(cmd);
+    alert('cURL скопирован в буфер обмена');
+  });
+}
 
-        function displayMissingEvents(events, knownEventsMap) {
-            missingEventList.innerHTML = '';
+function shEsc(s){ return `'${String(s).replace(/'/g,"'\\''")}'`; }
 
-            if (events.length > 0) {
-                events.forEach(eventType => {
-                    const li = document.createElement('li');
-                    
-                    const eventNameSpan = document.createElement('span');
-                    eventNameSpan.textContent = eventType;
-                    li.appendChild(eventNameSpan);
-                    
-                    const description = knownEventsMap.get(eventType) || 'Опис для цієї події не знайдено в таблиці.';
-                    
-                    const spoilerDiv = document.createElement('div');
-                    spoilerDiv.className = 'spoiler-content';
-                    spoilerDiv.textContent = description;
-                    li.appendChild(spoilerDiv);
-                    
-                    li.addEventListener('click', () => {
-                        const isVisible = spoilerDiv.style.display === 'block';
-                        spoilerDiv.style.display = isVisible ? 'none' : 'block';
-                        li.classList.toggle('active', !isVisible);
-                    });
+function kvToObj(arr){
+  const o = {};
+  arr.filter(x=>!x.disabled && x.key).forEach(x=>{ o[x.key] = x.value ?? ''; });
+  // variable resolution
+  Object.keys(o).forEach(k=> o[k] = resolveVars(o[k]));
+  return o;
+}
 
-                    missingEventList.appendChild(li);
-                });
-            } else {
-                const li = document.createElement('li');
-                li.className = 'empty';
-                li.textContent = 'Пропущених подій немає. Всі події з таблиці були знайдені у файлі.';
-                missingEventList.appendChild(li);
-            }
-        }
+function buildFinalUrl(url, queryArr){
+  let u = resolveVars(url);
+  const urlObj = new URL(u, u.startsWith('http') ? undefined : 'http://dummy.local');
+  const params = new URLSearchParams(urlObj.search);
+  (queryArr||[]).filter(x=>!x.disabled && x.key).forEach(p=>{
+    params.set(p.key, resolveVars(p.value ?? ''));
+  });
+  // rebuild
+  if (u.startsWith('http')) return `${urlObj.origin}${urlObj.pathname}${params.toString()?('?'+params.toString()):''}`;
+  // raw relative
+  const rel = `${urlObj.pathname}${params.toString()?('?'+params.toString()):''}`;
+  return rel;
+}
 
-        function displayUnknownEvents(events) {
-            unknownEventList.innerHTML = '';
+/* ========= UI: response ========= */
+function renderResponse(res, text, ms, url){
+  const pane = $('#resPane');
+  pane.innerHTML = '';
+  const card = el('div', {class:'card'});
+  card.append(el('h3', {}, 'Ответ'));
+  const head = el('div', {class:'actions'});
 
-            if (events.length > 0) {
-                 const uniqueUnknownEvents = [...new Set(events)];
-                uniqueUnknownEvents.forEach(eventType => {
-                    const li = document.createElement('li');
-                    li.textContent = eventType;
-                    unknownEventList.appendChild(li);
-                });
-            } else {
-                const li = document.createElement('li');
-                li.className = 'empty';
-                li.textContent = 'Нових/невідомих подій у файлі не знайдено.';
-                unknownEventList.appendChild(li);
-            }
-        }
-        
-        function displayError(message) {
-            missingEventList.innerHTML = '';
-            unknownEventList.innerHTML = '';
-            deviceInfoDetails.innerHTML = '';
+  const status = res ? `${res.status} ${res.statusText}` : 'Network error';
+  const statusSpan = el('span', {class:'pill status '+(res && res.ok ? 'ok' : 'err')}, status);
+  head.append(statusSpan);
+  head.append(el('span', {class:'pill'}, `Время: ${ms.toFixed(0)} ms`));
+  head.append(el('span', {class:'pill'}, `Размер: ${sizeBytes(text)}`));
+  head.append(el('span', {class:'pill'}, `URL: ${url}`));
+  card.append(head);
 
-            const li = document.createElement('li');
-            li.className = 'error';
-            li.textContent = message;
+  // Body pretty
+  let formatted = text;
+  let isJSON = false;
+  try{ formatted = JSON.stringify(JSON.parse(text), null, 2); isJSON = true; }catch{}
+  card.append(el('pre', {}, formatted || '—'));
 
-            // Display error in all sections for visibility
-            missingEventList.appendChild(li.cloneNode(true));
-            unknownEventList.appendChild(li.cloneNode(true));
-            deviceInfoDetails.appendChild(li);
-        }
+  // Headers
+  const hdrsCard = el('div', {class:'card'});
+  hdrsCard.append(el('h3', {}, 'Response headers'));
+  const table = el('table', {},
+    el('thead', {}, el('tr', {}, el('th', {}, 'Header'), el('th', {}, 'Value')))
+  );
+  const tb = el('tbody');
+  if (res){
+    res.headers.forEach((v,k)=>{
+      tb.append(el('tr', {}, el('td', {}, k), el('td', {}, v)));
+    });
+  }else{
+    tb.append(el('tr', {}, el('td', {colspan:2}, 'Нет заголовков (ошибка сети?)')));
+  }
+  table.append(tb);
+  hdrsCard.append(el('div', {class:'kvs'}, table));
+  pane.append(card, hdrsCard);
+}
 
-        function sendEmailReport(missingEvents, unknownEvents, sheetUrl, deviceInfo, appVersion) {
-            const reportDate = new Date().toLocaleString('uk-UA');
-            const subject = `Звіт від ${reportDate} для файлу: ${selectedHarFile.name}`;
-            
-            let deviceInfoHtml = '<h3>Інформація про пристрій та версію:</h3>';
-            if (deviceInfo || appVersion) {
-                deviceInfoHtml += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%; border-color: #ddd;"><tbody>';
-                if (deviceInfo) {
-                    for (const key in deviceInfo) {
-                        deviceInfoHtml += `<tr><td style="padding: 8px; width: 30%; font-weight: bold;">${key}</td><td style="padding: 8px;">${deviceInfo[key]}</td></tr>`;
-                    }
-                }
-                if (appVersion) {
-                    deviceInfoHtml += `<tr><td style="padding: 8px; width: 30%; font-weight: bold;">version</td><td style="padding: 8px;">${appVersion}</td></tr>`;
-                }
-                deviceInfoHtml += '</tbody></table>';
-            } else {
-                deviceInfoHtml += '<p>Інформація про пристрій та версію не знайдена.</p>';
-            }
+/* ========= Loaders & session ========= */
+$('#collectionFile').addEventListener('change', async (e)=>{
+  const f = e.target.files[0];
+  if (!f) return;
+  const txt = await f.text();
+  try{
+    COLLECTION = JSON.parse(txt);
+    localStorage.setItem('pm_collection', txt);
+    ITEMS_FLAT = [];
+    flattenItems(COLLECTION); // collection root
+    buildVarMap();
+    renderTree($('#search').value||'');
+  }catch(err){ alert('Ошибка парсинга коллекции: '+err.message); }
+});
 
-            let missingEventsHtml = '<h3 style="margin-top: 20px;">Події з таблиці, які не знайдено у файлі:</h3>';
-            if (missingEvents.length > 0) {
-                missingEventsHtml += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%; border-color: #ddd;"><tbody>';
-                missingEvents.forEach(event => {
-                    missingEventsHtml += `<tr><td style="padding: 8px;">${event}</td></tr>`;
-                });
-                missingEventsHtml += '</tbody></table>';
-            } else {
-                missingEventsHtml += '<p>Пропущених подій немає.</p>';
-            }
+$('#envFile').addEventListener('change', async (e)=>{
+  const f = e.target.files[0];
+  if (!f) return;
+  const txt = await f.text();
+  try{
+    ENV = JSON.parse(txt);
+    localStorage.setItem('pm_env', txt);
+    buildVarMap();
+    renderTree($('#search').value||'');
+  }catch(err){ alert('Ошибка парсинга окружения: '+err.message); }
+});
 
-            let unknownEventsHtml = '<h3 style="margin-top: 20px;">Події, знайдені у файлі, але відсутні у таблиці:</h3>';
-            if (unknownEvents.length > 0) {
-                const uniqueUnknownEvents = [...new Set(unknownEvents)];
-                unknownEventsHtml += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%; border-color: #ddd;"><tbody>';
-                uniqueUnknownEvents.forEach(event => {
-                    unknownEventsHtml += `<tr><td style="padding: 8px;">${event}</td></tr>`;
-                });
-                unknownEventsHtml += '</tbody></table>';
-            } else {
-                unknownEventsHtml += '<p>Нових/невідомих подій немає.</p>';
-            }
+$('#clearBtn').addEventListener('click', ()=>{
+  localStorage.removeItem('pm_collection');
+  localStorage.removeItem('pm_env');
+  COLLECTION = null; ENV = null; VARS={}; ITEMS_FLAT=[]; CURRENT_REQ_ID=null;
+  $('#tree').innerHTML=''; $('#reqPane').innerHTML=''; $('#resPane').innerHTML='';
+  alert('Сессия очищена');
+});
 
-            const templateParams = {
-                subject: subject,
-                har_file_name: selectedHarFile.name,
-                sheet_url: sheetUrl,
-                email_body_html: deviceInfoHtml + missingEventsHtml + unknownEventsHtml,
-                to_email: 'stillwcraft@gmail.com'
-            };
+$('#search').addEventListener('input', debounce((e)=> renderTree(e.target.value), 200));
 
-            statusMessage.textContent = 'Відправка звіту на пошту...';
-            statusMessage.style.color = '#007aff';
-            
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                .then(function(response) {
-                   console.log('SUCCESS!', response.status, response.text);
-                   statusMessage.textContent = 'Порівняння завершено. Звіт успішно відправлено!';
-                   statusMessage.style.color = '#34c759';
-                }, function(error) {
-                   console.log('FAILED...', error);
-                   statusMessage.textContent = 'Порівняння завершено, але сталася помилка відправки звіту.';
-                   statusMessage.style.color = '#d93025';
-                });
-        }
+const storedCol = localStorage.getItem('pm_collection');
+if (storedCol){
+  try{ COLLECTION = JSON.parse(storedCol); ITEMS_FLAT=[]; flattenItems(COLLECTION); }catch{}
+}
+const storedEnv = localStorage.getItem('pm_env');
+if (storedEnv){
+  try{ ENV = JSON.parse(storedEnv); }catch{}
+}
+buildVarMap();
+renderTree('');
 
-    </script>
+</script>
 </body>
 </html>
-
