@@ -6,8 +6,7 @@
 <title>Mini Postman Viewer (Swagger-like)</title>
 <style>
   :root{
-    --bg:#0f1216; --panel:#151a21; --muted:#677285; --fg:#e7ecf3; --accent:#7cc0ff; --ok:#1ec28b; --warn:#ffcc66; --err:#ff7b7b; --divider:#223042;
-    --code:#0b0f14;
+    --bg:#0f1216; --panel:#151a21; --muted:#677285; --fg:#e7ecf3; --accent:#7cc0ff; --ok:#1ec28b; --warn:#ffcc66; --err:#ff7b7b; --divider:#223042; --code:#0b0f14;
   }
   *{box-sizing:border-box}
   body{
@@ -16,9 +15,7 @@
     display:grid; grid-template-columns: 320px 1fr; grid-template-rows: 56px calc(100dvh - 56px);
     grid-template-areas: "top top" "left right";
   }
-  header{
-    grid-area:top; display:flex; gap:12px; align-items:center; padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--divider);
-  }
+  header{ grid-area:top; display:flex; gap:12px; align-items:center; padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--divider); }
   header h1{font-size:16px; margin:0; letter-spacing:.2px; color:var(--accent)}
   .bar{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
   .btn, button{background:#202938; color:var(--fg); border:1px solid var(--divider); padding:8px 10px; border-radius:8px; cursor:pointer}
@@ -34,11 +31,8 @@
   .folder{color:var(--muted); font-weight:600; text-transform:uppercase; font-size:12px}
   .item{display:flex; align-items:center; gap:10px; cursor:pointer}
   .method{font-weight:700; font-size:11px; padding:2px 6px; border-radius:6px; min-width:42px; text-align:center}
-  .mGET{background:#123a2d; color:var(--ok)}
-  .mPOST{background:#2b2033; color:#d39bff}
-  .mPUT{background:#2b2e15; color:#d7df66}
-  .mPATCH{background:#2e1f12; color:#ffa36b}
-  .mDELETE{background:#3a1416; color:var(--err)}
+  .mGET{background:#123a2d; color:var(--ok)} .mPOST{background:#2b2033; color:#d39bff} .mPUT{background:#2b2e15; color:#d7df66}
+  .mPATCH{background:#2e1f12; color:#ffa36b} .mDELETE{background:#3a1416; color:var(--err)}
   .item:hover{background:#10151d}
   .title{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#d8deea}
   .path{color:var(--muted); font-size:12px}
@@ -46,9 +40,7 @@
   .card{background:var(--panel); border:1px solid var(--divider); border-radius:12px; overflow:hidden; margin-bottom:16px}
   .card h3{margin:0; padding:12px 14px; border-bottom:1px solid var(--divider); font-size:14px; letter-spacing:.2px; color:#cfe7ff; background:#12161c}
   .row{display:grid; grid-template-columns: 110px 1fr; gap:8px; padding:10px 12px; align-items:center}
-  .row input, .row textarea, .row select{
-    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider); background:#0f141b; color:var(--fg); font-family:inherit; font-size:14px
-  }
+  .row input, .row textarea, .row select{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider); background:#0f141b; color:var(--fg); font-family:inherit; font-size:14px }
   textarea.code{min-height:160px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
   .kvs{padding:10px 12px}
   table{width:100%; border-collapse:collapse; font-size:14px}
@@ -60,25 +52,27 @@
   .status.ok{color:var(--ok)} .status.err{color:var(--err)}
   pre{margin:0; padding:12px; background:var(--code); color:#cfe7ff; overflow:auto}
   .pill{border:1px solid var(--divider); padding:4px 8px; border-radius:999px; font-size:12px; color:#b8c7de}
-  .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
   .small{font-size:12px; color:var(--muted)}
   .muted{color:var(--muted)}
   .inline{display:flex; gap:8px; align-items:center}
+  .rightInfo{font-size:12px; color:#9eb3d3}
 </style>
 </head>
 <body>
   <header>
     <h1>Postman → Swagger-like Viewer</h1>
     <div class="bar">
-      <label class="file">Коллекция
+      <!-- Эти элементы остаются как fallback, но будут скрываться, если автозагрузка удалась -->
+      <label class="file" id="colLabel">Коллекция
         <input id="collectionFile" type="file" accept=".json,application/json" />
       </label>
-      <label class="file">Окружение
+      <label class="file" id="envLabel">Окружение
         <input id="envFile" type="file" accept=".json,application/json" />
       </label>
       <button id="clearBtn" title="Очистить сессию">Сброс</button>
       <span class="small muted">Proxy prefix:</span>
       <input id="proxyPrefix" placeholder="например, http://localhost:8080/" style="width:280px;padding:8px;border-radius:8px;border:1px solid var(--divider);background:#0f141b;color:var(--fg)" />
+      <span id="loadedInfo" class="rightInfo"></span>
     </div>
   </header>
 
@@ -91,14 +85,15 @@
 
   <main class="right">
     <div class="pane">
-      <div class="card">
+      <div class="card" id="welcomeCard">
         <h3>Добро пожаловать</h3>
         <div class="section">
-          Загрузите <strong>Postman-коллекцию</strong> и при желании <strong>Environment</strong>.
-          Мы подтянем переменные <code>{{var}}</code>, распарсим запросы и дадим возможность выполнить их прямо отсюда.
+          Если в корне есть <code>postman_collection.json</code> и <code>postman_environment.json</code>, они автозагрузятся.
+          Иначе — загрузите вручную кнопками слева. Переопределить пути можно параметрами URL:
+          <code>?collection=./api/col.json&amp;env=./envs/dev.json</code>.
           <div style="margin-top:10px" class="muted small">
-            Поддерживается: folders, request.url (string/object), params, headers, raw JSON body, Bearer-auth, env & collection variables.<br/>
-            Подводные камни: CORS. Если ваш API не выдаёт CORS-заголовки — используйте прокси (укажите префикс выше).
+            Поддерживается: folders, request.url, params, headers, raw/URL-encoded/form-data (text), Bearer auth, переменные из env/collection.<br/>
+            Важно: возможны CORS-ограничения при вызове реального API из браузера. Используйте прокси при необходимости.
           </div>
         </div>
       </div>
@@ -109,132 +104,78 @@
   </main>
 
 <script>
+/* ========= Config: дефолтные пути и управление автозагрузкой ========= */
+const urlParams = new URLSearchParams(location.search);
+const DEFAULT_COLLECTION_PATH = urlParams.get('collection') || './postman_collection.json';
+const DEFAULT_ENV_PATH        = urlParams.get('env')        || './postman_environment.json';
+const AUTO_OPEN_FIRST         = urlParams.get('autoOpen') !== '0'; // по умолчанию true
+
 /* ========= Utilities ========= */
 const $ = sel => document.querySelector(sel);
-const el = (tag, attrs={}, ...children) => {
-  const n = document.createElement(tag);
-  Object.entries(attrs).forEach(([k,v])=>{
-    if (k === 'class') n.className = v;
-    else if (k === 'dataset') Object.assign(n.dataset, v);
-    else if (k.startsWith('on') && typeof v === 'function') n.addEventListener(k.slice(2), v);
-    else n.setAttribute(k, v);
-  });
-  children.forEach(c => n.append(c));
-  return n;
-};
-
+const el = (tag, attrs={}, ...children) => { const n=document.createElement(tag); Object.entries(attrs).forEach(([k,v])=>{
+  if (k==='class') n.className=v; else if (k==='dataset') Object.assign(n.dataset,v);
+  else if (k.startsWith('on') && typeof v==='function') n.addEventListener(k.slice(2),v); else n.setAttribute(k,v);
+}); children.forEach(c=>n.append(c)); return n; };
 function debounce(fn, ms=250){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
+function prettyJSON(x){ try{ return typeof x==='string'?JSON.stringify(JSON.parse(x),null,2):JSON.stringify(x,null,2);}catch{ return String(x);} }
+function sizeBytes(val){ try{ const b=(new TextEncoder()).encode(typeof val==='string'?val:JSON.stringify(val)).length; if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }catch{ return '—'; } }
 
-function prettyJSON(objOrText){
-  try{
-    if (typeof objOrText === 'string') return JSON.stringify(JSON.parse(objOrText), null, 2);
-    return JSON.stringify(objOrText, null, 2);
-  }catch{ return String(objOrText); }
-}
+/* ========= State ========= */
+let COLLECTION = null, ENV = null, VARS = {};
+let ITEMS_FLAT = [];
+let CURRENT_REQ_ID = null, LAST_REQUEST_OPTS = null;
 
-function sizeBytes(val){
-  try{
-    const bytes = (new TextEncoder()).encode(typeof val==='string'?val:JSON.stringify(val)).length;
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024*1024) return (bytes/1024).toFixed(1)+' KB';
-    return (bytes/1024/1024).toFixed(1)+' MB';
-  }catch{ return '—'; }
-}
-
-/* ========= Postman parsing & variable resolution ========= */
-let COLLECTION = null;
-let ENV = null;
-let VARS = {}; // merged env + collection variables
-let ITEMS_FLAT = []; // flattened {id,path,name,request}
-
+/* ========= Variables merge & helpers ========= */
 function buildVarMap(){
   const map = {};
-  // env
   if (ENV && Array.isArray(ENV.values)){
-    ENV.values.forEach(v=>{
-      if (!v) return;
-      const key = v.key ?? v.name;
-      const val = (v.value ?? v.currentValue ?? v.initialValue);
-      if (key) map[key] = val;
-    });
+    ENV.values.forEach(v=>{ if(!v) return; const key=v.key??v.name; const val=(v.value ?? v.currentValue ?? v.initialValue); if(key) map[key]=val; });
   }
-  // collection variables (v2.1)
   if (COLLECTION && Array.isArray(COLLECTION.variable)){
-    COLLECTION.variable.forEach(v=>{
-      if (!v) return;
-      const key = v.key ?? v.name;
-      const val = (v.value ?? v.currentValue ?? v.initialValue);
-      if (key && map[key]==null) map[key] = val;
-    });
+    COLLECTION.variable.forEach(v=>{ if(!v) return; const key=v.key??v.name; const val=(v.value ?? v.currentValue ?? v.initialValue); if(key && map[key]==null) map[key]=val; });
   }
   VARS = map;
 }
-
-function resolveVars(str, extra={}){
-  if (typeof str !== 'string') return str;
-  return str.replace(/{{\s*([^}]+)\s*}}/g, (_, k)=>{
-    const val = (extra && extra[k] != null) ? extra[k] : (VARS[k] != null ? VARS[k] : '');
-    return String(val);
-  });
-}
-
+function resolveVars(str, extra={}){ if(typeof str!=='string') return str; return str.replace(/{{\s*([^}]+)\s*}}/g,(_,k)=> String((extra && extra[k]!=null)?extra[k]:(VARS[k]!=null?VARS[k]:''))); }
 function normalizeUrl(u){
-  if (!u) return '';
-  if (typeof u === 'string') return u;
-  // Postman URL object
+  if(!u) return ''; if(typeof u==='string') return u;
   let raw = u.raw || '';
-  if (!raw){
-    const protocol = u.protocol ? u.protocol + '://' : '';
+  if(!raw){
+    const protocol = u.protocol ? u.protocol+'://' : '';
     const host = Array.isArray(u.host) ? u.host.join('.') : (u.host||'');
     const path = Array.isArray(u.path) ? '/'+u.path.join('/') : (u.path||'');
-    const query = Array.isArray(u.query) && u.query.length
-      ? '?' + u.query.filter(q=>!q.disabled).map(q=>`${q.key}=${q.value??''}`).join('&') : '';
+    const query = Array.isArray(u.query) && u.query.length ? '?' + u.query.filter(q=>!q.disabled).map(q=>`${q.key}=${q.value??''}`).join('&') : '';
     raw = protocol + host + path + query;
   }
   return raw;
 }
-
 function flattenItems(node, path=[]){
-  if (!node) return;
-  if (Array.isArray(node)) { node.forEach(n=>flattenItems(n, path)); return; }
-  if (node.item){ // folder
+  if(!node) return;
+  if(Array.isArray(node)){ node.forEach(n=>flattenItems(n, path)); return; }
+  if(node.item){ // folder or root
     const newPath = node.name ? path.concat(node.name) : path;
     node.item.forEach(child=>flattenItems(child, newPath));
     return;
   }
-  // leaf request
-  if (node.request){
-    ITEMS_FLAT.push({
-      id: crypto.randomUUID(),
-      path: path.join(' / '),
-      name: node.name || '(без названия)',
-      request: node.request
-    });
+  if(node.request){
+    ITEMS_FLAT.push({ id: crypto.randomUUID(), path: path.join(' / '), name: node.name || '(без названия)', request: node.request });
   }
 }
-
-function methodColorCls(m){
-  const up = (m||'GET').toUpperCase();
-  return 'method m'+up;
-}
+function methodColorCls(m){ return 'method m'+(m||'GET').toUpperCase(); }
 
 /* ========= UI: tree ========= */
 function renderTree(filter=''){
-  const tree = $('#tree');
-  tree.innerHTML = '';
-  const match = (s) => s.toLowerCase().includes(filter.toLowerCase());
-  // Build a grouped map path -> items
+  const tree = $('#tree'); tree.innerHTML = '';
+  const match = s => s.toLowerCase().includes(filter.toLowerCase());
   const groups = {};
   ITEMS_FLAT.forEach(it=>{
     const key = it.path || 'ROOT';
     if (filter && !(match(it.name) || match(key) || match(normalizeUrl(it.request.url)))) return;
-    groups[key] ??= [];
-    groups[key].push(it);
+    (groups[key] ??= []).push(it);
   });
-
   Object.entries(groups).forEach(([folder, items])=>{
     const g = el('div', {class:'node'});
-    g.append(el('div', {class:'folder'}, folder === 'ROOT' ? 'Без папки' : folder));
+    g.append(el('div', {class:'folder'}, folder==='ROOT'?'Без папки':folder));
     items.forEach(it=>{
       const urlRaw = normalizeUrl(it.request.url);
       const urlResolved = resolveVars(urlRaw);
@@ -250,21 +191,17 @@ function renderTree(filter=''){
   });
 }
 
-/* ========= UI: request editor ========= */
-let CURRENT_REQ_ID = null;
-let LAST_REQUEST_OPTS = null;
-
+/* ========= UI: request editor & response ========= */
 function buildKVRows(arr){
   const tbody = el('tbody');
   (arr||[]).forEach((x,i)=>{
     const tr = el('tr');
-    tr.append(el('td', {}, el('input', {value: x.key ?? '', 'data-idx': i, 'data-field':'key'})));
-    tr.append(el('td', {}, el('input', {value: x.value ?? '', 'data-idx': i, 'data-field':'value'})));
-    tr.append(el('td', {}, el('input', {value: x.description?.toString() ?? '', 'data-idx': i, 'data-field':'desc'})));
-    tr.append(el('td', {}, el('input', {type:'checkbox', checked: !x.disabled, 'data-idx': i, 'data-field':'enabled'})));
+    tr.append(el('td', {}, el('input', {value:x.key??'', 'data-idx':i, 'data-field':'key'})));
+    tr.append(el('td', {}, el('input', {value:x.value??'', 'data-idx':i, 'data-field':'value'})));
+    tr.append(el('td', {}, el('input', {value:x.description?.toString()??'', 'data-idx':i, 'data-field':'desc'})));
+    tr.append(el('td', {}, el('input', {type:'checkbox', checked:!x.disabled, 'data-idx':i, 'data-field':'enabled'})));
     tbody.append(tr);
   });
-  // + blank row
   const tr = el('tr');
   tr.append(el('td', {}, el('input', {'data-idx':'new','data-field':'key', placeholder:'key'})));
   tr.append(el('td', {}, el('input', {'data-idx':'new','data-field':'value', placeholder:'value'})));
@@ -273,328 +210,260 @@ function buildKVRows(arr){
   tbody.append(tr);
   return tbody;
 }
-
 function tableToArray(tbody){
-  const rows = Array.from(tbody.querySelectorAll('tr'));
-  const out = [];
+  const rows = Array.from(tbody.querySelectorAll('tr')); const out=[];
   rows.forEach(tr=>{
     const inputs = tr.querySelectorAll('input');
     const entry = {key:'',value:'',description:'',disabled:false};
     inputs.forEach(inp=>{
       const field = inp.dataset.field;
-      if (field==='enabled') entry.disabled = !inp.checked;
-      else entry[field] = inp.value;
+      if (field==='enabled') entry.disabled = !inp.checked; else entry[field] = inp.value;
     });
     if (entry.key || entry.value) out.push(entry);
   });
   return out;
 }
+function kvToObj(arr){
+  const o={}; arr.filter(x=>!x.disabled && x.key).forEach(x=>{ o[x.key]=x.value??''; });
+  Object.keys(o).forEach(k=> o[k]=resolveVars(o[k]));
+  return o;
+}
+function buildFinalUrl(url, queryArr){
+  let u = resolveVars(url);
+  const urlObj = new URL(u, u.startsWith('http')?undefined:'http://dummy.local');
+  const params = new URLSearchParams(urlObj.search);
+  (queryArr||[]).filter(x=>!x.disabled && x.key).forEach(p=>{ params.set(p.key, resolveVars(p.value??'')); });
+  if (u.startsWith('http')) return `${urlObj.origin}${urlObj.pathname}${params.toString()?('?'+params.toString()):''}`;
+  return `${urlObj.pathname}${params.toString()?('?'+params.toString()):''}`;
+}
+function shEsc(s){ return `'${String(s).replace(/'/g,"'\\''")}'`; }
 
 function openRequest(item){
   CURRENT_REQ_ID = item.id;
-  const pane = $('#reqPane');
-  const req = item.request;
-  const method = (req.method || 'GET').toUpperCase();
-  const urlRaw = normalizeUrl(req.url);
-  const urlResolved = resolveVars(urlRaw);
-
-  // Params from URL.query if object-form
+  const pane = $('#reqPane'); const req = item.request;
+  const method = (req.method||'GET').toUpperCase();
+  const urlRaw = normalizeUrl(req.url); const urlResolved = resolveVars(urlRaw);
   let queryArr = [];
-  if (typeof req.url === 'object' && Array.isArray(req.url.query)){
-    queryArr = req.url.query.map(q=>({key:q.key, value: resolveVars(q.value??''), description:q.description||'', disabled: !!q.disabled}));
+  if (typeof req.url==='object' && Array.isArray(req.url.query)){
+    queryArr = req.url.query.map(q=>({key:q.key, value:resolveVars(q.value??''), description:q.description||'', disabled:!!q.disabled}));
   }
-
-  // Headers
   let headersArr = [];
   if (Array.isArray(req.header)){
-    headersArr = req.header.map(h=>({key:h.key, value: resolveVars(h.value??''), description:h.description||'', disabled: !!h.disabled}));
+    headersArr = req.header.map(h=>({key:h.key, value:resolveVars(h.value??''), description:h.description||'', disabled:!!h.disabled}));
   }
-
-  // Auth: bearer
-  if (req.auth && req.auth.type === 'bearer'){
+  if (req.auth && req.auth.type==='bearer'){
     const token = (req.auth.bearer||[]).find(x=>x.key==='token')?.value || VARS.token || VARS.access_token || '';
     if (token){
       const hasAuth = headersArr.some(h=>!h.disabled && h.key.toLowerCase()==='authorization');
-      if (!hasAuth){
-        headersArr.unshift({key:'Authorization', value:'Bearer '+resolveVars(token), description:'(from auth bearer)', disabled:false});
-      }
+      if (!hasAuth) headersArr.unshift({key:'Authorization', value:'Bearer '+resolveVars(token), description:'(from auth bearer)', disabled:false});
     }
   }
-
-  // Body
-  let bodyMode = req.body?.mode || 'raw';
-  let bodyRaw = '';
-  if (req.body?.raw != null) bodyRaw = resolveVars(req.body.raw);
-  // x-www-form-urlencoded / formdata (basic support)
+  let bodyMode = req.body?.mode || 'raw'; let bodyRaw='';
+  if (req.body?.raw!=null) bodyRaw = resolveVars(req.body.raw);
   let formArr = [];
-  if (Array.isArray(req.body?.urlencoded)){
-    formArr = req.body.urlencoded.map(p=>({key:p.key, value:resolveVars(p.value??''), description:p.description||'', disabled:!!p.disabled}));
-    bodyMode = 'urlencoded';
-  }
-  if (Array.isArray(req.body?.formdata)){
-    formArr = req.body.formdata.filter(p=>p.type!=='file').map(p=>({key:p.key, value:resolveVars(p.value??''), description:p.description||'', disabled:!!p.disabled}));
-    bodyMode = 'formdata';
-  }
+  if (Array.isArray(req.body?.urlencoded)){ formArr = req.body.urlencoded.map(p=>({key:p.key, value:resolveVars(p.value??''), description:p.description||'', disabled:!!p.disabled})); bodyMode='urlencoded'; }
+  if (Array.isArray(req.body?.formdata)){ formArr = req.body.formdata.filter(p=>p.type!=='file').map(p=>({key:p.key, value:resolveVars(p.value??''), description:p.description||'', disabled:!!p.disabled})); bodyMode='formdata'; }
 
   pane.innerHTML = '';
-  const card = el('div', {class:'card'});
-  card.append(el('h3', {}, 'Запрос'));
-  const body = el('div');
+  const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Запрос')); const body = el('div');
+  const methodSel = el('select', {id:'methodSel'}, ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected:m===method}, m)));
+  const urlInp = el('input', {id:'urlInp', value:urlResolved||urlRaw});
+  body.append(el('div', {class:'row'}, el('div', {class:'inline'}, el('span', {class:methodColorCls(method)}, method), methodSel), urlInp));
 
-  // Method & URL
-  const methodSel = el('select', {id:'methodSel'},
-    ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected: m===method}, m))
-  );
-  const urlInp = el('input', {id:'urlInp', value: urlResolved || urlRaw});
-
-  body.append(el('div', {class:'row'},
-    el('div', {class:'inline'}, el('span', {class:methodColorCls(method)}, method), methodSel),
-    urlInp
-  ));
-
-  // Query
-  const queryCard = el('div', {class:'card'});
-  queryCard.append(el('h3', {}, 'Query params'));
+  const queryCard = el('div', {class:'card'}); queryCard.append(el('h3', {}, 'Query params'));
   const qWrap = el('div', {class:'kvs'});
-  const qTable = el('table', {},
-    el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))),
-    buildKVRows(queryArr)
-  );
+  const qTable = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))), buildKVRows(queryArr));
   qWrap.append(qTable); queryCard.append(qWrap);
 
-  // Headers
-  const hdrCard = el('div', {class:'card'});
-  hdrCard.append(el('h3', {}, 'Headers'));
+  const hdrCard = el('div', {class:'card'}); hdrCard.append(el('h3', {}, 'Headers'));
   const hWrap = el('div', {class:'kvs'});
-  const hTable = el('table', {},
-    el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))),
-    buildKVRows(headersArr)
-  );
+  const hTable = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))), buildKVRows(headersArr));
   hWrap.append(hTable); hdrCard.append(hWrap);
 
-  // Body
-  const bodyCard = el('div', {class:'card'});
-  bodyCard.append(el('h3', {}, 'Body'));
+  const bodyCard = el('div', {class:'card'}); bodyCard.append(el('h3', {}, 'Body'));
   const bWrap = el('div', {class:'section'});
   const bodyModeSel = el('select', {id:'bodyModeSel'},
-    el('option', {value:'raw', selected: bodyMode==='raw'}, 'raw (JSON/text)'),
-    el('option', {value:'urlencoded', selected: bodyMode==='urlencoded'}, 'x-www-form-urlencoded'),
-    el('option', {value:'formdata', selected: bodyMode==='formdata'}, 'multipart/form-data (text only)')
+    el('option', {value:'raw', selected:bodyMode==='raw'}, 'raw (JSON/text)'),
+    el('option', {value:'urlencoded', selected:bodyMode==='urlencoded'}, 'x-www-form-urlencoded'),
+    el('option', {value:'formdata', selected:bodyMode==='formdata'}, 'multipart/form-data (text only)')
   );
   const bodyArea = el('textarea', {id:'bodyRaw', class:'code', placeholder:'Тело запроса…'}, bodyMode==='raw'?bodyRaw:'');
   const formTable = el('table', {id:'formTable', style: bodyMode==='raw'?'display:none':''},
     el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))),
     buildKVRows(formArr)
   );
+  bWrap.append(el('div', {class:'row'}, el('div', {}, el('span', {class:'muted'}, 'Тип тела')), bodyModeSel));
+  bWrap.append(bodyArea); bWrap.append(el('div', {class:'kvs'}, formTable)); bodyCard.append(bWrap);
 
-  bWrap.append(el('div', {class:'row'},
-    el('div', {}, el('span', {class:'muted'}, 'Тип тела')), bodyModeSel
-  ));
-  bWrap.append(bodyArea);
-  bWrap.append(el('div', {class:'kvs'}, formTable));
-  bodyCard.append(bWrap);
-
-  // Actions
   const actions = el('div', {class:'actions'});
   const sendBtn = el('button', {class:'send', id:'sendBtn'}, 'Send');
   const curlBtn = el('button', {id:'curlBtn'}, 'Copy cURL');
   const meta = el('div', {class:'meta', style:'margin-left:auto'});
   actions.append(sendBtn, curlBtn, meta);
-
   card.append(body, queryCard, hdrCard, bodyCard, actions);
-  pane.append(card);
+  $('#reqPane').innerHTML=''; $('#reqPane').append(card);
 
-  // handlers
   bodyModeSel.addEventListener('change', ()=>{
-    if (bodyModeSel.value==='raw'){ bodyArea.style.display='block'; formTable.style.display='none'; }
-    else{ bodyArea.style.display='none'; formTable.style.display='table'; }
+    if(bodyModeSel.value==='raw'){ bodyArea.style.display='block'; formTable.style.display='none'; }
+    else { bodyArea.style.display='none'; formTable.style.display='table'; }
   });
 
   sendBtn.addEventListener('click', async ()=>{
     const finalUrl = buildFinalUrl(urlInp.value, tableToArray(qTable.tBodies[0]));
     const headers = kvToObj(tableToArray(hTable.tBodies[0]));
-    const method = methodSel.value;
-    const bodyMode = bodyModeSel.value;
+    const method  = methodSel.value;
+    const mode    = bodyModeSel.value;
 
     let body = undefined;
-    if (method !== 'GET' && method !== 'HEAD'){
-      if (bodyMode==='raw'){
+    if (method!=='GET' && method!=='HEAD'){
+      if (mode==='raw'){
         body = bodyArea.value || '';
-        // infer JSON header if looks like JSON and header not present
-        try{ JSON.parse(body); if (!Object.keys(headers).some(h=>h.toLowerCase()==='content-type')) headers['Content-Type']='application/json'; }catch{}
-      }else if (bodyMode==='urlencoded'){
+        try{ JSON.parse(body); if(!Object.keys(headers).some(h=>h.toLowerCase()==='content-type')) headers['Content-Type']='application/json'; }catch{}
+      }else if (mode==='urlencoded'){
         const params = tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled);
-        body = new URLSearchParams(); params.forEach(p=>body.append(p.key, p.value));
-        if (!Object.keys(headers).some(h=>h.toLowerCase()==='content-type')) headers['Content-Type']='application/x-www-form-urlencoded';
-      }else if (bodyMode==='formdata'){
+        const usp = new URLSearchParams(); params.forEach(p=>usp.append(p.key,p.value)); body = usp;
+        if(!Object.keys(headers).some(h=>h.toLowerCase()==='content-type')) headers['Content-Type']='application/x-www-form-urlencoded';
+      }else if (mode==='formdata'){
         const params = tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled);
-        const fd = new FormData(); params.forEach(p=>fd.append(p.key, p.value));
-        body = fd;
-        // let browser set proper boundary; do not set Content-Type
+        const fd = new FormData(); params.forEach(p=>fd.append(p.key,p.value)); body = fd;
       }
     }
-
     const proxy = $('#proxyPrefix').value.trim();
     const targetUrl = proxy ? proxy + finalUrl : finalUrl;
 
-    const ctrl = new AbortController();
     const started = performance.now();
-    let res, text, ok=false, error=null;
     try{
-      res = await fetch(targetUrl, { method, headers, body, signal: ctrl.signal });
-      const ct = res.headers.get('content-type') || '';
-      text = await res.text();
-      ok = res.ok;
+      const res = await fetch(targetUrl, { method, headers, body });
+      const text = await res.text();
       renderResponse(res, text, performance.now()-started, finalUrl);
     }catch(e){
-      error = e;
       renderResponse(null, String(e), performance.now()-started, finalUrl);
     }
-
-    LAST_REQUEST_OPTS = {method, finalUrl, headers, body, bodyMode};
-    meta.innerHTML = '';
   });
 
   curlBtn.addEventListener('click', ()=>{
-    const finalUrl = buildFinalUrl(urlInp.value, tableToArray(qTable.tBodies[0]));
-    const headers = kvToObj(tableToArray(hTable.tBodies[0]));
-    const method = methodSel.value;
-    const bodyMode = bodyModeSel.value;
+    const finalUrl = buildFinalUrl($('#urlInp').value, tableToArray(qTable.tBodies[0]));
+    const headers  = kvToObj(tableToArray(hTable.tBodies[0]));
+    const method   = $('#methodSel').value;
+    const mode     = $('#bodyModeSel').value;
     let bodyStr = '';
-
-    if (bodyMode==='raw'){
-      const val = $('#bodyRaw').value || '';
-      if (val) bodyStr = ` --data '${val.replace(/'/g,"'\\''")}'`;
-    }else if (bodyMode==='urlencoded'){
-      const params = tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled);
-      const usp = new URLSearchParams(); params.forEach(p=>usp.append(p.key, p.value));
-      const val = usp.toString();
-      if (val) bodyStr = ` --data '${val.replace(/'/g,"'\\''")}'`;
-    }else if (bodyMode==='formdata'){
-      const params = tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled);
-      bodyStr = params.map(p=>` -F ${shEsc(p.key)}=${shEsc(p.value)}`).join('');
-    }
-
+    if (mode==='raw'){ const v=$('#bodyRaw').value||''; if(v) bodyStr = ` --data '${v.replace(/'/g,"'\\''")}'`; }
+    else if (mode==='urlencoded'){ const ps=tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled); const usp=new URLSearchParams(); ps.forEach(p=>usp.append(p.key,p.value)); const v=usp.toString(); if(v) bodyStr=` --data '${v.replace(/'/g,"'\\''")}'`; }
+    else if (mode==='formdata'){ const ps=tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled); bodyStr = ps.map(p=>` -F ${shEsc(p.key)}=${shEsc(p.value)}`).join(''); }
     const hdrStr = Object.entries(headers).map(([k,v])=>` -H ${shEsc(k+': '+v)}`).join('');
     const cmd = `curl -X ${method}${hdrStr}${bodyStr} ${shEsc(finalUrl)}`;
-    navigator.clipboard.writeText(cmd);
-    alert('cURL скопирован в буфер обмена');
+    navigator.clipboard.writeText(cmd); alert('cURL скопирован в буфер обмена');
   });
 }
-
-function shEsc(s){ return `'${String(s).replace(/'/g,"'\\''")}'`; }
-
-function kvToObj(arr){
-  const o = {};
-  arr.filter(x=>!x.disabled && x.key).forEach(x=>{ o[x.key] = x.value ?? ''; });
-  // variable resolution
-  Object.keys(o).forEach(k=> o[k] = resolveVars(o[k]));
-  return o;
-}
-
-function buildFinalUrl(url, queryArr){
-  let u = resolveVars(url);
-  const urlObj = new URL(u, u.startsWith('http') ? undefined : 'http://dummy.local');
-  const params = new URLSearchParams(urlObj.search);
-  (queryArr||[]).filter(x=>!x.disabled && x.key).forEach(p=>{
-    params.set(p.key, resolveVars(p.value ?? ''));
-  });
-  // rebuild
-  if (u.startsWith('http')) return `${urlObj.origin}${urlObj.pathname}${params.toString()?('?'+params.toString()):''}`;
-  // raw relative
-  const rel = `${urlObj.pathname}${params.toString()?('?'+params.toString()):''}`;
-  return rel;
-}
-
-/* ========= UI: response ========= */
 function renderResponse(res, text, ms, url){
-  const pane = $('#resPane');
-  pane.innerHTML = '';
-  const card = el('div', {class:'card'});
-  card.append(el('h3', {}, 'Ответ'));
+  const pane = $('#resPane'); pane.innerHTML = '';
+  const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Ответ'));
   const head = el('div', {class:'actions'});
-
   const status = res ? `${res.status} ${res.statusText}` : 'Network error';
-  const statusSpan = el('span', {class:'pill status '+(res && res.ok ? 'ok' : 'err')}, status);
-  head.append(statusSpan);
+  head.append(el('span', {class:'pill status '+(res && res.ok?'ok':'err')}, status));
   head.append(el('span', {class:'pill'}, `Время: ${ms.toFixed(0)} ms`));
   head.append(el('span', {class:'pill'}, `Размер: ${sizeBytes(text)}`));
   head.append(el('span', {class:'pill'}, `URL: ${url}`));
   card.append(head);
-
-  // Body pretty
-  let formatted = text;
-  let isJSON = false;
-  try{ formatted = JSON.stringify(JSON.parse(text), null, 2); isJSON = true; }catch{}
+  let formatted = text; try{ formatted = JSON.stringify(JSON.parse(text),null,2);}catch{}
   card.append(el('pre', {}, formatted || '—'));
-
-  // Headers
-  const hdrsCard = el('div', {class:'card'});
-  hdrsCard.append(el('h3', {}, 'Response headers'));
-  const table = el('table', {},
-    el('thead', {}, el('tr', {}, el('th', {}, 'Header'), el('th', {}, 'Value')))
-  );
+  const hdrsCard = el('div', {class:'card'}); hdrsCard.append(el('h3', {}, 'Response headers'));
+  const table = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Header'), el('th', {}, 'Value'))));
   const tb = el('tbody');
-  if (res){
-    res.headers.forEach((v,k)=>{
-      tb.append(el('tr', {}, el('td', {}, k), el('td', {}, v)));
-    });
-  }else{
-    tb.append(el('tr', {}, el('td', {colspan:2}, 'Нет заголовков (ошибка сети?)')));
-  }
-  table.append(tb);
-  hdrsCard.append(el('div', {class:'kvs'}, table));
+  if(res){ res.headers.forEach((v,k)=> tb.append(el('tr', {}, el('td', {}, k), el('td', {}, v)))); }
+  else { tb.append(el('tr', {}, el('td', {colspan:2}, 'Нет заголовков (ошибка сети?)'))); }
+  table.append(tb); hdrsCard.append(el('div', {class:'kvs'}, table));
   pane.append(card, hdrsCard);
 }
 
 /* ========= Loaders & session ========= */
-$('#collectionFile').addEventListener('change', async (e)=>{
-  const f = e.target.files[0];
-  if (!f) return;
-  const txt = await f.text();
-  try{
-    COLLECTION = JSON.parse(txt);
-    localStorage.setItem('pm_collection', txt);
-    ITEMS_FLAT = [];
-    flattenItems(COLLECTION); // collection root
-    buildVarMap();
-    renderTree($('#search').value||'');
-  }catch(err){ alert('Ошибка парсинга коллекции: '+err.message); }
-});
-
-$('#envFile').addEventListener('change', async (e)=>{
-  const f = e.target.files[0];
-  if (!f) return;
-  const txt = await f.text();
-  try{
-    ENV = JSON.parse(txt);
-    localStorage.setItem('pm_env', txt);
-    buildVarMap();
-    renderTree($('#search').value||'');
-  }catch(err){ alert('Ошибка парсинга окружения: '+err.message); }
-});
-
+$('#collectionFile').addEventListener('change', onCollectionUpload);
+$('#envFile').addEventListener('change', onEnvUpload);
 $('#clearBtn').addEventListener('click', ()=>{
-  localStorage.removeItem('pm_collection');
-  localStorage.removeItem('pm_env');
-  COLLECTION = null; ENV = null; VARS={}; ITEMS_FLAT=[]; CURRENT_REQ_ID=null;
+  localStorage.removeItem('pm_collection'); localStorage.removeItem('pm_env');
+  COLLECTION=null; ENV=null; VARS={}; ITEMS_FLAT=[]; CURRENT_REQ_ID=null;
   $('#tree').innerHTML=''; $('#reqPane').innerHTML=''; $('#resPane').innerHTML='';
+  $('#loadedInfo').textContent = '';
+  $('#colLabel').style.display=''; $('#envLabel').style.display='';
   alert('Сессия очищена');
 });
-
 $('#search').addEventListener('input', debounce((e)=> renderTree(e.target.value), 200));
 
-const storedCol = localStorage.getItem('pm_collection');
-if (storedCol){
-  try{ COLLECTION = JSON.parse(storedCol); ITEMS_FLAT=[]; flattenItems(COLLECTION); }catch{}
+async function onCollectionUpload(e){
+  const f = e.target.files[0]; if(!f) return;
+  const txt = await f.text();
+  try{
+    COLLECTION = JSON.parse(txt); localStorage.setItem('pm_collection', txt);
+    ITEMS_FLAT = []; flattenItems(COLLECTION); buildVarMap(); renderTree($('#search').value||'');
+    $('#loadedInfo').textContent = shortInfo();
+    if (AUTO_OPEN_FIRST) autoOpenFirst();
+  }catch(err){ alert('Ошибка парсинга коллекции: '+err.message); }
 }
-const storedEnv = localStorage.getItem('pm_env');
-if (storedEnv){
-  try{ ENV = JSON.parse(storedEnv); }catch{}
+async function onEnvUpload(e){
+  const f = e.target.files[0]; if(!f) return;
+  const txt = await f.text();
+  try{
+    ENV = JSON.parse(txt); localStorage.setItem('pm_env', txt);
+    buildVarMap(); renderTree($('#search').value||'');
+    $('#loadedInfo').textContent = shortInfo();
+  }catch(err){ alert('Ошибка парсинга окружения: '+err.message); }
 }
-buildVarMap();
-renderTree('');
 
+function shortInfo(){
+  const name = COLLECTION?.info?.name || 'Коллекция';
+  const cnt = ITEMS_FLAT.length;
+  const envName = ENV?.name || ENV?.info?.name || 'env';
+  const hasEnv = ENV ? `, env: ${envName}` : '';
+  return `${name} (${cnt} запросов${hasEnv})`;
+}
+
+function autoOpenFirst(){
+  const first = ITEMS_FLAT[0];
+  if (first){ $('#welcomeCard')?.remove(); openRequest(first); }
+}
+
+/* === Автозагрузка из корня проекта (или путей из query) === */
+(async function bootstrap(){
+  // 1) Пытаемся загрузить дефолтные файлы из корня
+  let loadedSomething = false;
+  try{
+    const colRes = await fetch(DEFAULT_COLLECTION_PATH, {cache:'no-cache'});
+    if (colRes.ok){
+      const txt = await colRes.text();
+      COLLECTION = JSON.parse(txt);
+      localStorage.setItem('pm_collection', txt);
+      loadedSomething = true;
+    }
+  }catch{}
+  try{
+    const envRes = await fetch(DEFAULT_ENV_PATH, {cache:'no-cache'});
+    if (envRes.ok){
+      const txt = await envRes.text();
+      ENV = JSON.parse(txt);
+      localStorage.setItem('pm_env', txt);
+    }
+  }catch{}
+
+  if (!loadedSomething){
+    // 2) Фоллбек на localStorage (если уже был визит)
+    const storedCol = localStorage.getItem('pm_collection');
+    if (storedCol){ try{ COLLECTION = JSON.parse(storedCol); loadedSomething = true; }catch{} }
+    const storedEnv = localStorage.getItem('pm_env');
+    if (storedEnv){ try{ ENV = JSON.parse(storedEnv); }catch{} }
+  }
+
+  if (loadedSomething){
+    ITEMS_FLAT = []; flattenItems(COLLECTION); buildVarMap(); renderTree('');
+    $('#loadedInfo').textContent = shortInfo();
+    // скрываем кнопки загрузки, т.к. автозагрузка состоялась (оставь, если хочешь — просто убери эти две строки)
+    $('#colLabel').style.display='none';
+    $('#envLabel').style.display='none';
+    if (AUTO_OPEN_FIRST) autoOpenFirst();
+  }else{
+    // ничего не нашли — показываем загрузчики
+    renderTree('');
+  }
+})();
 </script>
 </body>
 </html>
