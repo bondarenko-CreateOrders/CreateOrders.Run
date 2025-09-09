@@ -6,8 +6,17 @@
 <title>Mini Postman Viewer (Swagger-like)</title>
 <style>
   :root{
-    --bg:#0f1216; --panel:#151a21; --muted:#677285; --fg:#e7ecf3; --accent:#7cc0ff;
-    --ok:#1ec28b; --warn:#ffcc66; --err:#ff7b7b; --divider:#223042; --code:#0b0f14;
+    /* светлая палитра */
+    --bg:#f6f8fb;           /* фон страницы */
+    --panel:#ffffff;        /* карточки/панели */
+    --muted:#6b7280;        /* приглушённый текст */
+    --fg:#0a0d14;           /* обычный текст */
+    --accent:#0b6cff;       /* акцент / кнопка Send */
+    --ok:#16a34a;           /* зелёный статус */
+    --warn:#b45309;         /* жёлто-коричневый */
+    --err:#dc2626;          /* красный */
+    --divider:#e5e7eb;      /* границы/разделители */
+    --code:#0f172a;         /* фон блока кода (тёмный, как в Swagger) */
   }
 
   *{box-sizing:border-box}
@@ -19,114 +28,170 @@
   }
 
   /* header / layout */
-  header{ grid-area:top; display:flex; gap:12px; align-items:center; padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--divider); }
+  header{
+    grid-area:top; display:flex; gap:12px; align-items:center; padding:8px 12px;
+    background:var(--panel); border-bottom:1px solid var(--divider);
+  }
   header h1{font-size:16px; margin:0; letter-spacing:.2px; color:var(--accent)}
   .bar{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
-  .btn, button{background:#202938; color:var(--fg); border:1px solid var(--divider); padding:8px 10px; border-radius:8px; cursor:pointer}
-  .btn:hover, button:hover{border-color:#3a4b66}
+  .btn, button{
+    background:#f3f4f6; color:var(--fg); border:1px solid var(--divider);
+    padding:8px 10px; border-radius:8px; cursor:pointer
+  }
+  .btn:hover, button:hover{background:#eef2f7}
   input[type="file"]{display:none}
-  label.file{padding:8px 10px; border:1px dashed var(--divider); border-radius:8px; cursor:pointer}
-  .left{grid-area:left; border-right:1px solid var(--divider); overflow:auto; background:var(--panel)}
-  .right{grid-area:right; overflow:auto}
+  label.file{
+    padding:8px 10px; border:1px dashed var(--divider); border-radius:8px; cursor:pointer; background:#fafafa
+  }
+  .left{
+    grid-area:left; border-right:1px solid var(--divider); overflow:auto; background:var(--panel)
+  }
+  .right{grid-area:right; overflow:auto; background:var(--bg)}
   .section{padding:12px}
-  .search{width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider); background:#0f141b; color:var(--fg)}
+  .search{
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider);
+    background:#f9fafb; color:var(--fg)
+  }
   .pane{max-width:1100px; margin:18px auto; padding:0 18px 80px}
 
   /* cards / tables / forms */
-  .card{background:var(--panel); border:1px solid var(--divider); border-radius:12px; overflow:hidden; margin-bottom:16px}
-  .card h3{margin:0; padding:12px 14px; border-bottom:1px solid var(--divider); font-size:14px; letter-spacing:.2px; color:#cfe7ff; background:#12161c}
+  .card{
+    background:var(--panel); border:1px solid var(--divider); border-radius:12px; overflow:hidden; margin-bottom:16px
+  }
+  .card h3{
+    margin:0; padding:12px 14px; border-bottom:1px solid var(--divider);
+    font-size:14px; letter-spacing:.2px; color:#0b1220; background:#f3f4f6
+  }
   .row{display:grid; grid-template-columns: 110px 1fr; gap:8px; padding:10px 12px; align-items:center}
-  .row input, .row textarea, .row select{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider); background:#0f141b; color:var(--fg); font-family:inherit; font-size:14px }
-  textarea.code{min-height:160px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+  .row input, .row textarea, .row select{
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider);
+    background:#ffffff; color:var(--fg); font-family:inherit; font-size:14px
+  }
+  textarea.code{min-height:160px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#ffffff}
   .kvs{padding:10px 12px}
-  table{width:100%; border-collapse:collapse; font-size:14px}
+  table{width:100%; border-collapse:collapse; font-size:14px; background:#fff}
   th, td{border-bottom:1px solid var(--divider); padding:8px}
-  th{color:#b0bfd8; text-align:left; background:#10151d; position:sticky; top:0}
-  .actions{display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--divider); background:#10151d; position:sticky; bottom:0}
-  .send{background:var(--accent); color:#001428; font-weight:700; border:none}
+  th{color:#374151; text-align:left; background:#f3f4f6; position:sticky; top:0}
+  .actions{
+    display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--divider);
+    background:#f8fafc; position:sticky; bottom:0
+  }
+  .send{background:var(--accent); color:#ffffff; font-weight:700; border:none}
   .meta{display:flex; gap:12px; font-size:12px; color:var(--muted)}
   .status.ok{color:var(--ok)} .status.err{color:var(--err)}
-  pre{margin:0; padding:12px; background:var(--code); color:#cfe7ff; overflow:auto}
-  .pill{border:1px solid var(--divider); padding:4px 8px; border-radius:999px; font-size:12px; color:#b8c7de}
+  pre{margin:0; padding:12px; background:var(--code); color:#e5edff; overflow:auto; border-top:1px solid var(--divider)}
+  .pill{border:1px solid var(--divider); padding:4px 8px; border-radius:999px; font-size:12px; color:#334155; background:#ffffff}
   .small{font-size:12px; color:var(--muted)}
   .muted{color:var(--muted)}
   .inline{display:flex; gap:8px; align-items:center}
-  .rightInfo{font-size:12px; color:#9eb3d3}
+  .rightInfo{font-size:12px; color:#475569}
 
-  /* ---------- Swagger-like список API ---------- */
+  /* ---------- Swagger-like список API (светлая версия) ---------- */
   .tree{margin-top:12px}
   .folder{
-    color:#dbe7fb; font-weight:800; text-transform:none; letter-spacing:.2px;
+    color:#0b1220; font-weight:800; text-transform:none; letter-spacing:.2px;
     font-size:18px; margin:18px 10px 6px;
   }
   .op{
     display:flex; align-items:center; gap:12px;
     border-radius:8px; padding:10px 12px; margin:8px 6px;
-    border:1px solid var(--divider); cursor:pointer;
-    background:#0f141b;
-    transition: transform .05s ease, background .15s ease, border-color .15s ease;
+    border:1px solid var(--divider); cursor:pointer; background:#ffffff;
+    transition: transform .05s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+    box-shadow: 0 1px 0 rgba(15,23,42,.03);
   }
-  .op:hover{ background:#111925; border-color:#314158; transform: translateY(-1px); }
-  .op.active{ outline:2px solid #2b8cff55; }
+  .op:hover{ background:#f9fafb; border-color:#dbe3ed; transform: translateY(-1px); }
+  .op.active{ outline:2px solid #2b8cff33; }
+
   .op .op-method{
     min-width:66px; text-align:center; font-weight:800; font-size:12px;
-    padding:6px 8px; border-radius:6px; letter-spacing:.5px;
-    border:1px solid rgba(255,255,255,.08); box-shadow: inset 0 0 0 9999px rgba(255,255,255,.04);
+    padding:6px 8px; border-radius:6px; letter-spacing:.5px; border:1px solid rgba(0,0,0,.06);
   }
   .op .op-path{
     flex:1; min-width:0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size:13px; color:#e6eefc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    font-size:13px; color:#0b1220; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .op.GET      { background:#0e1a12; border-color:#1d3a2a; }
-  .op.GET .op-method{ background:#123a2d; color:#1ec28b; }
-  .op.POST     { background:#1c1626; border-color:#3a2c58; }
-  .op.POST .op-method{ background:#2b2033; color:#d39bff; }
-  .op.PUT      { background:#1f1f12; border-color:#3a3a1f; }
-  .op.PUT .op-method{ background:#2b2e15; color:#d7df66; }
-  .op.PATCH    { background:#241910; border-color:#4a2f16; }
-  .op.PATCH .op-method{ background:#2e1f12; color:#ffa36b; }
-  .op.DELETE   { background:#2a1315; border-color:#5a2327; }
-  .op.DELETE .op-method{ background:#3a1416; color:#ff7b7b; }
-  .op.HEAD, .op.OPTIONS, .op.TRACE{ background:#10161f; border-color:#2a3a52; }
-  .op.HEAD .op-method, .op.OPTIONS .op-method, .op.TRACE .op-method{ background:#1a2433; color:#7cc0ff; }
+
+  /* мягкие цветовые заливки по методу */
+  .op.GET      { background:#e8f5ee; }
+  .op.GET .op-method{ background:#dff3e7; color:#0a7c3a; }
+
+  .op.POST     { background:#f3e9ff; }
+  .op.POST .op-method{ background:#efe4ff; color:#7a3cff; }
+
+  .op.PUT      { background:#f6f7dd; }
+  .op.PUT .op-method{ background:#f2f4c9; color:#7a7f17; }
+
+  .op.PATCH    { background:#ffe9d9; }
+  .op.PATCH .op-method{ background:#ffe1cd; color:#c05621; }
+
+  .op.DELETE   { background:#ffe5e7; }
+  .op.DELETE .op-method{ background:#ffdadd; color:#c81e1e; }
+
+  .op.HEAD, .op.OPTIONS, .op.TRACE{ background:#eaf2ff; }
+  .op.HEAD .op-method, .op.OPTIONS .op-method, .op.TRACE .op-method{ background:#e2ecff; color:#0b6cff; }
+
   .item,.title,.path{display:none}
 
-  /* --------- редактор запроса в стиле Swagger --------- */
+  /* --------- редактор запроса (светлый) --------- */
   .reqHeader{
     display:flex; align-items:center; gap:12px; padding:12px 14px;
-    background:#1c1a14; border-bottom:1px solid var(--divider);
+    background:#fff7e8; border-bottom:1px solid var(--divider);
   }
   .reqHeader .badge{
-    font-weight:800; font-size:12px; padding:6px 8px; border-radius:6px; border:1px solid rgba(255,255,255,.1);
+    font-weight:800; font-size:12px; padding:6px 8px; border-radius:6px; border:1px solid rgba(0,0,0,.08);
+    background:#ffefd2; color:#8a5a00;
   }
   .reqHeader .path{
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#0b1220;
   }
-  .tabs{ display:flex; gap:6px; padding:8px 10px; border-bottom:1px solid var(--divider); background:#12161c }
-  .tab{ padding:8px 12px; border:1px solid transparent; border-radius:8px; cursor:pointer; color:#c9d7ef }
-  .tab.active{ border-color:#314158; background:#0f141b }
+  .tabs{ display:flex; gap:6px; padding:8px 10px; border-bottom:1px solid var(--divider); background:#f3f4f6 }
+  .tab{ padding:8px 12px; border:1px solid transparent; border-radius:8px; cursor:pointer; color:#0b1220; background:#ffffff }
+  .tab.active{ border-color:#cfd7e3; background:#f9fafb }
   .tabPane{ display:none; }
   .tabPane.active{ display:block; }
-  .kvTable{ width:100%; border-collapse:collapse; }
+  .kvTable{ width:100%; border-collapse:collapse; background:#fff }
   .kvTable th, .kvTable td{ border-bottom:1px solid var(--divider); padding:8px }
-  .kvTable th{ background:#10151d; color:#b0bfd8; position:sticky; top:0; text-align:left }
+  .kvTable th{ background:#f3f4f6; color:#374151; position:sticky; top:0; text-align:left }
   .kvAddBtn{ margin-top:8px }
-  .scriptsSwitcher{ display:flex; gap:8px; padding:10px 12px; background:#0f141b; border-bottom:1px solid var(--divider) }
-  .scriptsSwitcher button{ padding:6px 10px; border-radius:6px; background:#10161d; border:1px solid #2a3a52; color:#cfe2ff; cursor:pointer }
-  .scriptsSwitcher button.active{ background:#152033; border-color:#3c5580 }
-  .scriptsArea{ padding:12px }
-  .scriptsArea textarea{ width:100%; min-height:160px; border:1px solid var(--divider); border-radius:8px; background:#0f141b; color:var(--fg); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding:10px }
-  .reqBodyWrap{ padding:12px 14px; background:#f6efe4; color:#1d1408 }
-  .reqBodyToolbar{ display:flex; gap:8px; align-items:center; margin-bottom:8px }
-  .reqBodyToolbar .clear{ background:#ffdad4; color:#5c1d18; border:1px solid #f3b0a7 }
-  .reqBodyWrap textarea{ width:100%; min-height:220px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px; border:1px solid #e6d7c8; border-radius:8px; padding:10px; background:#fff5eb; color:#1d1408 }
 
+  .scriptsSwitcher{ display:flex; gap:8px; padding:10px 12px; background:#f9fafb; border-bottom:1px solid var(--divider) }
+  .scriptsSwitcher button{
+    padding:6px 10px; border-radius:6px; background:#ffffff; border:1px solid #dbe3ed; color:#0b1220; cursor:pointer
+  }
+  .scriptsSwitcher button.active{ background:#eef4ff; border-color:#c9dcff }
+
+  .scriptsArea{ padding:12px; background:#ffffff }
+  .scriptsArea textarea{
+    width:100%; min-height:160px; border:1px solid var(--divider); border-radius:8px;
+    background:#ffffff; color:var(--fg); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding:10px
+  }
+
+  .reqBodyWrap{ padding:12px 14px; background:#fff7e8; color:#1d1408; border-top:1px solid var(--divider) }
+  .reqBodyToolbar{ display:flex; gap:8px; align-items:center; margin-bottom:8px }
+  .reqBodyToolbar .clear{ background:#ffd7cf; color:#7a1d16; border:1px solid #ffc0b6 }
+  .reqBodyWrap textarea{
+    width:100%; min-height:220px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px;
+    border:1px solid #e6d7c8; border-radius:8px; padding:10px; background:#ffffff; color:#1d1408
+  }
+  /* loader */
+.loaderOverlay{
+  position:fixed; inset:56px 0 0 0; display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.6); z-index:9999; backdrop-filter:saturate(1.2) blur(2px);
+}
+.loaderOverlay[hidden]{ display:none }
+.spinner{
+  width:40px; height:40px; border-radius:50%;
+  border:4px solid #dbe3ed; border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
+  
 <body>
   <header>
-    <h1>Postman → Swagger-like Viewer</h1>
+    <h1>Driver team collections</h1>
     <div class="bar">
       <label class="file" id="colLabel">Коллекция
         <input id="collectionFile" type="file" accept=".json,application/json" />
@@ -179,6 +244,11 @@ const el = (tag, attrs={}, ...children) => { const n=document.createElement(tag)
 function debounce(fn, ms=250){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
 function prettyJSON(x){ try{ return typeof x==='string'?JSON.stringify(JSON.parse(x),null,2):JSON.stringify(x,null,2);}catch{ return String(x);} }
 function sizeBytes(val){ try{ const b=(new TextEncoder()).encode(typeof val==='string'?val:JSON.stringify(val)).length; if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }catch{ return '—'; } }
+function showLoader(on){
+  const l = $('#loader');
+  if (!l) return;
+  l.hidden = !on;
+}
 
 /* ========= State ========= */
 let COLLECTION = null, ENV = null, VARS = {};
@@ -294,94 +364,86 @@ function saveScripts(reqId, pre, post){
 function openRequest(item){
   CURRENT_REQ_ID = item.id;
   const req = item.request;
-  const methodOrig = (req.method||'GET').toUpperCase();
-  const urlRaw = normalizeUrl(req.url);
-  const urlResolved = resolveVars(urlRaw);
 
-  // исходные массивы (простые key/value)
+  // 1) метод/URL строго из коллекции
+  const methodOrig = String(req.method || 'GET').toUpperCase();
+  const urlRaw     = normalizeUrl(req.url);
+  const urlInit    = resolveVars(urlRaw); // подставляем {{vars}}
+
+  // 2) исходные массивы (простые key/value)
   const paramsInit = (typeof req.url==='object' && Array.isArray(req.url.query))
     ? req.url.query.map(q=>({key:q.key, value: resolveVars(q.value??'')})) : [];
+
   let headersInit = Array.isArray(req.header)
     ? req.header.map(h=>({key:h.key, value: resolveVars(h.value??'')})) : [];
 
-  // bearer -> Authorization если нет
+  // 3) bearer -> Authorization если нет
   if (req.auth && req.auth.type==='bearer'){
     const token = (req.auth.bearer||[]).find(x=>x.key==='token')?.value || VARS.token || VARS.access_token || '';
-    if (token && !headersInit.some(h=>h.key?.toLowerCase()==='authorization')){
+    if (token && !headersInit.some(h=>String(h.key||'').toLowerCase()==='authorization')){
       headersInit.unshift({key:'Authorization', value:'Bearer '+resolveVars(token)});
     }
   }
 
-  // тело
+  // 4) тело
   let bodyText = req.body?.raw != null ? resolveVars(req.body.raw) : '';
 
-  // UI
+  // ===== UI =====
   const pane = $('#reqPane'); pane.innerHTML='';
   const card = el('div', {class:'card'});
 
-  // верхняя шапка как в Swagger
+  // шапка (как у Swagger)
   const header = el('div', {class:'reqHeader'},
-    el('span', {class:'badge', style:
-      methodOrig==='GET'?'background:#123a2d;color:#1ec28b':
-      methodOrig==='POST'?'background:#2b2033;color:#d39bff':
-      methodOrig==='PUT'?'background:#2b2e15;color:#d7df66':
-      methodOrig==='PATCH'?'background:#2e1f12;color:#ffa36b':
-      methodOrig==='DELETE'?'background:#3a1416;color:#ff7b7b':'background:#1a2433;color:#7cc0ff'
-    }, methodOrig),
-    el('div', {class:'path', id:'topPath'}, urlResolved || urlRaw)
+    el('span', {class:'badge'}, methodOrig),
+    el('div', {class:'path', id:'topPath'}, urlInit || urlRaw)
   );
 
-  // tabs
+  // Tabs
   const tabs = el('div', {class:'tabs'},
     el('div', {class:'tab active', id:'tabParams'}, 'Params'),
     el('div', {class:'tab', id:'tabHeaders'}, 'Headers'),
     el('div', {class:'tab', id:'tabScripts'}, 'Scripts')
   );
 
-  // panes
   const paramsPane = el('div', {class:'tabPane active', id:'paneParams'});
-  const headersPane= el('div', {class:'tabPane', id:'paneHeaders'});
-  const scriptsPane= el('div', {class:'tabPane', id:'paneScripts'});
+  const headersPane= el('div', {class:'tabPane',        id:'paneHeaders'});
+  const scriptsPane= el('div', {class:'tabPane',        id:'paneScripts'});
 
-  // URL и метод
+  // конструктор Method / URL
   const methodSel = el('select', {id:'methodSel'},
     ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected:m===methodOrig}, m))
   );
-  const urlInput = el('input', {id:'urlInp', value: urlResolved || urlRaw});
+  const urlInput = el('input', {id:'urlInp', value: urlInit || urlRaw});
   const methodRow = el('div', {class:'row'},
     el('div', {class:'inline'}, el('span', {class:'muted'}, 'Method / URL')),
-    el('div', {class:'inline', style:'gap:8px; width:100%'},
-      methodSel, urlInput
-    )
+    el('div', {class:'inline', style:'gap:8px; width:100%'}, methodSel, urlInput)
   );
 
-  // Params table
+  // Params
   const paramsTable = buildKVTable(paramsInit);
-  paramsPane.append(methodRow);
-  paramsPane.append(el('div', {class:'kvs'}, paramsTable));
-  // live update URL on params change
+  paramsPane.append(methodRow, el('div', {class:'kvs'}, paramsTable));
   paramsPane.addEventListener('input', debounce(()=>{
     const p = tableToSimpleArray(paramsTable.tBodies[0]);
     const built = buildFinalUrl(urlInput.value, p);
     $('#topPath').textContent = built;
-  }, 150));
+  }, 120));
 
-  // Headers table
+  // Headers
   const headersTable = buildKVTable(headersInit);
   headersPane.append(el('div', {class:'kvs'}, headersTable));
 
   // Scripts
   const {pre:preSaved='', post:postSaved=''} = loadScripts(item.id);
   const sw = el('div', {class:'scriptsSwitcher'},
-    el('button', {id:'btnPre', class:'active', onclick:()=>switchScript('pre')}, 'PRE-Request'),
+    el('button', {id:'btnPre',  class:'active', onclick:()=>switchScript('pre')},  'PRE-Request'),
     el('button', {id:'btnPost', onclick:()=>switchScript('post')}, 'POST-Request')
   );
-  const preTA  = el('textarea', {id:'preScript'}, preSaved);
+  const preTA  = el('textarea', {id:'preScript'},  preSaved);
   const postTA = el('textarea', {id:'postScript', style:'display:none'}, postSaved);
   const scriptsArea = el('div', {class:'scriptsArea'}, preTA, postTA);
   scriptsPane.append(sw, scriptsArea);
 
-  // Request body (низ)
+  // Body + Очистить
   const bodyWrap = el('div', {class:'reqBodyWrap'});
   const bodyToolbar = el('div', {class:'reqBodyToolbar'},
     el('span', {}, 'Request body'),
@@ -396,11 +458,10 @@ function openRequest(item){
   const curlBtn = el('button', {id:'curlBtn'}, 'Copy cURL');
   actions.append(sendBtn, curlBtn);
 
-  // compose card
   card.append(header, tabs, paramsPane, headersPane, scriptsPane, bodyWrap, actions);
   pane.append(card);
 
-  // tabs logic
+  // табы
   function activateTab(name){
     ['Params','Headers','Scripts'].forEach(t=>{
       $('#tab'+t).classList.toggle('active', t===name);
@@ -410,103 +471,92 @@ function openRequest(item){
   $('#tabParams').onclick = ()=>activateTab('Params');
   $('#tabHeaders').onclick= ()=>activateTab('Headers');
   $('#tabScripts').onclick= ()=>activateTab('Scripts');
-
   function switchScript(which){
     $('#btnPre').classList.toggle('active', which==='pre');
     $('#btnPost').classList.toggle('active', which==='post');
     preTA.style.display  = which==='pre' ? '' : 'none';
     postTA.style.display = which==='post'? '' : 'none';
   }
+  scriptsPane.addEventListener('input', debounce(()=> saveScripts(item.id, preTA.value, postTA.value), 180));
 
-  // SAVE scripts on input
-  scriptsPane.addEventListener('input', debounce(()=>{
-    saveScripts(item.id, preTA.value, postTA.value);
-  }, 200));
-
-  // SEND
+  // ==== SEND ====
   $('#sendBtn').onclick = async ()=>{
-    // gather current state
-    const method = methodSel.value;
-    const urlBase = urlInput.value.trim();
     const params = tableToSimpleArray(paramsTable.tBodies[0]);
-    const headers = Object.fromEntries(tableToSimpleArray(headersTable.tBodies[0]).map(p=>[p.key, resolveVars(p.value)]));
+    const hdrArr = tableToSimpleArray(headersTable.tBodies[0]);
+    let headers  = Object.fromEntries(hdrArr.filter(x=>x.key).map(x=>[x.key, resolveVars(x.value)]));
+
+    let method = methodSel.value;
+    let finalUrl = buildFinalUrl(urlInput.value.trim(), params);
     let body = bodyArea.value || '';
 
-    // build url with params
-    let finalUrl = buildFinalUrl(urlBase, params);
-
-    // PRE script
-    const preCode = preTA.value || '';
-    if (preCode.trim()){
+    // PRE
+    const preCode = preTA.value.trim();
+    if (preCode){
       try{
         const ctx = makePreCtx({method, url:finalUrl, params, headers, body});
         runUserScript(preCode, ctx);
-        // apply back possibly changed values
+        ({method} = ctx.request);
         finalUrl = ctx.request.url;
+        headers  = ctx.request.headers;
         body     = ctx.request.body;
-        // params/headers/method могли измениться
-        methodSel.value = ctx.request.method;
-        urlInput.value  = ctx.request.url;
-        // overwrite UI tables if изменили params/headers — опционально не трогаем UI, но учитываем их в запросе:
       }catch(e){ alert('Ошибка PRE-скрипта: '+e.message); return; }
     }
 
-    // infer content-type if looks like JSON + нет header
+    // content-type если JSON
     if (body && !Object.keys(headers).some(h=>h.toLowerCase()==='content-type')){
-      try{ JSON.parse(body); headers['Content-Type']='application/json'; }catch{}
+      try{ JSON.parse(body); headers['Content-Type'] = 'application/json'; }catch{}
     }
 
     // proxy
     const proxy = $('#proxyPrefix').value.trim();
     const targetUrl = proxy ? proxy + finalUrl : finalUrl;
 
-    // fetch
+    // loader ON
+    showLoader(true); sendBtn.disabled = true;
+
     const started = performance.now();
     let res, text;
     try{
-      res = await fetch(targetUrl, {
-        method: methodSel.value,
-        headers,
-        body: (methodSel.value==='GET' || methodSel.value==='HEAD') ? undefined : body
-      });
+      res = await fetch(targetUrl, { method, headers, body: (method==='GET'||method==='HEAD')?undefined:body });
       text = await res.text();
     }catch(e){
       renderResponse(null, String(e), performance.now()-started, finalUrl);
-      // POST script всё равно выполним с ошибкой в response?
-      const postCode = postTA.value || '';
-      if (postCode.trim()){
-        try{ const ctxPost = makePostCtx({error: String(e), request:{method:methodSel.value, url:finalUrl, headers, body}, response:null}); runUserScript(postCode, ctxPost); }catch(_){}
+      // POST с ошибкой
+      const postCode = postTA.value.trim();
+      if (postCode){
+        try{ const ctxPost = makePostCtx({request:{method,url:finalUrl,headers,body}, response:null, error:String(e)}); runUserScript(postCode, ctxPost); }catch(_){}
       }
+      showLoader(false); sendBtn.disabled = false;
       return;
     }
 
-    // POST script
-    const postCode = postTA.value || '';
-    if (postCode.trim()){
+    // POST
+    const postCode = postTA.value.trim();
+    if (postCode){
       try{
         const ctxPost = makePostCtx({
-          request:{method:methodSel.value, url:finalUrl, headers, body},
+          request:{method,url:finalUrl,headers,body},
           response:{ status: res.status, statusText: res.statusText, headers: Object.fromEntries(res.headers.entries()), bodyText: text }
         });
         runUserScript(postCode, ctxPost);
-        // allow script to modify body before render
         if (ctxPost.response && typeof ctxPost.response.bodyText === 'string') text = ctxPost.response.bodyText;
       }catch(e){ alert('Ошибка POST-скрипта: '+e.message); }
     }
 
     renderResponse(res, text, performance.now()-started, finalUrl);
+    showLoader(false); sendBtn.disabled = false;
   };
 
   // cURL
   $('#curlBtn').onclick = ()=>{
-    const method = methodSel.value;
+    const m = methodSel.value;
     const params = tableToSimpleArray(paramsTable.tBodies[0]);
     const finalUrl = buildFinalUrl(urlInput.value.trim(), params);
     const headers  = Object.fromEntries(tableToSimpleArray(headersTable.tBodies[0]).map(p=>[p.key, resolveVars(p.value)]));
-    const body     = (method==='GET' || method==='HEAD') ? '' : (bodyArea.value || '');
-    const hdrStr = Object.entries(headers).map(([k,v])=>` -H '${k}: ${v.replace(/'/g,"'\\''")}'`).join('');
-    const bodyStr = body ? ` --data '${body.replace(/'/g,"'\\''")}'` : '';
-    const cmd = `curl -X ${method}${hdrStr}${bodyStr} '${finalUrl.replace(/'/g,"'\\''")}'`;
+    const body     = (m==='GET' || m==='HEAD') ? '' : (bodyArea.value || '');
+    const hdrStr = Object.entries(headers).map(([k,v])=>` -H '${k}: ${String(v).replace(/'/g,"'\\''")}'`).join('');
+    const bodyStr = body ? ` --data '${String(body).replace(/'/g,"'\\''")}'` : '';
+    const cmd = `curl -X ${m}${hdrStr}${bodyStr} '${finalUrl.replace(/'/g,"'\\''")}'`;
     navigator.clipboard.writeText(cmd); alert('cURL скопирован');
   };
 }
@@ -558,19 +608,21 @@ function renderResponse(res, text, ms, url){
   const status = res ? `${res.status} ${res.statusText}` : 'Network error';
   head.append(el('span', {class:'pill status '+(res && res.ok?'ok':'err')}, status));
   head.append(el('span', {class:'pill'}, `Время: ${ms.toFixed(0)} ms`));
-  head.append(el('span', {class:'pill'}, `Размер: ${sizeBytes(text)}`));
   head.append(el('span', {class:'pill'}, `URL: ${url}`));
   card.append(head);
   let formatted = text; try{ formatted = JSON.stringify(JSON.parse(text),null,2);}catch{}
   card.append(el('pre', {}, formatted || '—'));
-  const hdrsCard = el('div', {class:'card'}); hdrsCard.append(el('h3', {}, 'Response headers'));
-  const table = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Header'), el('th', {}, 'Value'))));
-  const tb = el('tbody');
-  if(res){ res.headers.forEach((v,k)=> tb.append(el('tr', {}, el('td', {}, k), el('td', {}, v)))); }
-  else { tb.append(el('tr', {}, el('td', {colspan:2}, 'Нет заголовков (ошибка сети?)'))); }
-  table.append(tb); hdrsCard.append(el('div', {class:'kvs'}, table));
-  pane.append(card, hdrsCard);
+  if (res){
+    const hdrsCard = el('div', {class:'card'}); hdrsCard.append(el('h3', {}, 'Response headers'));
+    const table = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Header'), el('th', {}, 'Value'))));
+    const tb = el('tbody'); res.headers.forEach((v,k)=> tb.append(el('tr', {}, el('td', {}, k), el('td', {}, v))));
+    table.append(tb); hdrsCard.append(el('div', {class:'kvs'}, table));
+    pane.append(card, hdrsCard);
+  }else{
+    pane.append(card);
+  }
 }
+
 
 /* ========= Loaders & session ========= */
 $('#collectionFile').addEventListener('change', onCollectionUpload);
@@ -641,5 +693,8 @@ function autoOpenFirst(){
   }
 })();
 </script>
+<div id="loader" class="loaderOverlay" hidden>
+  <div class="spinner"></div>
+</div>
 </body>
 </html>
