@@ -6,8 +6,10 @@
 <title>Mini Postman Viewer (Swagger-like)</title>
 <style>
   :root{
-    --bg:#0f1216; --panel:#151a21; --muted:#677285; --fg:#e7ecf3; --accent:#7cc0ff; --ok:#1ec28b; --warn:#ffcc66; --err:#ff7b7b; --divider:#223042; --code:#0b0f14;
+    --bg:#0f1216; --panel:#151a21; --muted:#677285; --fg:#e7ecf3; --accent:#7cc0ff;
+    --ok:#1ec28b; --warn:#ffcc66; --err:#ff7b7b; --divider:#223042; --code:#0b0f14;
   }
+
   *{box-sizing:border-box}
   body{
     margin:0; font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;
@@ -15,6 +17,8 @@
     display:grid; grid-template-columns: 320px 1fr; grid-template-rows: 56px calc(100dvh - 56px);
     grid-template-areas: "top top" "left right";
   }
+
+  /* header / layout */
   header{ grid-area:top; display:flex; gap:12px; align-items:center; padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--divider); }
   header h1{font-size:16px; margin:0; letter-spacing:.2px; color:var(--accent)}
   .bar{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
@@ -26,17 +30,9 @@
   .right{grid-area:right; overflow:auto}
   .section{padding:12px}
   .search{width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider); background:#0f141b; color:var(--fg)}
-  .tree{margin-top:12px}
-  .node{padding:8px 10px; border-bottom:1px dashed rgba(255,255,255,0.05)}
-  .folder{color:var(--muted); font-weight:600; text-transform:uppercase; font-size:12px}
-  .item{display:flex; align-items:center; gap:10px; cursor:pointer}
-  .method{font-weight:700; font-size:11px; padding:2px 6px; border-radius:6px; min-width:42px; text-align:center}
-  .mGET{background:#123a2d; color:var(--ok)} .mPOST{background:#2b2033; color:#d39bff} .mPUT{background:#2b2e15; color:#d7df66}
-  .mPATCH{background:#2e1f12; color:#ffa36b} .mDELETE{background:#3a1416; color:var(--err)}
-  .item:hover{background:#10151d}
-  .title{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#d8deea}
-  .path{color:var(--muted); font-size:12px}
   .pane{max-width:1100px; margin:18px auto; padding:0 18px 80px}
+
+  /* cards / tables / forms */
   .card{background:var(--panel); border:1px solid var(--divider); border-radius:12px; overflow:hidden; margin-bottom:16px}
   .card h3{margin:0; padding:12px 14px; border-bottom:1px solid var(--divider); font-size:14px; letter-spacing:.2px; color:#cfe7ff; background:#12161c}
   .row{display:grid; grid-template-columns: 110px 1fr; gap:8px; padding:10px 12px; align-items:center}
@@ -56,6 +52,72 @@
   .muted{color:var(--muted)}
   .inline{display:flex; gap:8px; align-items:center}
   .rightInfo{font-size:12px; color:#9eb3d3}
+
+  /* ---------- Swagger-like список API ---------- */
+  .tree{margin-top:12px}
+
+  /* заголовок папки (секции) */
+  .folder{
+    color:#dbe7fb;
+    font-weight:800;
+    text-transform:none;
+    letter-spacing:.2px;
+    font-size:18px;
+    margin:18px 10px 6px;
+  }
+
+  /* “операция” — цветная полоса */
+  .op{
+    display:flex; align-items:center; gap:12px;
+    border-radius:8px; padding:10px 12px; margin:8px 6px;
+    border:1px solid var(--divider); cursor:pointer;
+    background:#0f141b;
+    transition: transform .05s ease, background .15s ease, border-color .15s ease;
+  }
+  .op:hover{ background:#111925; border-color:#314158; transform: translateY(-1px); }
+  .op.active{ outline:2px solid #2b8cff55; }
+
+  /* бейдж метода */
+  .op .op-method{
+    min-width:66px; text-align:center; font-weight:800; font-size:12px;
+    padding:6px 8px; border-radius:6px; letter-spacing:.5px;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow: inset 0 0 0 9999px rgba(255,255,255,.04);
+  }
+
+  /* путь API справа от метода */
+  .op .op-path{
+    flex:1; min-width:0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size:13px; color:#e6eefc;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
+  /* цветовые схемы по методу (похоже на Swagger) */
+  .op.GET      { background:#0e1a12; border-color:#1d3a2a; }
+  .op.GET .op-method{ background:#123a2d; color:#1ec28b; }
+
+  .op.POST     { background:#1c1626; border-color:#3a2c58; }
+  .op.POST .op-method{ background:#2b2033; color:#d39bff; }
+
+  .op.PUT      { background:#1f1f12; border-color:#3a3a1f; }
+  .op.PUT .op-method{ background:#2b2e15; color:#d7df66; }
+
+  .op.PATCH    { background:#241910; border-color:#4a2f16; }
+  .op.PATCH .op-method{ background:#2e1f12; color:#ffa36b; }
+
+  .op.DELETE   { background:#2a1315; border-color:#5a2327; }
+  .op.DELETE .op-method{ background:#3a1416; color:#ff7b7b; }
+
+  .op.HEAD, .op.OPTIONS, .op.TRACE{
+    background:#10161f; border-color:#2a3a52;
+  }
+  .op.HEAD .op-method,
+  .op.OPTIONS .op-method,
+  .op.TRACE .op-method{ background:#1a2433; color:#7cc0ff; }
+
+  /* скрыть старый список (если остался рендер через .item/.title/.path) */
+  .item,.title,.path{display:none}
 </style>
 </head>
 <body>
@@ -164,31 +226,53 @@ function flattenItems(node, path=[]){
 function methodColorCls(m){ return 'method m'+(m||'GET').toUpperCase(); }
 
 /* ========= UI: tree ========= */
-function renderTree(filter=''){
-  const tree = $('#tree'); tree.innerHTML = '';
-  const match = s => s.toLowerCase().includes(filter.toLowerCase());
+
+  function renderTree(filter = '') {
+  const tree = $('#tree');
+  tree.innerHTML = '';
+
+  const q = (filter || '').toLowerCase();
+  const match = s => (s || '').toLowerCase().includes(q);
+
+  // сгруппировать по папкам
   const groups = {};
-  ITEMS_FLAT.forEach(it=>{
-    const key = it.path || 'ROOT';
-    if (filter && !(match(it.name) || match(key) || match(normalizeUrl(it.request.url)))) return;
-    (groups[key] ??= []).push(it);
+  ITEMS_FLAT.forEach(it => {
+    const folder = it.path || 'ROOT';
+    const urlRaw = normalizeUrl(it.request.url);
+    if (q && !(match(it.name) || match(folder) || match(urlRaw))) return;
+    (groups[folder] ||= []).push(it);
   });
-  Object.entries(groups).forEach(([folder, items])=>{
-    const g = el('div', {class:'node'});
-    g.append(el('div', {class:'folder'}, folder==='ROOT'?'Без папки':folder));
-    items.forEach(it=>{
+
+  // отрисовать секции и операции
+  Object.entries(groups).forEach(([folder, items]) => {
+    const sec = el('div', { class: 'node' });
+    sec.append(el('div', { class: 'folder' }, folder === 'ROOT' ? 'Без папки' : folder));
+
+    items.forEach(it => {
       const urlRaw = normalizeUrl(it.request.url);
       const urlResolved = resolveVars(urlRaw);
-      const row = el('div', {class:'item', onclick:()=>openRequest(it)});
-      row.append(el('span', {class:methodColorCls(it.request.method)}, it.request.method || 'GET'));
-      row.append(el('div', {style:'flex:1;min-width:0'},
-        el('div', {class:'title'}, it.name),
-        el('div', {class:'path'}, urlResolved || urlRaw)
-      ));
-      g.append(row);
+      const method = (it.request.method || 'GET').toUpperCase();
+
+      const row = el(
+        'div',
+        {
+          class: 'op ' + method,               // цвет по методу: GET/POST/PUT/DELETE...
+          onclick: () => openRequest(it),
+          title: (it.name ? it.name + ' • ' : '') + (urlResolved || urlRaw || '')
+        },
+        el('div', { class: 'op-method' }, method),                     // бейдж метода
+        el('div', { class: 'op-path' }, urlResolved || urlRaw || '(no url)') // путь API
+      );
+
+      sec.append(row);
     });
-    tree.append(g);
+
+    tree.append(sec);
   });
+
+  if (!tree.children.length) {
+    tree.append(el('div', { class: 'section muted small' }, 'Ничего не найдено'));
+  }
 }
 
 /* ========= UI: request editor & response ========= */
