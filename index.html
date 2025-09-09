@@ -55,18 +55,10 @@
 
   /* ---------- Swagger-like список API ---------- */
   .tree{margin-top:12px}
-
-  /* заголовок папки (секции) */
   .folder{
-    color:#dbe7fb;
-    font-weight:800;
-    text-transform:none;
-    letter-spacing:.2px;
-    font-size:18px;
-    margin:18px 10px 6px;
+    color:#dbe7fb; font-weight:800; text-transform:none; letter-spacing:.2px;
+    font-size:18px; margin:18px 10px 6px;
   }
-
-  /* “операция” — цветная полоса */
   .op{
     display:flex; align-items:center; gap:12px;
     border-radius:8px; padding:10px 12px; margin:8px 6px;
@@ -76,55 +68,66 @@
   }
   .op:hover{ background:#111925; border-color:#314158; transform: translateY(-1px); }
   .op.active{ outline:2px solid #2b8cff55; }
-
-  /* бейдж метода */
   .op .op-method{
     min-width:66px; text-align:center; font-weight:800; font-size:12px;
     padding:6px 8px; border-radius:6px; letter-spacing:.5px;
-    border:1px solid rgba(255,255,255,.08);
-    box-shadow: inset 0 0 0 9999px rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08); box-shadow: inset 0 0 0 9999px rgba(255,255,255,.04);
   }
-
-  /* путь API справа от метода */
   .op .op-path{
-    flex:1; min-width:0;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size:13px; color:#e6eefc;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    flex:1; min-width:0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size:13px; color:#e6eefc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-
-  /* цветовые схемы по методу (похоже на Swagger) */
   .op.GET      { background:#0e1a12; border-color:#1d3a2a; }
   .op.GET .op-method{ background:#123a2d; color:#1ec28b; }
-
   .op.POST     { background:#1c1626; border-color:#3a2c58; }
   .op.POST .op-method{ background:#2b2033; color:#d39bff; }
-
   .op.PUT      { background:#1f1f12; border-color:#3a3a1f; }
   .op.PUT .op-method{ background:#2b2e15; color:#d7df66; }
-
   .op.PATCH    { background:#241910; border-color:#4a2f16; }
   .op.PATCH .op-method{ background:#2e1f12; color:#ffa36b; }
-
   .op.DELETE   { background:#2a1315; border-color:#5a2327; }
   .op.DELETE .op-method{ background:#3a1416; color:#ff7b7b; }
-
-  .op.HEAD, .op.OPTIONS, .op.TRACE{
-    background:#10161f; border-color:#2a3a52;
-  }
-  .op.HEAD .op-method,
-  .op.OPTIONS .op-method,
-  .op.TRACE .op-method{ background:#1a2433; color:#7cc0ff; }
-
-  /* скрыть старый список (если остался рендер через .item/.title/.path) */
+  .op.HEAD, .op.OPTIONS, .op.TRACE{ background:#10161f; border-color:#2a3a52; }
+  .op.HEAD .op-method, .op.OPTIONS .op-method, .op.TRACE .op-method{ background:#1a2433; color:#7cc0ff; }
   .item,.title,.path{display:none}
+
+  /* --------- редактор запроса в стиле Swagger --------- */
+  .reqHeader{
+    display:flex; align-items:center; gap:12px; padding:12px 14px;
+    background:#1c1a14; border-bottom:1px solid var(--divider);
+  }
+  .reqHeader .badge{
+    font-weight:800; font-size:12px; padding:6px 8px; border-radius:6px; border:1px solid rgba(255,255,255,.1);
+  }
+  .reqHeader .path{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .tabs{ display:flex; gap:6px; padding:8px 10px; border-bottom:1px solid var(--divider); background:#12161c }
+  .tab{ padding:8px 12px; border:1px solid transparent; border-radius:8px; cursor:pointer; color:#c9d7ef }
+  .tab.active{ border-color:#314158; background:#0f141b }
+  .tabPane{ display:none; }
+  .tabPane.active{ display:block; }
+  .kvTable{ width:100%; border-collapse:collapse; }
+  .kvTable th, .kvTable td{ border-bottom:1px solid var(--divider); padding:8px }
+  .kvTable th{ background:#10151d; color:#b0bfd8; position:sticky; top:0; text-align:left }
+  .kvAddBtn{ margin-top:8px }
+  .scriptsSwitcher{ display:flex; gap:8px; padding:10px 12px; background:#0f141b; border-bottom:1px solid var(--divider) }
+  .scriptsSwitcher button{ padding:6px 10px; border-radius:6px; background:#10161d; border:1px solid #2a3a52; color:#cfe2ff; cursor:pointer }
+  .scriptsSwitcher button.active{ background:#152033; border-color:#3c5580 }
+  .scriptsArea{ padding:12px }
+  .scriptsArea textarea{ width:100%; min-height:160px; border:1px solid var(--divider); border-radius:8px; background:#0f141b; color:var(--fg); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding:10px }
+  .reqBodyWrap{ padding:12px 14px; background:#f6efe4; color:#1d1408 }
+  .reqBodyToolbar{ display:flex; gap:8px; align-items:center; margin-bottom:8px }
+  .reqBodyToolbar .clear{ background:#ffdad4; color:#5c1d18; border:1px solid #f3b0a7 }
+  .reqBodyWrap textarea{ width:100%; min-height:220px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px; border:1px solid #e6d7c8; border-radius:8px; padding:10px; background:#fff5eb; color:#1d1408 }
+
 </style>
 </head>
 <body>
   <header>
     <h1>Postman → Swagger-like Viewer</h1>
     <div class="bar">
-      <!-- Эти элементы остаются как fallback, но будут скрываться, если автозагрузка удалась -->
       <label class="file" id="colLabel">Коллекция
         <input id="collectionFile" type="file" accept=".json,application/json" />
       </label>
@@ -133,7 +136,7 @@
       </label>
       <button id="clearBtn" title="Очистить сессию">Сброс</button>
       <span class="small muted">Proxy prefix:</span>
-      <input id="proxyPrefix" placeholder="например, http://localhost:8080/" style="width:280px;padding:8px;border-radius:8px;border:1px solid var(--divider);background:#0f141b;color:var(--fg)" />
+      <input id="proxyPrefix" placeholder="например, http://localhost:8080/" style="width:280px;padding:8px;border-radius:8px;border:1px solid var(--divider);background:#0f141b;color:#e7ecf3" />
       <span id="loadedInfo" class="rightInfo"></span>
     </div>
   </header>
@@ -151,12 +154,7 @@
         <h3>Добро пожаловать</h3>
         <div class="section">
           Если в корне есть <code>postman_collection.json</code> и <code>postman_environment.json</code>, они автозагрузятся.
-          Иначе — загрузите вручную кнопками слева. Переопределить пути можно параметрами URL:
-          <code>?collection=./api/col.json&amp;env=./envs/dev.json</code>.
-          <div style="margin-top:10px" class="muted small">
-            Поддерживается: folders, request.url, params, headers, raw/URL-encoded/form-data (text), Bearer auth, переменные из env/collection.<br/>
-            Важно: возможны CORS-ограничения при вызове реального API из браузера. Используйте прокси при необходимости.
-          </div>
+          Иначе — загрузите вручную. Можно задать пути: <code>?collection=./api/col.json&amp;env=./envs/dev.json</code>.
         </div>
       </div>
 
@@ -166,11 +164,11 @@
   </main>
 
 <script>
-/* ========= Config: дефолтные пути и управление автозагрузкой ========= */
+/* ========= Config ========= */
 const urlParams = new URLSearchParams(location.search);
 const DEFAULT_COLLECTION_PATH = urlParams.get('collection') || './postman_collection.json';
 const DEFAULT_ENV_PATH        = urlParams.get('env')        || './postman_environment.json';
-const AUTO_OPEN_FIRST         = urlParams.get('autoOpen') !== '0'; // по умолчанию true
+const AUTO_OPEN_FIRST         = urlParams.get('autoOpen') !== '0';
 
 /* ========= Utilities ========= */
 const $ = sel => document.querySelector(sel);
@@ -185,9 +183,9 @@ function sizeBytes(val){ try{ const b=(new TextEncoder()).encode(typeof val==='s
 /* ========= State ========= */
 let COLLECTION = null, ENV = null, VARS = {};
 let ITEMS_FLAT = [];
-let CURRENT_REQ_ID = null, LAST_REQUEST_OPTS = null;
+let CURRENT_REQ_ID = null;
 
-/* ========= Variables merge & helpers ========= */
+/* ========= Variables & helpers ========= */
 function buildVarMap(){
   const map = {};
   if (ENV && Array.isArray(ENV.values)){
@@ -214,7 +212,7 @@ function normalizeUrl(u){
 function flattenItems(node, path=[]){
   if(!node) return;
   if(Array.isArray(node)){ node.forEach(n=>flattenItems(n, path)); return; }
-  if(node.item){ // folder or root
+  if(node.item){
     const newPath = node.name ? path.concat(node.name) : path;
     node.item.forEach(child=>flattenItems(child, newPath));
     return;
@@ -223,18 +221,12 @@ function flattenItems(node, path=[]){
     ITEMS_FLAT.push({ id: crypto.randomUUID(), path: path.join(' / '), name: node.name || '(без названия)', request: node.request });
   }
 }
-function methodColorCls(m){ return 'method m'+(m||'GET').toUpperCase(); }
 
-/* ========= UI: tree ========= */
-
-  function renderTree(filter = '') {
-  const tree = $('#tree');
-  tree.innerHTML = '';
-
+/* ========= Sidebar rendering ========= */
+function renderTree(filter = '') {
+  const tree = $('#tree'); tree.innerHTML = '';
   const q = (filter || '').toLowerCase();
   const match = s => (s || '').toLowerCase().includes(q);
-
-  // сгруппировать по папкам
   const groups = {};
   ITEMS_FLAT.forEach(it => {
     const folder = it.path || 'ROOT';
@@ -242,203 +234,323 @@ function methodColorCls(m){ return 'method m'+(m||'GET').toUpperCase(); }
     if (q && !(match(it.name) || match(folder) || match(urlRaw))) return;
     (groups[folder] ||= []).push(it);
   });
-
-  // отрисовать секции и операции
   Object.entries(groups).forEach(([folder, items]) => {
     const sec = el('div', { class: 'node' });
     sec.append(el('div', { class: 'folder' }, folder === 'ROOT' ? 'Без папки' : folder));
-
     items.forEach(it => {
       const urlRaw = normalizeUrl(it.request.url);
       const urlResolved = resolveVars(urlRaw);
       const method = (it.request.method || 'GET').toUpperCase();
-
-      const row = el(
-        'div',
-        {
-          class: 'op ' + method,               // цвет по методу: GET/POST/PUT/DELETE...
-          onclick: () => openRequest(it),
-          title: (it.name ? it.name + ' • ' : '') + (urlResolved || urlRaw || '')
-        },
-        el('div', { class: 'op-method' }, method),                     // бейдж метода
-        el('div', { class: 'op-path' }, urlResolved || urlRaw || '(no url)') // путь API
+      const row = el('div',
+        { class: 'op ' + method, onclick: () => openRequest(it),
+          title: (it.name ? it.name + ' • ' : '') + (urlResolved || urlRaw || '') },
+        el('div', { class: 'op-method' }, method),
+        el('div', { class: 'op-path' }, urlResolved || urlRaw || '(no url)')
       );
-
       sec.append(row);
     });
-
     tree.append(sec);
   });
-
-  if (!tree.children.length) {
-    tree.append(el('div', { class: 'section muted small' }, 'Ничего не найдено'));
-  }
+  if (!tree.children.length) tree.append(el('div', { class:'section muted small' }, 'Ничего не найдено'));
 }
 
-/* ========= UI: request editor & response ========= */
-function buildKVRows(arr){
-  const tbody = el('tbody');
-  (arr||[]).forEach((x,i)=>{
+/* ========= Request UI (Params / Headers / Scripts + Body) ========= */
+function buildKVTable(rows){
+  const t = el('table', {class:'kvTable'});
+  t.append(el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'))));
+  const tb = el('tbody');
+  (rows||[]).forEach(r=>{
     const tr = el('tr');
-    tr.append(el('td', {}, el('input', {value:x.key??'', 'data-idx':i, 'data-field':'key'})));
-    tr.append(el('td', {}, el('input', {value:x.value??'', 'data-idx':i, 'data-field':'value'})));
-    tr.append(el('td', {}, el('input', {value:x.description?.toString()??'', 'data-idx':i, 'data-field':'desc'})));
-    tr.append(el('td', {}, el('input', {type:'checkbox', checked:!x.disabled, 'data-idx':i, 'data-field':'enabled'})));
-    tbody.append(tr);
+    tr.append(el('td', {}, el('input', {value: r.key ?? '', 'data-field':'key'})));
+    tr.append(el('td', {}, el('input', {value: r.value ?? '', 'data-field':'value'})));
+    tb.append(tr);
   });
-  const tr = el('tr');
-  tr.append(el('td', {}, el('input', {'data-idx':'new','data-field':'key', placeholder:'key'})));
-  tr.append(el('td', {}, el('input', {'data-idx':'new','data-field':'value', placeholder:'value'})));
-  tr.append(el('td', {}, el('input', {'data-idx':'new','data-field':'desc', placeholder:'desc'})));
-  tr.append(el('td', {}, el('input', {type:'checkbox','data-idx':'new','data-field':'enabled', checked:true})));
-  tbody.append(tr);
-  return tbody;
+  // пустая строка для добавления
+  const trNew = el('tr');
+  trNew.append(el('td', {}, el('input', {'data-field':'key', placeholder:'key'})));
+  trNew.append(el('td', {}, el('input', {'data-field':'value', placeholder:'value'})));
+  tb.append(trNew);
+  t.append(tb);
+  return t;
 }
-function tableToArray(tbody){
-  const rows = Array.from(tbody.querySelectorAll('tr')); const out=[];
-  rows.forEach(tr=>{
-    const inputs = tr.querySelectorAll('input');
-    const entry = {key:'',value:'',description:'',disabled:false};
-    inputs.forEach(inp=>{
-      const field = inp.dataset.field;
-      if (field==='enabled') entry.disabled = !inp.checked; else entry[field] = inp.value;
-    });
-    if (entry.key || entry.value) out.push(entry);
+function tableToSimpleArray(tbody){
+  const out = [];
+  Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
+    const key = tr.querySelector('input[data-field="key"]')?.value?.trim() ?? '';
+    const val = tr.querySelector('input[data-field="value"]')?.value ?? '';
+    if (key || val) out.push({key, value: val});
   });
   return out;
 }
-function kvToObj(arr){
-  const o={}; arr.filter(x=>!x.disabled && x.key).forEach(x=>{ o[x.key]=x.value??''; });
-  Object.keys(o).forEach(k=> o[k]=resolveVars(o[k]));
-  return o;
+
+function getScriptStoreKey(reqId){ return `pm_scripts_${reqId}`; }
+function loadScripts(reqId){
+  try{ return JSON.parse(localStorage.getItem(getScriptStoreKey(reqId))||'{}'); }catch{ return {}; }
 }
-function buildFinalUrl(url, queryArr){
-  let u = resolveVars(url);
-  const urlObj = new URL(u, u.startsWith('http')?undefined:'http://dummy.local');
-  const params = new URLSearchParams(urlObj.search);
-  (queryArr||[]).filter(x=>!x.disabled && x.key).forEach(p=>{ params.set(p.key, resolveVars(p.value??'')); });
-  if (u.startsWith('http')) return `${urlObj.origin}${urlObj.pathname}${params.toString()?('?'+params.toString()):''}`;
-  return `${urlObj.pathname}${params.toString()?('?'+params.toString()):''}`;
+function saveScripts(reqId, pre, post){
+  localStorage.setItem(getScriptStoreKey(reqId), JSON.stringify({pre, post}));
 }
-function shEsc(s){ return `'${String(s).replace(/'/g,"'\\''")}'`; }
 
 function openRequest(item){
   CURRENT_REQ_ID = item.id;
-  const pane = $('#reqPane'); const req = item.request;
-  const method = (req.method||'GET').toUpperCase();
-  const urlRaw = normalizeUrl(req.url); const urlResolved = resolveVars(urlRaw);
-  let queryArr = [];
-  if (typeof req.url==='object' && Array.isArray(req.url.query)){
-    queryArr = req.url.query.map(q=>({key:q.key, value:resolveVars(q.value??''), description:q.description||'', disabled:!!q.disabled}));
-  }
-  let headersArr = [];
-  if (Array.isArray(req.header)){
-    headersArr = req.header.map(h=>({key:h.key, value:resolveVars(h.value??''), description:h.description||'', disabled:!!h.disabled}));
-  }
+  const req = item.request;
+  const methodOrig = (req.method||'GET').toUpperCase();
+  const urlRaw = normalizeUrl(req.url);
+  const urlResolved = resolveVars(urlRaw);
+
+  // исходные массивы (простые key/value)
+  const paramsInit = (typeof req.url==='object' && Array.isArray(req.url.query))
+    ? req.url.query.map(q=>({key:q.key, value: resolveVars(q.value??'')})) : [];
+  let headersInit = Array.isArray(req.header)
+    ? req.header.map(h=>({key:h.key, value: resolveVars(h.value??'')})) : [];
+
+  // bearer -> Authorization если нет
   if (req.auth && req.auth.type==='bearer'){
     const token = (req.auth.bearer||[]).find(x=>x.key==='token')?.value || VARS.token || VARS.access_token || '';
-    if (token){
-      const hasAuth = headersArr.some(h=>!h.disabled && h.key.toLowerCase()==='authorization');
-      if (!hasAuth) headersArr.unshift({key:'Authorization', value:'Bearer '+resolveVars(token), description:'(from auth bearer)', disabled:false});
+    if (token && !headersInit.some(h=>h.key?.toLowerCase()==='authorization')){
+      headersInit.unshift({key:'Authorization', value:'Bearer '+resolveVars(token)});
     }
   }
-  let bodyMode = req.body?.mode || 'raw'; let bodyRaw='';
-  if (req.body?.raw!=null) bodyRaw = resolveVars(req.body.raw);
-  let formArr = [];
-  if (Array.isArray(req.body?.urlencoded)){ formArr = req.body.urlencoded.map(p=>({key:p.key, value:resolveVars(p.value??''), description:p.description||'', disabled:!!p.disabled})); bodyMode='urlencoded'; }
-  if (Array.isArray(req.body?.formdata)){ formArr = req.body.formdata.filter(p=>p.type!=='file').map(p=>({key:p.key, value:resolveVars(p.value??''), description:p.description||'', disabled:!!p.disabled})); bodyMode='formdata'; }
 
-  pane.innerHTML = '';
-  const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Запрос')); const body = el('div');
-  const methodSel = el('select', {id:'methodSel'}, ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected:m===method}, m)));
-  const urlInp = el('input', {id:'urlInp', value:urlResolved||urlRaw});
-  body.append(el('div', {class:'row'}, el('div', {class:'inline'}, el('span', {class:methodColorCls(method)}, method), methodSel), urlInp));
+  // тело
+  let bodyText = req.body?.raw != null ? resolveVars(req.body.raw) : '';
 
-  const queryCard = el('div', {class:'card'}); queryCard.append(el('h3', {}, 'Query params'));
-  const qWrap = el('div', {class:'kvs'});
-  const qTable = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))), buildKVRows(queryArr));
-  qWrap.append(qTable); queryCard.append(qWrap);
+  // UI
+  const pane = $('#reqPane'); pane.innerHTML='';
+  const card = el('div', {class:'card'});
 
-  const hdrCard = el('div', {class:'card'}); hdrCard.append(el('h3', {}, 'Headers'));
-  const hWrap = el('div', {class:'kvs'});
-  const hTable = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))), buildKVRows(headersArr));
-  hWrap.append(hTable); hdrCard.append(hWrap);
-
-  const bodyCard = el('div', {class:'card'}); bodyCard.append(el('h3', {}, 'Body'));
-  const bWrap = el('div', {class:'section'});
-  const bodyModeSel = el('select', {id:'bodyModeSel'},
-    el('option', {value:'raw', selected:bodyMode==='raw'}, 'raw (JSON/text)'),
-    el('option', {value:'urlencoded', selected:bodyMode==='urlencoded'}, 'x-www-form-urlencoded'),
-    el('option', {value:'formdata', selected:bodyMode==='formdata'}, 'multipart/form-data (text only)')
+  // верхняя шапка как в Swagger
+  const header = el('div', {class:'reqHeader'},
+    el('span', {class:'badge', style:
+      methodOrig==='GET'?'background:#123a2d;color:#1ec28b':
+      methodOrig==='POST'?'background:#2b2033;color:#d39bff':
+      methodOrig==='PUT'?'background:#2b2e15;color:#d7df66':
+      methodOrig==='PATCH'?'background:#2e1f12;color:#ffa36b':
+      methodOrig==='DELETE'?'background:#3a1416;color:#ff7b7b':'background:#1a2433;color:#7cc0ff'
+    }, methodOrig),
+    el('div', {class:'path', id:'topPath'}, urlResolved || urlRaw)
   );
-  const bodyArea = el('textarea', {id:'bodyRaw', class:'code', placeholder:'Тело запроса…'}, bodyMode==='raw'?bodyRaw:'');
-  const formTable = el('table', {id:'formTable', style: bodyMode==='raw'?'display:none':''},
-    el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'), el('th', {}, 'Desc'), el('th', {}, 'On'))),
-    buildKVRows(formArr)
-  );
-  bWrap.append(el('div', {class:'row'}, el('div', {}, el('span', {class:'muted'}, 'Тип тела')), bodyModeSel));
-  bWrap.append(bodyArea); bWrap.append(el('div', {class:'kvs'}, formTable)); bodyCard.append(bWrap);
 
+  // tabs
+  const tabs = el('div', {class:'tabs'},
+    el('div', {class:'tab active', id:'tabParams'}, 'Params'),
+    el('div', {class:'tab', id:'tabHeaders'}, 'Headers'),
+    el('div', {class:'tab', id:'tabScripts'}, 'Scripts')
+  );
+
+  // panes
+  const paramsPane = el('div', {class:'tabPane active', id:'paneParams'});
+  const headersPane= el('div', {class:'tabPane', id:'paneHeaders'});
+  const scriptsPane= el('div', {class:'tabPane', id:'paneScripts'});
+
+  // URL и метод
+  const methodSel = el('select', {id:'methodSel'},
+    ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected:m===methodOrig}, m))
+  );
+  const urlInput = el('input', {id:'urlInp', value: urlResolved || urlRaw});
+  const methodRow = el('div', {class:'row'},
+    el('div', {class:'inline'}, el('span', {class:'muted'}, 'Method / URL')),
+    el('div', {class:'inline', style:'gap:8px; width:100%'},
+      methodSel, urlInput
+    )
+  );
+
+  // Params table
+  const paramsTable = buildKVTable(paramsInit);
+  paramsPane.append(methodRow);
+  paramsPane.append(el('div', {class:'kvs'}, paramsTable));
+  // live update URL on params change
+  paramsPane.addEventListener('input', debounce(()=>{
+    const p = tableToSimpleArray(paramsTable.tBodies[0]);
+    const built = buildFinalUrl(urlInput.value, p);
+    $('#topPath').textContent = built;
+  }, 150));
+
+  // Headers table
+  const headersTable = buildKVTable(headersInit);
+  headersPane.append(el('div', {class:'kvs'}, headersTable));
+
+  // Scripts
+  const {pre:preSaved='', post:postSaved=''} = loadScripts(item.id);
+  const sw = el('div', {class:'scriptsSwitcher'},
+    el('button', {id:'btnPre', class:'active', onclick:()=>switchScript('pre')}, 'PRE-Request'),
+    el('button', {id:'btnPost', onclick:()=>switchScript('post')}, 'POST-Request')
+  );
+  const preTA  = el('textarea', {id:'preScript'}, preSaved);
+  const postTA = el('textarea', {id:'postScript', style:'display:none'}, postSaved);
+  const scriptsArea = el('div', {class:'scriptsArea'}, preTA, postTA);
+  scriptsPane.append(sw, scriptsArea);
+
+  // Request body (низ)
+  const bodyWrap = el('div', {class:'reqBodyWrap'});
+  const bodyToolbar = el('div', {class:'reqBodyToolbar'},
+    el('span', {}, 'Request body'),
+    el('button', {class:'clear', onclick:()=>{ bodyArea.value=''; }}, 'Очистить')
+  );
+  const bodyArea = el('textarea', {id:'bodyRawArea'}, bodyText);
+  bodyWrap.append(bodyToolbar, bodyArea);
+
+  // Actions
   const actions = el('div', {class:'actions'});
   const sendBtn = el('button', {class:'send', id:'sendBtn'}, 'Send');
   const curlBtn = el('button', {id:'curlBtn'}, 'Copy cURL');
-  const meta = el('div', {class:'meta', style:'margin-left:auto'});
-  actions.append(sendBtn, curlBtn, meta);
-  card.append(body, queryCard, hdrCard, bodyCard, actions);
-  $('#reqPane').innerHTML=''; $('#reqPane').append(card);
+  actions.append(sendBtn, curlBtn);
 
-  bodyModeSel.addEventListener('change', ()=>{
-    if(bodyModeSel.value==='raw'){ bodyArea.style.display='block'; formTable.style.display='none'; }
-    else { bodyArea.style.display='none'; formTable.style.display='table'; }
-  });
+  // compose card
+  card.append(header, tabs, paramsPane, headersPane, scriptsPane, bodyWrap, actions);
+  pane.append(card);
 
-  sendBtn.addEventListener('click', async ()=>{
-    const finalUrl = buildFinalUrl(urlInp.value, tableToArray(qTable.tBodies[0]));
-    const headers = kvToObj(tableToArray(hTable.tBodies[0]));
-    const method  = methodSel.value;
-    const mode    = bodyModeSel.value;
+  // tabs logic
+  function activateTab(name){
+    ['Params','Headers','Scripts'].forEach(t=>{
+      $('#tab'+t).classList.toggle('active', t===name);
+      $('#pane'+t).classList.toggle('active', t===name);
+    });
+  }
+  $('#tabParams').onclick = ()=>activateTab('Params');
+  $('#tabHeaders').onclick= ()=>activateTab('Headers');
+  $('#tabScripts').onclick= ()=>activateTab('Scripts');
 
-    let body = undefined;
-    if (method!=='GET' && method!=='HEAD'){
-      if (mode==='raw'){
-        body = bodyArea.value || '';
-        try{ JSON.parse(body); if(!Object.keys(headers).some(h=>h.toLowerCase()==='content-type')) headers['Content-Type']='application/json'; }catch{}
-      }else if (mode==='urlencoded'){
-        const params = tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled);
-        const usp = new URLSearchParams(); params.forEach(p=>usp.append(p.key,p.value)); body = usp;
-        if(!Object.keys(headers).some(h=>h.toLowerCase()==='content-type')) headers['Content-Type']='application/x-www-form-urlencoded';
-      }else if (mode==='formdata'){
-        const params = tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled);
-        const fd = new FormData(); params.forEach(p=>fd.append(p.key,p.value)); body = fd;
-      }
+  function switchScript(which){
+    $('#btnPre').classList.toggle('active', which==='pre');
+    $('#btnPost').classList.toggle('active', which==='post');
+    preTA.style.display  = which==='pre' ? '' : 'none';
+    postTA.style.display = which==='post'? '' : 'none';
+  }
+
+  // SAVE scripts on input
+  scriptsPane.addEventListener('input', debounce(()=>{
+    saveScripts(item.id, preTA.value, postTA.value);
+  }, 200));
+
+  // SEND
+  $('#sendBtn').onclick = async ()=>{
+    // gather current state
+    const method = methodSel.value;
+    const urlBase = urlInput.value.trim();
+    const params = tableToSimpleArray(paramsTable.tBodies[0]);
+    const headers = Object.fromEntries(tableToSimpleArray(headersTable.tBodies[0]).map(p=>[p.key, resolveVars(p.value)]));
+    let body = bodyArea.value || '';
+
+    // build url with params
+    let finalUrl = buildFinalUrl(urlBase, params);
+
+    // PRE script
+    const preCode = preTA.value || '';
+    if (preCode.trim()){
+      try{
+        const ctx = makePreCtx({method, url:finalUrl, params, headers, body});
+        runUserScript(preCode, ctx);
+        // apply back possibly changed values
+        finalUrl = ctx.request.url;
+        body     = ctx.request.body;
+        // params/headers/method могли измениться
+        methodSel.value = ctx.request.method;
+        urlInput.value  = ctx.request.url;
+        // overwrite UI tables if изменили params/headers — опционально не трогаем UI, но учитываем их в запросе:
+      }catch(e){ alert('Ошибка PRE-скрипта: '+e.message); return; }
     }
+
+    // infer content-type if looks like JSON + нет header
+    if (body && !Object.keys(headers).some(h=>h.toLowerCase()==='content-type')){
+      try{ JSON.parse(body); headers['Content-Type']='application/json'; }catch{}
+    }
+
+    // proxy
     const proxy = $('#proxyPrefix').value.trim();
     const targetUrl = proxy ? proxy + finalUrl : finalUrl;
 
+    // fetch
     const started = performance.now();
+    let res, text;
     try{
-      const res = await fetch(targetUrl, { method, headers, body });
-      const text = await res.text();
-      renderResponse(res, text, performance.now()-started, finalUrl);
+      res = await fetch(targetUrl, {
+        method: methodSel.value,
+        headers,
+        body: (methodSel.value==='GET' || methodSel.value==='HEAD') ? undefined : body
+      });
+      text = await res.text();
     }catch(e){
       renderResponse(null, String(e), performance.now()-started, finalUrl);
+      // POST script всё равно выполним с ошибкой в response?
+      const postCode = postTA.value || '';
+      if (postCode.trim()){
+        try{ const ctxPost = makePostCtx({error: String(e), request:{method:methodSel.value, url:finalUrl, headers, body}, response:null}); runUserScript(postCode, ctxPost); }catch(_){}
+      }
+      return;
     }
-  });
 
-  curlBtn.addEventListener('click', ()=>{
-    const finalUrl = buildFinalUrl($('#urlInp').value, tableToArray(qTable.tBodies[0]));
-    const headers  = kvToObj(tableToArray(hTable.tBodies[0]));
-    const method   = $('#methodSel').value;
-    const mode     = $('#bodyModeSel').value;
-    let bodyStr = '';
-    if (mode==='raw'){ const v=$('#bodyRaw').value||''; if(v) bodyStr = ` --data '${v.replace(/'/g,"'\\''")}'`; }
-    else if (mode==='urlencoded'){ const ps=tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled); const usp=new URLSearchParams(); ps.forEach(p=>usp.append(p.key,p.value)); const v=usp.toString(); if(v) bodyStr=` --data '${v.replace(/'/g,"'\\''")}'`; }
-    else if (mode==='formdata'){ const ps=tableToArray(formTable.tBodies[0]).filter(x=>!x.disabled); bodyStr = ps.map(p=>` -F ${shEsc(p.key)}=${shEsc(p.value)}`).join(''); }
-    const hdrStr = Object.entries(headers).map(([k,v])=>` -H ${shEsc(k+': '+v)}`).join('');
-    const cmd = `curl -X ${method}${hdrStr}${bodyStr} ${shEsc(finalUrl)}`;
-    navigator.clipboard.writeText(cmd); alert('cURL скопирован в буфер обмена');
-  });
+    // POST script
+    const postCode = postTA.value || '';
+    if (postCode.trim()){
+      try{
+        const ctxPost = makePostCtx({
+          request:{method:methodSel.value, url:finalUrl, headers, body},
+          response:{ status: res.status, statusText: res.statusText, headers: Object.fromEntries(res.headers.entries()), bodyText: text }
+        });
+        runUserScript(postCode, ctxPost);
+        // allow script to modify body before render
+        if (ctxPost.response && typeof ctxPost.response.bodyText === 'string') text = ctxPost.response.bodyText;
+      }catch(e){ alert('Ошибка POST-скрипта: '+e.message); }
+    }
+
+    renderResponse(res, text, performance.now()-started, finalUrl);
+  };
+
+  // cURL
+  $('#curlBtn').onclick = ()=>{
+    const method = methodSel.value;
+    const params = tableToSimpleArray(paramsTable.tBodies[0]);
+    const finalUrl = buildFinalUrl(urlInput.value.trim(), params);
+    const headers  = Object.fromEntries(tableToSimpleArray(headersTable.tBodies[0]).map(p=>[p.key, resolveVars(p.value)]));
+    const body     = (method==='GET' || method==='HEAD') ? '' : (bodyArea.value || '');
+    const hdrStr = Object.entries(headers).map(([k,v])=>` -H '${k}: ${v.replace(/'/g,"'\\''")}'`).join('');
+    const bodyStr = body ? ` --data '${body.replace(/'/g,"'\\''")}'` : '';
+    const cmd = `curl -X ${method}${hdrStr}${bodyStr} '${finalUrl.replace(/'/g,"'\\''")}'`;
+    navigator.clipboard.writeText(cmd); alert('cURL скопирован');
+  };
 }
+
+/* === tiny “sandbox” for scripts === */
+function runUserScript(code, ctx){
+  // изолированный new Function без доступа к глобалам
+  const fn = new Function('ctx', `
+    "use strict";
+    const console = { log: (...a)=> (ctx._logs.push(a.map(String).join(' '))) };
+    ${code}
+  `);
+  fn(ctx);
+}
+function makePreCtx({method, url, params, headers, body}){
+  const ctx = {
+    _logs: [],
+    vars: {...VARS},
+    setVar: (k,v)=>{ VARS[k]=v; },
+    request: {
+      method, url, params: JSON.parse(JSON.stringify(params)), headers: JSON.parse(JSON.stringify(headers)), body
+    },
+    setHeader: (k,v)=>{ ctx.request.headers[k]=v; },
+    setParam: (k,v)=>{ const p=ctx.request.params.find(x=>x.key===k); if(p) p.value=v; else ctx.request.params.push({key:k,value:v}); },
+    setBody: v=>{ ctx.request.body = v; },
+    setMethod: m=>{ ctx.request.method = String(m||'GET').toUpperCase(); },
+    setUrl: u=>{ ctx.request.url = String(u||''); },
+    log: (...a)=>ctx._logs.push(a.map(String).join(' '))
+  };
+  return ctx;
+}
+function makePostCtx({request, response, error}){
+  const ctx = {
+    _logs: [],
+    request,
+    response, // {status,statusText,headers,bodyText} | null
+    error: error || null,
+    setResponseBody: (text)=>{ if(ctx.response) ctx.response.bodyText = String(text); },
+    log: (...a)=>ctx._logs.push(a.map(String).join(' '))
+  };
+  return ctx;
+}
+
+/* ========= Response ========= */
 function renderResponse(res, text, ms, url){
   const pane = $('#resPane'); pane.innerHTML = '';
   const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Ответ'));
@@ -492,7 +604,6 @@ async function onEnvUpload(e){
     $('#loadedInfo').textContent = shortInfo();
   }catch(err){ alert('Ошибка парсинга окружения: '+err.message); }
 }
-
 function shortInfo(){
   const name = COLLECTION?.info?.name || 'Коллекция';
   const cnt = ITEMS_FLAT.length;
@@ -500,51 +611,32 @@ function shortInfo(){
   const hasEnv = ENV ? `, env: ${envName}` : '';
   return `${name} (${cnt} запросов${hasEnv})`;
 }
-
 function autoOpenFirst(){
   const first = ITEMS_FLAT[0];
   if (first){ $('#welcomeCard')?.remove(); openRequest(first); }
 }
 
-/* === Автозагрузка из корня проекта (или путей из query) === */
+/* === Автозагрузка из корня (или путей из query) === */
 (async function bootstrap(){
-  // 1) Пытаемся загрузить дефолтные файлы из корня
   let loadedSomething = false;
   try{
     const colRes = await fetch(DEFAULT_COLLECTION_PATH, {cache:'no-cache'});
-    if (colRes.ok){
-      const txt = await colRes.text();
-      COLLECTION = JSON.parse(txt);
-      localStorage.setItem('pm_collection', txt);
-      loadedSomething = true;
-    }
+    if (colRes.ok){ const txt = await colRes.text(); COLLECTION = JSON.parse(txt); localStorage.setItem('pm_collection', txt); loadedSomething = true; }
   }catch{}
   try{
     const envRes = await fetch(DEFAULT_ENV_PATH, {cache:'no-cache'});
-    if (envRes.ok){
-      const txt = await envRes.text();
-      ENV = JSON.parse(txt);
-      localStorage.setItem('pm_env', txt);
-    }
+    if (envRes.ok){ const txt = await envRes.text(); ENV = JSON.parse(txt); localStorage.setItem('pm_env', txt); }
   }catch{}
-
   if (!loadedSomething){
-    // 2) Фоллбек на localStorage (если уже был визит)
-    const storedCol = localStorage.getItem('pm_collection');
-    if (storedCol){ try{ COLLECTION = JSON.parse(storedCol); loadedSomething = true; }catch{} }
-    const storedEnv = localStorage.getItem('pm_env');
-    if (storedEnv){ try{ ENV = JSON.parse(storedEnv); }catch{} }
+    const storedCol = localStorage.getItem('pm_collection'); if (storedCol){ try{ COLLECTION = JSON.parse(storedCol); loadedSomething = true; }catch{} }
+    const storedEnv = localStorage.getItem('pm_env'); if (storedEnv){ try{ ENV = JSON.parse(storedEnv); }catch{} }
   }
-
   if (loadedSomething){
     ITEMS_FLAT = []; flattenItems(COLLECTION); buildVarMap(); renderTree('');
     $('#loadedInfo').textContent = shortInfo();
-    // скрываем кнопки загрузки, т.к. автозагрузка состоялась (оставь, если хочешь — просто убери эти две строки)
-    $('#colLabel').style.display='none';
-    $('#envLabel').style.display='none';
+    $('#colLabel').style.display='none'; $('#envLabel').style.display='none';
     if (AUTO_OPEN_FIRST) autoOpenFirst();
   }else{
-    // ничего не нашли — показываем загрузчики
     renderTree('');
   }
 })();
