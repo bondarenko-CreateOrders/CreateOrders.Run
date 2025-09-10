@@ -45,7 +45,7 @@
   .kvs{padding:10px 12px}
   table{width:100%; border-collapse:collapse; font-size:14px; background:#fff}
   th, td{border-bottom:1px solid var(--divider); padding:8px}
-  th{color:#374151; text-align:left; background:#f3f4f6; position:sticky; top:0}
+  th{color:#374151; text-align:left; background:#f3f4f6; position:sticky; top:0; z-index:2; box-shadow:0 2px 0 #e5e7eb;}
   .actions{display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--divider); background:#f8fafc; position:sticky; bottom:0}
   .send{background:var(--accent); color:#ffffff; font-weight:700; border:none}
   .pill{border:1px solid var(--divider); padding:4px 8px; border-radius:999px; font-size:12px; color:#334155; background:#ffffff}
@@ -83,7 +83,7 @@
   .tabPane{ display:none } .tabPane.active{ display:block }
   .kvTable{ width:100%; border-collapse:collapse; background:#fff }
   .kvTable th,.kvTable td{ border-bottom:1px solid var(--divider); padding:8px }
-  .kvTable th{ background:#f3f4f6; color:#374151; position:sticky; top:0; text-align:left }
+  .kvTable th{ background:#f3f4f6; color:#374151; position:sticky; top:0; text-align:left; z-index:2; box-shadow:0 2px 0 #e5e7eb; }
   .scriptsSwitcher{ display:flex; gap:8px; padding:10px 12px; background:#f9fafb; border-bottom:1px solid var(--divider) }
   .scriptsSwitcher button{ padding:6px 10px; border-radius:6px; background:#ffffff; border:1px solid #dbe3ed; color:#0b1220; cursor:pointer }
   .scriptsSwitcher button.active{ background:#eef4ff; border-color:#c9dcff }
@@ -97,13 +97,18 @@
   /* Authorize modal */
   .modal{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:10000 }
   .modal[hidden]{ display:none }
-  .modalCard{ width:420px; background:#fff; border:1px solid var(--divider); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.08); padding:16px }
+  .modalCard{ width:640px; max-height:80vh; overflow:auto; background:#fff; border:1px solid var(--divider); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.08); padding:16px }
   .modalCard h3{ margin:0 0 10px 0; font-size:16px }
   .modalCard .row{ grid-template-columns: 1fr }
   .modalActions{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px }
   .auth-ok{ background:#10b981; color:#fff; border:none }
   .auth-bad{ background:#f3f4f6; color:#111827 }
   .authState{ font-size:12px; color:#065f46; }
+  .varsTable{ width:100%; border-collapse:collapse; font-size:14px; background:#fff }
+  .varsTable th,.varsTable td{ border-bottom:1px solid var(--divider); padding:8px }
+  .varsTable th{ position:sticky; top:0; z-index:2; background:#f9fafb; color:#374151; font-weight:600; text-align:left; box-shadow:0 2px 0 #e5e7eb; }
+  .varsTable td input[type="text"]{ width:100%; padding:6px 8px; border:1px solid var(--divider); border-radius:6px; font-size:13px; }
+  .varsTable td input[type="checkbox"]{ width:auto; margin:auto; display:block; }
 
   /* loader */
   .loaderOverlay{ position:fixed; inset:56px 0 0 0; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.6); z-index:9999; backdrop-filter:saturate(1.2) blur(2px); }
