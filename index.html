@@ -6,7 +6,6 @@
 <title>Driver team collections</title>
 <style>
   :root{
-    /* светлая палитра */
     --bg:#f6f8fb; --panel:#ffffff; --muted:#6b7280; --fg:#0a0d14; --accent:#0b6cff;
     --ok:#16a34a; --warn:#b45309; --err:#dc2626; --divider:#e5e7eb; --code:#0f172a;
     --soft:#f9fafb; --ink:#0b1220;
@@ -50,6 +49,7 @@
   th{color:#374151; text-align:left; background:#f3f4f6; position:sticky; top:0; z-index:2; box-shadow:0 2px 0 #e5e7eb;}
   .actions{display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--divider); background:#f8fafc; position:sticky; bottom:0}
   .send{background:var(--accent); color:#ffffff; font-weight:700; border:none}
+  .reset{background:#fff0f0; color:#7a1d16; border:1px solid #ffc0b6}
   .pill{border:1px solid var(--divider); padding:4px 8px; border-radius:999px; font-size:12px; color:#334155; background:#ffffff}
   .small{font-size:12px; color:var(--muted)} .muted{color:var(--muted)} .inline{display:flex; gap:8px; align-items:center}
   .rightInfo{font-size:12px; color:#475569}
@@ -61,25 +61,20 @@
   .op:hover{ background:#f9fafb; border-color:#dbe3ed; transform: translateY(-1px); }
   .op.active{ outline:2px solid #2b8cff33; }
   .op .op-method{min-width:66px; text-align:center; font-weight:800; font-size:12px; padding:6px 8px; border-radius:6px; letter-spacing:.5px; border:1px solid rgba(0,0,0,.06);}
-  .op .op-path{
-    flex:1; min-width:0;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size:13px; color:#0b1220;
-    white-space:normal; word-break:break-all;
-  }
+  .op .op-path{ flex:1; min-width:0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; color:#0b1220; white-space:normal; word-break:break-all; }
   .op.GET{background:#e8f5ee} .op.GET .op-method{background:#dff3e7; color:#0a7c3a}
   .op.POST{background:#f3e9ff} .op.POST .op-method{background:#efe4ff; color:#7a3cff}
   .op.PUT{background:#f6f7dd} .op.PUT .op-method{background:#f2f4c9; color:#7a7f17}
   .op.PATCH{background:#ffe9d9} .op.PATCH .op-method{background:#ffe1cd; color:#c05621}
   .op.DELETE{background:#ffe5e7} .op.DELETE .op-method{background:#ffdadd; color:#c81e1e}
   .op.HEAD,.op.OPTIONS,.op.TRACE{background:#eaf2ff} .op.HEAD .op-method,.op.OPTIONS .op-method,.op.TRACE .op-method{background:#e2ecff; color:#0b6cff}
-  .item,.title,.path{display:none}
 
   /* Редактор запроса */
-  .reqHeader{display:grid; grid-template-columns: 140px 1fr; gap:12px; padding:12px 14px; background:#fff7e8; border-bottom:1px solid var(--divider)}
-  .reqHeader .badge{font-weight:800; font-size:12px; padding:6px 8px; border-radius:6px; border:1px solid rgba(0,0,0,.08); background:#ffefd2; color:#8a5a00}
+  .reqHeader{display:grid; grid-template-columns: 140px 1fr auto; gap:12px; padding:12px 14px; background:#fff7e8; border-bottom:1px solid var(--divider)}
   .reqHeader select{padding:9px 10px; border-radius:8px; border:1px solid var(--divider); background:#fff}
   .reqHeader input{padding:9px 10px; border-radius:8px; border:1px solid var(--divider); background:#fff}
+  .apiBadge{align-self:center; font-weight:800; font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(0,0,0,.08); background:#ffefd2; color:#8a5a00; white-space:nowrap}
+
   .tabs{ display:flex; gap:6px; padding:8px 10px; border-bottom:1px solid var(--divider); background:#f3f4f6 }
   .tab{ padding:8px 12px; border:1px solid transparent; border-radius:8px; cursor:pointer; color:#0b1220; background:#ffffff }
   .tab.active{ border-color:#cfd7e3; background:#f9fafb }
@@ -110,13 +105,19 @@
   .authRow{ display:grid; grid-template-columns: 160px 1fr; gap:10px; padding:10px 12px; align-items:center }
   .authRow select, .authRow input{ padding:9px 10px; border-radius:8px; border:1px solid var(--divider); background:#fff }
 
-  /* Authorize modal (глобальный, оставляем) */
+  /* Response */
+  .respHeader{display:flex; flex-wrap:wrap; gap:8px; padding:10px 12px; border-bottom:1px solid var(--divider); background:#f8fafc}
+  .respBody{ max-height:480px; overflow:auto; padding:12px }
+  .respBody pre{ margin:0; white-space:pre-wrap; word-wrap:break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .respTools{ display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--divider); background:#fafafa; align-items:center }
+  .respTools input{ padding:8px 10px; border:1px solid var(--divider); border-radius:8px; min-width:220px }
+
+  /* Authorize / Variables modal */
   .modal{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:10000 }
   .modal[hidden]{ display:none }
-  .modalCard{ width:640px; max-height:80vh; overflow:auto; background:#fff; border:1px solid var(--divider); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.08); padding:16px }
+  .modalCard{ width:720px; max-height:80vh; overflow:auto; background:#fff; border:1px solid var(--divider); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.08); padding:16px }
   .modalCard h3{ margin:0 0 10px 0; font-size:16px }
-  .modalCard .row{ grid-template-columns: 1fr }
-  .modalActions{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px }
+  .modalActions{ display:flex; gap:8px; justify-content:space-between; margin-top:8px; align-items:center }
   .auth-ok{ background:#10b981; color:#fff; border:none }
   .auth-bad{ background:#f3f4f6; color:#111827 }
   .authState{ font-size:12px; color:#065f46; }
@@ -125,6 +126,7 @@
   .varsTable th{ position:sticky; top:0; z-index:2; background:#f9fafb; color:#374151; font-weight:600; text-align:left; box-shadow:0 2px 0 #e5e7eb; }
   .varsTable td input[type="text"]{ width:100%; padding:6px 8px; border:1px solid var(--divider); border-radius:6px; font-size:13px; }
   .varsTable td input[type="checkbox"]{ width:auto; margin:auto; display:block; }
+  .varsHelp{ font-size:12px; color:#64748b; }
 
   /* loader */
   .loaderOverlay{ position:fixed; inset:56px 0 0 0; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.6); z-index:9999; backdrop-filter:saturate(1.2) blur(2px); }
@@ -144,9 +146,9 @@
       <label class="file" id="envLabel">Окружение
         <input id="envFile" type="file" accept=".json,application/json" />
       </label>
-      <button id="clearBtn" title="Очистить сессию">Reset</button>
+      <button id="clearBtn" title="Очистить всю локальную сессию">Reset</button>
       <button id="authBtn" title="Глобальный Bearer">Authorize</button>
-      <button id="varsBtn" title="postman environment">Postman Variables</button>
+      <button id="varsBtn" title="Postman environment">Postman Variables</button>
       <span class="small muted">Proxy prefix:</span>
       <input id="proxyPrefix" placeholder="например, http://localhost:8080/" style="width:280px;padding:8px;border-radius:8px;border:1px solid var(--divider);background:#fff;color:#111" />
       <span id="loadedInfo" class="rightInfo"></span>
@@ -183,26 +185,35 @@
         <input id="authToken" placeholder="Bearer token" />
       </div>
       <div class="modalActions">
-        <button id="authClear" class="auth-bad">Clear</button>
-        <button id="authCancel">Cancel</button>
-        <button id="authSave" class="auth-ok">Save</button>
+        <div class="authState" id="authState" style="display:none;"></div>
+        <div>
+          <button id="authClear" class="auth-bad">Clear</button>
+          <button id="authCancel">Cancel</button>
+          <button id="authSave" class="auth-ok">Save</button>
+        </div>
       </div>
-      <div id="authState" class="authState" style="display:none;"></div>
     </div>
   </div>
+
   <!-- Variables modal -->
   <div id="varsModal" class="modal" hidden>
-    <div class="modalCard" style="width:720px">
+    <div class="modalCard">
       <h3>Environment variables</h3>
-      <div class="kvs" style="max-height:50vh; overflow:auto">
-        <table id="varsTable" class="kvTable">
-          <thead><tr><th>Key</th><th>Value</th><th style="width:80px">On</th></tr></thead>
+
+      <div class="kvs" style="max-height:42vh; overflow:auto; border:1px solid var(--divider); border-radius:10px">
+        <table id="varsTable" class="varsTable">
+          <thead><tr><th style="width:40%">Key</th><th>Value</th><th style="width:80px">On</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
+
       <div class="modalActions">
-        <button id="varsCancel">Отмена</button>
-        <button id="varsSave" class="auth-ok">Сохранить</button>
+        <div class="varsHelp">Переменные сохраняются локально (в вашем браузере).</div>
+        <div style="display:flex; gap:8px; align-items:center">
+          <label class="file" for="envImportFile">Импорт JSON<input id="envImportFile" type="file" accept=".json,application/json"/></label>
+          <button id="varsCancel">Отмена</button>
+          <button id="varsSave" class="auth-ok">Сохранить</button>
+        </div>
       </div>
     </div>
   </div>
@@ -246,23 +257,18 @@ let GLOBAL_BEARER = localStorage.getItem('global_bearer') || '';
 
 /* ========= LocalStorage per-request ========= */
 const reqKey = id => `pm_req_${id}`;
-const scriptsKey = id => `pm_scripts_${id}`; // back-compat (читаем, но далее храним вместе)
+const scriptsKey = id => `pm_scripts_${id}`; // legacy
 
 function loadReqState(id){
-  try {
-    const raw = localStorage.getItem(reqKey(id));
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch{ return null; }
+  try { const raw = localStorage.getItem(reqKey(id)); return raw ? JSON.parse(raw) : null; } catch{ return null; }
 }
 function saveReqState(id, patch){
   const prev = loadReqState(id) || {};
   const next = {...prev, ...patch};
   try { localStorage.setItem(reqKey(id), JSON.stringify(next)); } catch {}
 }
-function loadScriptsLegacy(id){
-  try{ return JSON.parse(localStorage.getItem(scriptsKey(id))||'{}'); }catch{ return {}; }
-}
+function clearReqState(id){ try{ localStorage.removeItem(reqKey(id)); }catch{} }
+function loadScriptsLegacy(id){ try{ return JSON.parse(localStorage.getItem(scriptsKey(id))||'{}'); }catch{ return {}; } }
 
 /* ========= Variables & helpers ========= */
 function buildVarMap(){
@@ -344,11 +350,8 @@ function renderTree(filter = '') {
       const displayPath = pathOnly(urlResolved || urlRaw);
       const row = el(
         'div',
-        {
-          class: 'op ' + method,
-          onclick: () => openRequest(it),
-          title: (it.name ? it.name + ' • ' : '') + (urlResolved || urlRaw || '')
-        },
+        { class: 'op ' + method, onclick: () => openRequest(it),
+          title: (it.name ? it.name + ' • ' : '') + (urlResolved || urlRaw || '') },
         el('div', { class: 'op-method' }, method),
         el('div', { class: 'op-path' }, displayPath || '(no url)')
       );
@@ -363,7 +366,7 @@ function renderTree(filter = '') {
   }
 }
 
-/* ========= KV helpers (UI <-> data) ========= */
+/* ========= KV helpers ========= */
 function buildKVTable(rows){
   const t = el('table', {class:'kvTable'});
   t.append(el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'))));
@@ -402,7 +405,6 @@ function getInitialStateForItem(item){
   const methodOrig = String(item.request.method || 'GET').toUpperCase();
   const urlRaw     = normalizeUrl(item.request.url);
 
-  // загружаем сохранённые или формируем дефолты
   const method = saved?.method || methodOrig;
   const url    = saved?.url || urlRaw;
 
@@ -415,7 +417,6 @@ function getInitialStateForItem(item){
       ? item.request.header.map(h=>({key:h.key, value: resolveVars(h.value??'')})) : []
   );
 
-  // Bearer из глобального/коллекции — добавим, если нет в сохранённых/заголовках
   if (!saved?.headers){
     if (GLOBAL_BEARER && !headersInit.some(h=>String(h.key||'').toLowerCase()==='authorization')){
       headersInit.unshift({key:'Authorization', value:'Bearer '+GLOBAL_BEARER});
@@ -427,23 +428,15 @@ function getInitialStateForItem(item){
     }
   }
 
-  // Тело: либо сохранённое, либо исходное
   let bodyText = saved?.body;
   if (bodyText == null){
     bodyText = item.request.body?.raw != null ? (typeof item.request.body.raw === 'string' ? item.request.body.raw : JSON.stringify(item.request.body.raw, null, 2)) : '';
   }
 
-  // Скрипты: переносим из legacy ключа, если новых нет
   const scripts = saved?.scripts ?? loadScriptsLegacy(id) ?? {pre:'', post:''};
-
-  // Authorization вкладка: bearer на уровне запроса (персональный)
   const auth = saved?.auth ?? { type:'bearer', token: '' };
 
-  return { method, url, paramsInit, headersInit, bodyText, scripts, auth, response: saved?.response || null };
-}
-
-function persistOnChange(id, fields){
-  saveReqState(id, fields);
+  return { method, methodOrig, url, paramsInit, headersInit, bodyText, scripts, auth, response: saved?.response || null };
 }
 
 function openRequest(item){
@@ -451,18 +444,19 @@ function openRequest(item){
   const req = item.request;
 
   const {
-    method, url, paramsInit, headersInit, bodyText, scripts, auth, response
+    method, methodOrig, url, paramsInit, headersInit, bodyText, scripts, auth, response
   } = getInitialStateForItem(item);
 
   const pane = $('#reqPane'); pane.innerHTML='';
   const card = el('div', {class:'card'});
 
-  // ===== Шапка: Method + URL (перенесено вверх)
+  // Шапка: Method + URL + API-method badge
   const header = el('div', {class:'reqHeader'},
     el('select', {id:'methodSel'},
       ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected:m===method}, m))
     ),
-    el('input', {id:'urlInp', value: url, placeholder:'https://api.example.com/path?x=1'})
+    el('input', {id:'urlInp', value: url, placeholder:'https://api.example.com/path?x=1'}),
+    el('div', {id:'apiBadge', class:'apiBadge'}, `API: ${methodOrig}`)
   );
 
   // Tabs
@@ -478,15 +472,15 @@ function openRequest(item){
   const authPane   = el('div', {class:'tabPane',        id:'paneAuth'});
   const scriptsPane= el('div', {class:'tabPane',        id:'paneScripts'});
 
-  // Params table
+  // Params
   const paramsTable = buildKVTable(paramsInit);
   paramsPane.append(el('div', {class:'kvs'}, paramsTable, el('div',{class:'kvHint'},'Добавьте или измените query-параметры')));
 
-  // Headers table
+  // Headers
   const headersTable = buildKVTable(headersInit);
   headersPane.append(el('div', {class:'kvs'}, headersTable, el('div',{class:'kvHint'},'Заголовки запроса')));
 
-  // Authorization tab
+  // Auth
   const authTypeSel = el('select', {id:'authType'},
     el('option', {value:'bearer', selected: (auth?.type||'bearer')==='bearer'}, 'Bearer Token')
   );
@@ -494,10 +488,10 @@ function openRequest(item){
   authPane.append(
     el('div', {class:'authRow'}, el('div', {class:'muted'}, 'Auth type'), authTypeSel),
     el('div', {class:'authRow'}, el('div', {class:'muted'}, 'Token'), authTokenInp),
-    el('div', {class:'kvHint'}, 'Если в Headers нет своего Authorization, при отправке будет добавлен "Authorization: Bearer {token}"')
+    el('div', {class:'kvHint'}, 'Если в Headers нет своего Authorization, при отправке будет добавлен "Authorization: Bearer {token}" (или глобальный).')
   );
 
-  // Scripts tab
+  // Scripts
   const sw = el('div', {class:'scriptsSwitcher'},
     el('button', {id:'btnPre',  class:'active', onclick:()=>switchScript('pre')},  'PRE-Request'),
     el('button', {id:'btnPost', onclick:()=>switchScript('post')}, 'POST-Request')
@@ -512,7 +506,7 @@ function openRequest(item){
   const bodyWrap = el('div', {class:'reqBodyWrap'});
   const bodyToolbar = el('div', {class:'reqBodyToolbar'},
     el('span', {}, 'Request body'),
-    el('button', {class:'clear', onclick:()=>{ bodyArea.value=''; persistOnChange(CURRENT_REQ_ID,{body:''}); }}, 'Очистить')
+    el('button', {class:'clear', onclick:()=>{ bodyArea.value=''; saveReqState(CURRENT_REQ_ID,{body:''}); }}, 'Очистить')
   );
   const bodyArea = el('textarea', {id:'bodyRawArea'}, bodyText || '');
   bodyWrap.append(bodyToolbar, bodyArea);
@@ -521,7 +515,8 @@ function openRequest(item){
   const actions = el('div', {class:'actions'});
   const sendBtn = el('button', {class:'send', id:'sendBtn'}, 'Send');
   const curlBtn = el('button', {id:'curlBtn'}, 'Copy cURL');
-  actions.append(sendBtn, curlBtn);
+  const resetBtn= el('button', {id:'resetBtn', class:'reset', title:'Сбросить локальные изменения текущего запроса'}, 'Reset to defaults');
+  actions.append(sendBtn, curlBtn, resetBtn);
 
   card.append(header, tabs, paramsPane, headersPane, authPane, scriptsPane, bodyWrap, actions);
   pane.append(card);
@@ -545,7 +540,7 @@ function openRequest(item){
     postTA.style.display = which==='post'? '' : 'none';
   }
 
-  // ===== Автосохранение (debounced) всех полей
+  // Автосохранение
   const debSave = debounce(()=> {
     const params = tableToSimpleArray(paramsTable.tBodies[0]);
     const headers= tableToSimpleArray(headersTable.tBodies[0]);
@@ -571,10 +566,15 @@ function openRequest(item){
     bodyWrap.addEventListener(ev, debSave);
   });
 
+  // Reset только текущего запроса
+  $('#resetBtn').onclick = ()=>{
+    clearReqState(CURRENT_REQ_ID);
+    openRequest(item); // заново открыть из коллекции
+  };
+
   // ==== SEND ====
   $('#sendBtn').onclick = async ()=>{
-    // принудительно сохраним последнее
-    debSave(); // запланирует; сделаем и синхронный снимок:
+    debSave();
     const params = tableToSimpleArray(paramsTable.tBodies[0]);
     const hdrArr = tableToSimpleArray(headersTable.tBodies[0]);
     let headers  = Object.fromEntries(hdrArr.filter(x=>x.key).map(x=>[x.key, resolveVars(x.value)]));
@@ -584,11 +584,10 @@ function openRequest(item){
     const authType = $('#authType').value;
     const authToken = $('#authTokenInp').value.trim();
 
-    // Authorization per-request: если нет своего Authorization — подставим
+    // Inject Authorization
     if (authType==='bearer' && authToken && !Object.keys(headers).some(h=>h.toLowerCase()==='authorization')){
       headers['Authorization'] = 'Bearer ' + authToken;
     } else if (GLOBAL_BEARER && !Object.keys(headers).some(h=>h.toLowerCase()==='authorization')){
-      // fallback на глобальный
       headers['Authorization'] = 'Bearer ' + GLOBAL_BEARER;
     }
 
@@ -599,7 +598,7 @@ function openRequest(item){
     const proxy = $('#proxyPrefix').value.trim();
     const targetUrl = proxy ? proxy + finalUrl : finalUrl;
 
-    // PRE script
+    // PRE
     const preCode = preTA.value.trim();
     if (preCode){
       try{
@@ -616,7 +615,7 @@ function openRequest(item){
     const started = performance.now();
     let res, text;
     try{
-      res = await fetch(proxy ? (proxy + finalUrl) : finalUrl, { method, headers, body: (method==='GET'||method==='HEAD')?undefined:body });
+      res = await fetch(targetUrl, { method, headers, body: (method==='GET'||method==='HEAD')?undefined:body });
       text = await res.text();
     }catch(e){
       const ms = performance.now()-started;
@@ -625,13 +624,12 @@ function openRequest(item){
       if (postCode){
         try{ const ctxPost = makePostCtx({request:{method,url:finalUrl,headers,body}, response:null, error:String(e)}); runUserScript(postCode, ctxPost); }catch(_){}
       }
-      // сохранить ошибочный response
       saveReqState(CURRENT_REQ_ID, { response: { status:0, statusText:'Network error', headers:{}, bodyText:String(e), url:finalUrl, timeMs:ms }});
       showLoader(false); $('#sendBtn').disabled = false;
       return;
     }
 
-    // POST script
+    // POST
     const postCode = postTA.value.trim();
     if (postCode){
       try{
@@ -647,7 +645,6 @@ function openRequest(item){
     const ms = performance.now()-started;
     renderResponse(res, text, ms, finalUrl);
 
-    // сохранить response
     const respObj = {
       status: res.status,
       statusText: res.statusText,
@@ -681,7 +678,7 @@ function openRequest(item){
     navigator.clipboard.writeText(cmd); alert('cURL скопирован');
   };
 
-  // При открытии — показать сохранённый response, если был
+  // Показать сохранённый response
   if (response){
     renderResponseSaved(response);
   } else {
@@ -714,18 +711,28 @@ function makePostCtx({request, response, error}){
   return ctx;
 }
 
-/* ========= Response ========= */
+/* ========= Response rendering ========= */
 function renderResponse(res, text, ms, url){
   const pane = $('#resPane'); pane.innerHTML = '';
   const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Ответ'));
-  const head = el('div', {class:'actions'});
+  const head = el('div', {class:'respHeader'});
   const status = res ? `${res.status} ${res.statusText}` : 'Network error';
   head.append(el('span', {class:'pill', style:`color:${res ? (res.ok?'#16a34a':'#dc2626'):'#dc2626'}`}, status));
   head.append(el('span', {class:'pill'}, `Время: ${ms.toFixed(0)} ms`));
   head.append(el('span', {class:'pill'}, `URL: ${url}`));
   card.append(head);
+
+  // инструменты копирования
+  const tools = buildRespTools(text);
+  card.append(tools);
+
+  // тело
+  const bodyWrap = el('div', {class:'respBody'});
   let formatted = text; try{ formatted = JSON.stringify(JSON.parse(text),null,2);}catch{}
-  card.append(el('pre', {}, formatted || (text || '—')));
+  bodyWrap.append(el('pre', {id:'respPre'}, formatted || (text || '—')));
+  card.append(bodyWrap);
+
+  // заголовки
   if (res){
     const hdrsCard = el('div', {class:'card'}); hdrsCard.append(el('h3', {}, 'Response headers'));
     const table = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Header'), el('th', {}, 'Value'))));
@@ -739,13 +746,20 @@ function renderResponse(res, text, ms, url){
 function renderResponseSaved(resp){
   const pane = $('#resPane'); pane.innerHTML = '';
   const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Ответ (последний)'));
-  const head = el('div', {class:'actions'});
+  const head = el('div', {class:'respHeader'});
   head.append(el('span', {class:'pill', style:`color:${resp.status && resp.status>=200 && resp.status<400 ? '#16a34a' : '#dc2626'}`}, `${resp.status||0} ${resp.statusText||''}`));
   if (resp.timeMs!=null) head.append(el('span', {class:'pill'}, `Время: ${Math.round(resp.timeMs)} ms`));
   if (resp.url) head.append(el('span', {class:'pill'}, `URL: ${resp.url}`));
   card.append(head);
+
+  const tools = buildRespTools(resp.bodyText||'');
+  card.append(tools);
+
+  const bodyWrap = el('div', {class:'respBody'});
   let formatted = resp.bodyText; try{ formatted = JSON.stringify(JSON.parse(resp.bodyText||''),null,2);}catch{}
-  card.append(el('pre', {}, formatted || (resp.bodyText || '—')));
+  bodyWrap.append(el('pre', {id:'respPre'}, formatted || (resp.bodyText || '—')));
+  card.append(bodyWrap);
+
   if (resp.headers && Object.keys(resp.headers).length){
     const hdrsCard = el('div', {class:'card'}); hdrsCard.append(el('h3', {}, 'Response headers'));
     const table = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Header'), el('th', {}, 'Value'))));
@@ -755,6 +769,36 @@ function renderResponseSaved(resp){
   }else{
     pane.append(card);
   }
+}
+function buildRespTools(rawText){
+  const tools = el('div', {class:'respTools'});
+  const input = el('input', {id:'copyField', placeholder:'Поле для копирования (например, access_token или data.token)'});
+  const btn   = el('button', {id:'copyBtn'}, 'Copy field');
+  const btnAll= el('button', {id:'copyAllBtn'}, 'Copy body');
+  tools.append(input, btn, btnAll);
+
+  btn.onclick = ()=>{
+    try{
+      const obj = JSON.parse(rawText||'{}');
+      const path = (input.value||'').trim();
+      const val = path ? getByPath(obj, path) : '';
+      if (val==null) { alert('Поле не найдено'); return; }
+      navigator.clipboard.writeText(String(val));
+      btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy field', 1000);
+    }catch{
+      alert('Ответ не JSON');
+    }
+  };
+  btnAll.onclick = ()=>{
+    const text = $('#respPre')?.textContent || rawText || '';
+    navigator.clipboard.writeText(text);
+    btnAll.textContent='Copied!'; setTimeout(()=>btnAll.textContent='Copy body', 1000);
+  };
+  return tools;
+}
+function getByPath(obj, path){
+  // path like "data.token" or "access_token"
+  return path.split('.').reduce((acc, key)=> (acc!=null ? acc[key] : undefined), obj);
 }
 
 /* ========= Authorize (глобальный) ========= */
@@ -843,9 +887,28 @@ $('#varsSave').addEventListener('click', ()=>{
   try{ localStorage.setItem('pm_env', JSON.stringify(ENV)); }catch{}
   buildVarMap();
   renderTree($('#search').value||'');
-  const tp = $('#topPath'), urlInp = $('#urlInp');
-  if (tp && urlInp) tp.textContent = safeBuildUrl(urlInp.value, []);
   $('#varsModal').hidden = true;
+});
+// Импорт JSON env (Postman)
+$('#envImportFile').addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return;
+  const txt = await f.text();
+  try{
+    const parsed = JSON.parse(txt);
+    // поддержка формата Postman (values: [{key,value,enabled}]) или простого объекта {K:V}
+    if (Array.isArray(parsed?.values)) {
+      ENV = { ...(ENV||{}), ...parsed };
+    } else if (parsed && typeof parsed === 'object') {
+      const values = Object.entries(parsed).map(([k,v])=>({key:k, value:String(v), enabled:true}));
+      ENV = { name: 'Imported', values };
+    } else {
+      throw new Error('Неизвестный формат env');
+    }
+    localStorage.setItem('pm_env', JSON.stringify(ENV));
+    buildVarMap();
+    buildVarsTableBody();
+    alert('Environment импортирован (локально).');
+  }catch(err){ alert('Ошибка импорта ENV: '+err.message); }
 });
 
 /* ========= Loaders & session ========= */
@@ -855,7 +918,6 @@ $('#clearBtn').addEventListener('click', ()=>{
   localStorage.removeItem('pm_collection');
   localStorage.removeItem('pm_env');
   localStorage.removeItem('global_bearer');
-  // очистим все per-request ключи
   Object.keys(localStorage).forEach(k=>{
     if (k.startsWith('pm_req_') || k.startsWith('pm_scripts_')) localStorage.removeItem(k);
   });
@@ -863,7 +925,7 @@ $('#clearBtn').addEventListener('click', ()=>{
   $('#tree').innerHTML=''; $('#reqPane').innerHTML=''; $('#resPane').innerHTML='';
   $('#loadedInfo').textContent = ''; updateAuthUI();
   $('#colLabel').style.display=''; $('#envLabel').style.display='';
-  alert('Сессия очищена');
+  alert('Локальная сессия очищена');
 });
 $('#search').addEventListener('input', debounce((e)=> renderTree(e.target.value), 200));
 
@@ -923,7 +985,6 @@ function autoOpenFirst(){
     renderTree('');
   }
 })();
-
 </script>
 </body>
 </html>
