@@ -9,6 +9,7 @@
     /* светлая палитра */
     --bg:#f6f8fb; --panel:#ffffff; --muted:#6b7280; --fg:#0a0d14; --accent:#0b6cff;
     --ok:#16a34a; --warn:#b45309; --err:#dc2626; --divider:#e5e7eb; --code:#0f172a;
+    --soft:#f9fafb; --ink:#0b1220;
   }
   *{box-sizing:border-box}
   body{
@@ -42,6 +43,7 @@
   .row{display:grid; grid-template-columns: 110px 1fr; gap:8px; padding:10px 12px; align-items:center}
   .row input, .row textarea, .row select{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--divider); background:#ffffff; color:var(--fg); font-family:inherit; font-size:14px }
   textarea.code{min-height:160px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#ffffff}
+
   .kvs{padding:10px 12px}
   table{width:100%; border-collapse:collapse; font-size:14px; background:#fff}
   th, td{border-bottom:1px solid var(--divider); padding:8px}
@@ -63,7 +65,7 @@
     flex:1; min-width:0;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size:13px; color:#0b1220;
-    white-space:normal; word-break:break-all; /* полный вывод пути, переносы разрешены */
+    white-space:normal; word-break:break-all;
   }
   .op.GET{background:#e8f5ee} .op.GET .op-method{background:#dff3e7; color:#0a7c3a}
   .op.POST{background:#f3e9ff} .op.POST .op-method{background:#efe4ff; color:#7a3cff}
@@ -74,27 +76,41 @@
   .item,.title,.path{display:none}
 
   /* Редактор запроса */
-  .reqHeader{display:flex; align-items:center; gap:12px; padding:12px 14px; background:#fff7e8; border-bottom:1px solid var(--divider)}
+  .reqHeader{display:grid; grid-template-columns: 140px 1fr; gap:12px; padding:12px 14px; background:#fff7e8; border-bottom:1px solid var(--divider)}
   .reqHeader .badge{font-weight:800; font-size:12px; padding:6px 8px; border-radius:6px; border:1px solid rgba(0,0,0,.08); background:#ffefd2; color:#8a5a00}
-  .reqHeader .path{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#0b1220}
+  .reqHeader select{padding:9px 10px; border-radius:8px; border:1px solid var(--divider); background:#fff}
+  .reqHeader input{padding:9px 10px; border-radius:8px; border:1px solid var(--divider); background:#fff}
   .tabs{ display:flex; gap:6px; padding:8px 10px; border-bottom:1px solid var(--divider); background:#f3f4f6 }
   .tab{ padding:8px 12px; border:1px solid transparent; border-radius:8px; cursor:pointer; color:#0b1220; background:#ffffff }
   .tab.active{ border-color:#cfd7e3; background:#f9fafb }
   .tabPane{ display:none } .tabPane.active{ display:block }
-  .kvTable{ width:100%; border-collapse:collapse; background:#fff }
-  .kvTable th,.kvTable td{ border-bottom:1px solid var(--divider); padding:8px }
-  .kvTable th{ background:#f3f4f6; color:#374151; position:sticky; top:0; text-align:left; z-index:2; box-shadow:0 2px 0 #e5e7eb; }
+
+  /* Обновлённый стиль KV-таблиц */
+  .kvTable{ width:100%; border-collapse:separate; border-spacing:0; background:#fff; border:1px solid var(--divider); border-radius:10px; overflow:hidden }
+  .kvTable thead th{ background:#f5f7fb; font-size:12px; letter-spacing:.3px; color:#475569; text-transform:uppercase; }
+  .kvTable tbody tr:not(:last-child) td{ border-bottom:1px solid var(--divider) }
+  .kvTable td{ padding:0 }
+  .kvTable td .cell{ display:flex; align-items:center; padding:8px }
+  .kvTable input{ width:100%; padding:9px 10px; border:1px solid transparent; outline:none; background:#fff; border-radius:6px }
+  .kvTable input:focus{ border-color:#d6e2ff; background:#f8fbff }
+  .kvHint{ font-size:12px; color:#64748b; padding:8px 2px }
+
   .scriptsSwitcher{ display:flex; gap:8px; padding:10px 12px; background:#f9fafb; border-bottom:1px solid var(--divider) }
   .scriptsSwitcher button{ padding:6px 10px; border-radius:6px; background:#ffffff; border:1px solid #dbe3ed; color:#0b1220; cursor:pointer }
   .scriptsSwitcher button.active{ background:#eef4ff; border-color:#c9dcff }
   .scriptsArea{ padding:12px; background:#ffffff }
   .scriptsArea textarea{ width:100%; min-height:160px; border:1px solid var(--divider); border-radius:8px; background:#ffffff; color:#0b1220; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding:10px }
+
   .reqBodyWrap{ padding:12px 14px; background:#fff7e8; color:#1d1408; border-top:1px solid var(--divider) }
   .reqBodyToolbar{ display:flex; gap:8px; align-items:center; margin-bottom:8px }
   .reqBodyToolbar .clear{ background:#ffd7cf; color:#7a1d16; border:1px solid #ffc0b6 }
   .reqBodyWrap textarea{ width:100%; min-height:220px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px; border:1px solid #e6d7c8; border-radius:8px; padding:10px; background:#ffffff; color:#1d1408 }
 
-  /* Authorize modal */
+  /* Authorization tab */
+  .authRow{ display:grid; grid-template-columns: 160px 1fr; gap:10px; padding:10px 12px; align-items:center }
+  .authRow select, .authRow input{ padding:9px 10px; border-radius:8px; border:1px solid var(--divider); background:#fff }
+
+  /* Authorize modal (глобальный, оставляем) */
   .modal{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:10000 }
   .modal[hidden]{ display:none }
   .modalCard{ width:640px; max-height:80vh; overflow:auto; background:#fff; border:1px solid var(--divider); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.08); padding:16px }
@@ -174,22 +190,22 @@
       <div id="authState" class="authState" style="display:none;"></div>
     </div>
   </div>
-<!-- Variables modal -->
-<div id="varsModal" class="modal" hidden>
-  <div class="modalCard" style="width:720px">
-    <h3>Environment variables</h3>
-    <div class="kvs" style="max-height:50vh; overflow:auto">
-      <table id="varsTable" class="kvTable">
-        <thead><tr><th>Key</th><th>Value</th><th style="width:80px">On</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div class="modalActions">
-      <button id="varsCancel">Отмена</button>
-      <button id="varsSave" class="auth-ok">Сохранить</button>
+  <!-- Variables modal -->
+  <div id="varsModal" class="modal" hidden>
+    <div class="modalCard" style="width:720px">
+      <h3>Environment variables</h3>
+      <div class="kvs" style="max-height:50vh; overflow:auto">
+        <table id="varsTable" class="kvTable">
+          <thead><tr><th>Key</th><th>Value</th><th style="width:80px">On</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="modalActions">
+        <button id="varsCancel">Отмена</button>
+        <button id="varsSave" class="auth-ok">Сохранить</button>
+      </div>
     </div>
   </div>
-</div>
 
   <div id="loader" class="loaderOverlay" hidden><div class="spinner"></div></div>
 
@@ -218,78 +234,35 @@ function pathOnly(u){
     const urlObj = new URL(isAbs ? full : (location.origin + (full.startsWith('/')?full:'/'+full)));
     return urlObj.pathname || '/';
   }catch{
-    // запасной вариант: выкинуть схему/хост руками
     return String(u).replace(/^https?:\/\/[^/]+/i,'') || '/';
   }
 }
-
-  function buildVarsTableBody(){
-  const tb = $('#varsTable tbody');
-  tb.innerHTML = '';
-  // источник — ENV.values; если нет, создаём пустой список
-  const list = Array.isArray(ENV?.values) ? ENV.values : [];
-  list.forEach((v, i)=>{
-    const tr = document.createElement('tr');
-    const key = v.key ?? v.name ?? '';
-    const val = v.currentValue ?? v.value ?? '';
-    const enabled = v.enabled !== false; // по умолчанию true
-    tr.append(
-      el('td',{}, el('input',{value:key, 'data-idx':i, 'data-field':'key'})),
-      el('td',{}, el('input',{value:val, 'data-idx':i, 'data-field':'value'})),
-      el('td',{}, el('input',{type:'checkbox', checked:enabled, 'data-idx':i, 'data-field':'enabled'}))
-    );
-    tb.append(tr);
-  });
-  // пустая строка для добавления
-  const trNew = document.createElement('tr');
-  trNew.append(
-    el('td',{}, el('input',{'data-idx':'new','data-field':'key', placeholder:'key'})),
-    el('td',{}, el('input',{'data-idx':'new','data-field':'value', placeholder:'value'})),
-    el('td',{}, el('input',{type:'checkbox','data-idx':'new','data-field':'enabled', checked:true}))
-  );
-  tb.append(trNew);
-}
-function readVarsTable(){
-  const rows = Array.from($('#varsTable tbody').querySelectorAll('tr'));
-  const out = [];
-  rows.forEach(tr=>{
-    const keyInp = tr.querySelector('input[data-field="key"]');
-    const valInp = tr.querySelector('input[data-field="value"]');
-    const enInp  = tr.querySelector('input[data-field="enabled"]');
-    const key = (keyInp?.value ?? '').trim();
-    const val = valInp?.value ?? '';
-    const enabled = !!(enInp?.checked);
-    if (key || val) out.push({ key, value: val, enabled });
-  });
-  return out;
-}
-// открыть модалку Variables
-$('#varsBtn').addEventListener('click', ()=>{
-  if (!ENV) ENV = { values: [] };
-  if (!Array.isArray(ENV.values)) ENV.values = [];
-  buildVarsTableBody();
-  $('#varsModal').hidden = false;
-});
-$('#varsCancel').addEventListener('click', ()=> $('#varsModal').hidden = true);
-$('#varsSave').addEventListener('click', ()=>{
-  const rows = readVarsTable();
-  // сохраняем обратно в ENV.values (Postman формат: key/value/enabled)
-  ENV.values = rows.map(r=>({ key: r.key, value: r.value, enabled: r.enabled }));
-  // persist и пересобрать карту переменных
-  try{ localStorage.setItem('pm_env', JSON.stringify(ENV)); }catch{}
-  buildVarMap();
-  renderTree($('#search').value||'');
-  // если открыт запрос — обновим верхний путь
-  const tp = $('#topPath'), urlInp = $('#urlInp');
-  if (tp && urlInp) tp.textContent = safeBuildUrl(urlInp.value, []); // обновит с новыми VARS
-  $('#varsModal').hidden = true;
-});
 
 /* ========= State ========= */
 let COLLECTION = null, ENV = null, VARS = {};
 let ITEMS_FLAT = [];
 let CURRENT_REQ_ID = null;
 let GLOBAL_BEARER = localStorage.getItem('global_bearer') || '';
+
+/* ========= LocalStorage per-request ========= */
+const reqKey = id => `pm_req_${id}`;
+const scriptsKey = id => `pm_scripts_${id}`; // back-compat (читаем, но далее храним вместе)
+
+function loadReqState(id){
+  try {
+    const raw = localStorage.getItem(reqKey(id));
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch{ return null; }
+}
+function saveReqState(id, patch){
+  const prev = loadReqState(id) || {};
+  const next = {...prev, ...patch};
+  try { localStorage.setItem(reqKey(id), JSON.stringify(next)); } catch {}
+}
+function loadScriptsLegacy(id){
+  try{ return JSON.parse(localStorage.getItem(scriptsKey(id))||'{}'); }catch{ return {}; }
+}
 
 /* ========= Variables & helpers ========= */
 function buildVarMap(){
@@ -333,14 +306,11 @@ function flattenItems(node, path=[]){
   if(node.request){ ITEMS_FLAT.push({ id: crypto.randomUUID(), path: path.join(' / '), name: node.name || '(без названия)', request: node.request }); }
 }
 function safeBuildUrl(url, queryArr){
-  // подставим переменные в базовый url, плюс query из таблицы
   let u = resolveVars(url || '');
-  // добавим query вручную (не полагаемся на URL(...) если базовый невалидный)
   const extra = new URLSearchParams();
   (queryArr||[]).filter(x=>x.key).forEach(p=> extra.set(p.key, resolveVars(String(p.value??''))));
   const glue = u.includes('?') ? (u.endsWith('?') || u.endsWith('&') ? '' : '&') : (extra.toString()? '?' : '');
   const composed = u + (glue ? glue + extra.toString() : '');
-  // попытка нормализовать (если абсолютный/относительный) — необязательно
   try{
     const urlObj = new URL(composed, composed.startsWith('http') ? undefined : location.origin);
     return urlObj.href.replace(location.origin,'') || urlObj.href;
@@ -371,10 +341,7 @@ function renderTree(filter = '') {
       const urlRaw = normalizeUrl(it.request.url);
       const urlResolved = resolveVars(urlRaw);
       const method = (it.request.method || 'GET').toUpperCase();
-
-      // показываем только путь без домена
       const displayPath = pathOnly(urlResolved || urlRaw);
-
       const row = el(
         'div',
         {
@@ -385,7 +352,6 @@ function renderTree(filter = '') {
         el('div', { class: 'op-method' }, method),
         el('div', { class: 'op-path' }, displayPath || '(no url)')
       );
-
       sec.append(row);
     });
 
@@ -397,21 +363,24 @@ function renderTree(filter = '') {
   }
 }
 
-
-/* ========= Request UI ========= */
+/* ========= KV helpers (UI <-> data) ========= */
 function buildKVTable(rows){
   const t = el('table', {class:'kvTable'});
   t.append(el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'))));
   const tb = el('tbody');
   (rows||[]).forEach(r=>{
     const tr = el('tr');
-    tr.append(el('td', {}, el('input', {value: r.key ?? '', 'data-field':'key'})));
-    tr.append(el('td', {}, el('input', {value: r.value ?? '', 'data-field':'value'})));
+    tr.append(
+      el('td', {}, el('div', {class:'cell'}, el('input', {value: r.key ?? '', 'data-field':'key'}))),
+      el('td', {}, el('div', {class:'cell'}, el('input', {value: r.value ?? '', 'data-field':'value'})))
+    );
     tb.append(tr);
   });
   const trNew = el('tr');
-  trNew.append(el('td', {}, el('input', {'data-field':'key', placeholder:'key'})));
-  trNew.append(el('td', {}, el('input', {'data-field':'value', placeholder:'value'})));
+  trNew.append(
+    el('td', {}, el('div', {class:'cell'}, el('input', {'data-field':'key', placeholder:'key'}))),
+    el('td', {}, el('div', {class:'cell'}, el('input', {'data-field':'value', placeholder:'value'})))
+  );
   tb.append(trNew);
   t.append(tb);
   return t;
@@ -425,136 +394,212 @@ function tableToSimpleArray(tbody){
   });
   return out;
 }
-function getScriptStoreKey(reqId){ return `pm_scripts_${reqId}`; }
-function loadScripts(reqId){ try{ return JSON.parse(localStorage.getItem(getScriptStoreKey(reqId))||'{}'); }catch{ return {}; } }
-function saveScripts(reqId, pre, post){ localStorage.setItem(getScriptStoreKey(reqId), JSON.stringify({pre, post})); }
+
+/* ========= Request UI ========= */
+function getInitialStateForItem(item){
+  const id = item.id;
+  const saved = loadReqState(id);
+  const methodOrig = String(item.request.method || 'GET').toUpperCase();
+  const urlRaw     = normalizeUrl(item.request.url);
+
+  // загружаем сохранённые или формируем дефолты
+  const method = saved?.method || methodOrig;
+  const url    = saved?.url || urlRaw;
+
+  const paramsInit = saved?.params ?? (
+    (typeof item.request.url==='object' && Array.isArray(item.request.url.query))
+      ? item.request.url.query.map(q=>({key:q.key, value: resolveVars(q.value??'')})) : []
+  );
+  let headersInit = saved?.headers ?? (
+    Array.isArray(item.request.header)
+      ? item.request.header.map(h=>({key:h.key, value: resolveVars(h.value??'')})) : []
+  );
+
+  // Bearer из глобального/коллекции — добавим, если нет в сохранённых/заголовках
+  if (!saved?.headers){
+    if (GLOBAL_BEARER && !headersInit.some(h=>String(h.key||'').toLowerCase()==='authorization')){
+      headersInit.unshift({key:'Authorization', value:'Bearer '+GLOBAL_BEARER});
+    } else if (item.request.auth && item.request.auth.type==='bearer'){
+      const token = (item.request.auth.bearer||[]).find(x=>x.key==='token')?.value || VARS.token || VARS.access_token || '';
+      if (token && !headersInit.some(h=>String(h.key||'').toLowerCase()==='authorization')){
+        headersInit.unshift({key:'Authorization', value:'Bearer '+resolveVars(token)});
+      }
+    }
+  }
+
+  // Тело: либо сохранённое, либо исходное
+  let bodyText = saved?.body;
+  if (bodyText == null){
+    bodyText = item.request.body?.raw != null ? (typeof item.request.body.raw === 'string' ? item.request.body.raw : JSON.stringify(item.request.body.raw, null, 2)) : '';
+  }
+
+  // Скрипты: переносим из legacy ключа, если новых нет
+  const scripts = saved?.scripts ?? loadScriptsLegacy(id) ?? {pre:'', post:''};
+
+  // Authorization вкладка: bearer на уровне запроса (персональный)
+  const auth = saved?.auth ?? { type:'bearer', token: '' };
+
+  return { method, url, paramsInit, headersInit, bodyText, scripts, auth, response: saved?.response || null };
+}
+
+function persistOnChange(id, fields){
+  saveReqState(id, fields);
+}
 
 function openRequest(item){
   CURRENT_REQ_ID = item.id;
   const req = item.request;
 
-  const methodOrig = String(req.method || 'GET').toUpperCase();
-  const urlRaw     = normalizeUrl(req.url);
-  const urlDisplay = resolveVars(urlRaw); // для верхней строки
-
-  const paramsInit = (typeof req.url==='object' && Array.isArray(req.url.query))
-    ? req.url.query.map(q=>({key:q.key, value: resolveVars(q.value??'')})) : [];
-  let headersInit = Array.isArray(req.header)
-    ? req.header.map(h=>({key:h.key, value: resolveVars(h.value??'')})) : [];
-
-  // bearer из env/collection — если есть
-  if (GLOBAL_BEARER && !headersInit.some(h=>String(h.key||'').toLowerCase()==='authorization')){
-    headersInit.unshift({key:'Authorization', value:'Bearer '+GLOBAL_BEARER});
-  } else if (req.auth && req.auth.type==='bearer'){
-    const token = (req.auth.bearer||[]).find(x=>x.key==='token')?.value || VARS.token || VARS.access_token || '';
-    if (token && !headersInit.some(h=>String(h.key||'').toLowerCase()==='authorization')){
-      headersInit.unshift({key:'Authorization', value:'Bearer '+resolveVars(token)});
-    }
-  }
-
-  // Тело: оставляем как в коллекции (с {{vars}}), подставим только при отправке
-  let bodyText = req.body?.raw != null ? (typeof req.body.raw === 'string' ? req.body.raw : JSON.stringify(req.body.raw, null, 2)) : '';
+  const {
+    method, url, paramsInit, headersInit, bodyText, scripts, auth, response
+  } = getInitialStateForItem(item);
 
   const pane = $('#reqPane'); pane.innerHTML='';
   const card = el('div', {class:'card'});
 
+  // ===== Шапка: Method + URL (перенесено вверх)
   const header = el('div', {class:'reqHeader'},
-    el('span', {class:'badge'}, methodOrig),
-    el('div', {class:'path', id:'topPath'}, urlDisplay || urlRaw)
+    el('select', {id:'methodSel'},
+      ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected:m===method}, m))
+    ),
+    el('input', {id:'urlInp', value: url, placeholder:'https://api.example.com/path?x=1'})
   );
 
+  // Tabs
   const tabs = el('div', {class:'tabs'},
     el('div', {class:'tab active', id:'tabParams'}, 'Params'),
     el('div', {class:'tab', id:'tabHeaders'}, 'Headers'),
+    el('div', {class:'tab', id:'tabAuth'}, 'Authorization'),
     el('div', {class:'tab', id:'tabScripts'}, 'Scripts')
   );
 
   const paramsPane = el('div', {class:'tabPane active', id:'paneParams'});
   const headersPane= el('div', {class:'tabPane',        id:'paneHeaders'});
+  const authPane   = el('div', {class:'tabPane',        id:'paneAuth'});
   const scriptsPane= el('div', {class:'tabPane',        id:'paneScripts'});
 
-  const methodSel = el('select', {id:'methodSel'},
-    ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected:m===methodOrig}, m))
-  );
-  const urlInput = el('input', {id:'urlInp', value: urlRaw}); // показываем оригинал с {{vars}}
-  const methodRow = el('div', {class:'row'},
-    el('div', {class:'inline'}, el('span', {class:'muted'}, 'Method / URL')),
-    el('div', {class:'inline', style:'gap:8px; width:100%'}, methodSel, urlInput)
-  );
-
+  // Params table
   const paramsTable = buildKVTable(paramsInit);
-  paramsPane.append(methodRow, el('div', {class:'kvs'}, paramsTable));
-  paramsPane.addEventListener('input', debounce(()=>{
-    const p = tableToSimpleArray(paramsTable.tBodies[0]);
-    const built = safeBuildUrl(urlInput.value, p);
-    $('#topPath').textContent = built;
-  }, 120));
+  paramsPane.append(el('div', {class:'kvs'}, paramsTable, el('div',{class:'kvHint'},'Добавьте или измените query-параметры')));
 
+  // Headers table
   const headersTable = buildKVTable(headersInit);
-  headersPane.append(el('div', {class:'kvs'}, headersTable));
+  headersPane.append(el('div', {class:'kvs'}, headersTable, el('div',{class:'kvHint'},'Заголовки запроса')));
 
-  const {pre:preSaved='', post:postSaved=''} = loadScripts(item.id);
+  // Authorization tab
+  const authTypeSel = el('select', {id:'authType'},
+    el('option', {value:'bearer', selected: (auth?.type||'bearer')==='bearer'}, 'Bearer Token')
+  );
+  const authTokenInp = el('input', {id:'authTokenInp', value: auth?.token || '', placeholder:'Token value'});
+  authPane.append(
+    el('div', {class:'authRow'}, el('div', {class:'muted'}, 'Auth type'), authTypeSel),
+    el('div', {class:'authRow'}, el('div', {class:'muted'}, 'Token'), authTokenInp),
+    el('div', {class:'kvHint'}, 'Если в Headers нет своего Authorization, при отправке будет добавлен "Authorization: Bearer {token}"')
+  );
+
+  // Scripts tab
   const sw = el('div', {class:'scriptsSwitcher'},
     el('button', {id:'btnPre',  class:'active', onclick:()=>switchScript('pre')},  'PRE-Request'),
     el('button', {id:'btnPost', onclick:()=>switchScript('post')}, 'POST-Request')
   );
-  const preTA  = el('textarea', {id:'preScript'},  preSaved);
-  const postTA = el('textarea', {id:'postScript', style:'display:none'}, postSaved);
+  const preTA  = el('textarea', {id:'preScript'},  scripts?.pre || '');
+  const postTA = el('textarea', {id:'postScript', style:'display:none'}, scripts?.post || '');
   const scriptsArea = el('div', {class:'scriptsArea'}, preTA, postTA);
   const scriptsPaneInfo = el('div', {class:'small muted', style:'padding:0 12px 12px'}, 'Доступно: ctx.request (method,url,params,headers,body), ctx.response (status, headers, bodyText)');
   scriptsPane.append(sw, scriptsArea, scriptsPaneInfo);
 
+  // Body
   const bodyWrap = el('div', {class:'reqBodyWrap'});
   const bodyToolbar = el('div', {class:'reqBodyToolbar'},
     el('span', {}, 'Request body'),
-    el('button', {class:'clear', onclick:()=>{ bodyArea.value=''; }}, 'Очистить')
+    el('button', {class:'clear', onclick:()=>{ bodyArea.value=''; persistOnChange(CURRENT_REQ_ID,{body:''}); }}, 'Очистить')
   );
-  const bodyArea = el('textarea', {id:'bodyRawArea'}, bodyText);
+  const bodyArea = el('textarea', {id:'bodyRawArea'}, bodyText || '');
   bodyWrap.append(bodyToolbar, bodyArea);
 
+  // Actions
   const actions = el('div', {class:'actions'});
   const sendBtn = el('button', {class:'send', id:'sendBtn'}, 'Send');
   const curlBtn = el('button', {id:'curlBtn'}, 'Copy cURL');
   actions.append(sendBtn, curlBtn);
 
-  card.append(header, tabs, paramsPane, headersPane, scriptsPane, bodyWrap, actions);
+  card.append(header, tabs, paramsPane, headersPane, authPane, scriptsPane, bodyWrap, actions);
   pane.append(card);
 
+  // Tabs switching
   function activateTab(name){
-    ['Params','Headers','Scripts'].forEach(t=>{
+    ['Params','Headers','Auth','Scripts'].forEach(t=>{
       $('#tab'+t).classList.toggle('active', t===name);
       $('#pane'+t).classList.toggle('active', t===name);
     });
   }
   $('#tabParams').onclick = ()=>activateTab('Params');
   $('#tabHeaders').onclick= ()=>activateTab('Headers');
+  $('#tabAuth').onclick   = ()=>activateTab('Auth');
   $('#tabScripts').onclick= ()=>activateTab('Scripts');
+
   function switchScript(which){
     $('#btnPre').classList.toggle('active', which==='pre');
     $('#btnPost').classList.toggle('active', which==='post');
     preTA.style.display  = which==='pre' ? '' : 'none';
     postTA.style.display = which==='post'? '' : 'none';
   }
-  scriptsPane.addEventListener('input', debounce(()=> saveScripts(item.id, preTA.value, postTA.value), 180));
+
+  // ===== Автосохранение (debounced) всех полей
+  const debSave = debounce(()=> {
+    const params = tableToSimpleArray(paramsTable.tBodies[0]);
+    const headers= tableToSimpleArray(headersTable.tBodies[0]);
+    const scriptsNew = { pre: preTA.value, post: postTA.value };
+    const authNew = { type: $('#authType').value, token: $('#authTokenInp').value };
+    const patch = {
+      method: $('#methodSel').value,
+      url: $('#urlInp').value,
+      params, headers,
+      body: $('#bodyRawArea').value,
+      scripts: scriptsNew,
+      auth: authNew
+    };
+    saveReqState(CURRENT_REQ_ID, patch);
+  }, 180);
+
+  ['input','change','keyup'].forEach(ev=>{
+    header.addEventListener(ev, debSave);
+    paramsPane.addEventListener(ev, debSave);
+    headersPane.addEventListener(ev, debSave);
+    scriptsPane.addEventListener(ev, debSave);
+    authPane.addEventListener(ev, debSave);
+    bodyWrap.addEventListener(ev, debSave);
+  });
 
   // ==== SEND ====
   $('#sendBtn').onclick = async ()=>{
+    // принудительно сохраним последнее
+    debSave(); // запланирует; сделаем и синхронный снимок:
     const params = tableToSimpleArray(paramsTable.tBodies[0]);
     const hdrArr = tableToSimpleArray(headersTable.tBodies[0]);
     let headers  = Object.fromEntries(hdrArr.filter(x=>x.key).map(x=>[x.key, resolveVars(x.value)]));
+    let method = $('#methodSel').value;
+    let finalUrl = safeBuildUrl($('#urlInp').value.trim(), params);
+    let body = resolveVars($('#bodyRawArea').value || '');
+    const authType = $('#authType').value;
+    const authToken = $('#authTokenInp').value.trim();
 
-    // глобальный Bearer если не задан явно
-    if (GLOBAL_BEARER && !Object.keys(headers).some(h=>h.toLowerCase()==='authorization')){
+    // Authorization per-request: если нет своего Authorization — подставим
+    if (authType==='bearer' && authToken && !Object.keys(headers).some(h=>h.toLowerCase()==='authorization')){
+      headers['Authorization'] = 'Bearer ' + authToken;
+    } else if (GLOBAL_BEARER && !Object.keys(headers).some(h=>h.toLowerCase()==='authorization')){
+      // fallback на глобальный
       headers['Authorization'] = 'Bearer ' + GLOBAL_BEARER;
     }
 
-    let method = methodSel.value;
-    let finalUrl = safeBuildUrl(urlInput.value.trim(), params);
+    if (body && !Object.keys(headers).some(h=>h.toLowerCase()==='content-type')){
+      try{ JSON.parse(body); headers['Content-Type'] = 'application/json'; }catch{}
+    }
 
-    // тело с подстановкой переменных на отправку
-    let body = resolveVars(bodyArea.value || '');
+    const proxy = $('#proxyPrefix').value.trim();
+    const targetUrl = proxy ? proxy + finalUrl : finalUrl;
 
-    // PRE
+    // PRE script
     const preCode = preTA.value.trim();
     if (preCode){
       try{
@@ -567,30 +612,26 @@ function openRequest(item){
       }catch(e){ renderResponse(null, 'PRE error: '+e.message, 0, finalUrl); return; }
     }
 
-    if (body && !Object.keys(headers).some(h=>h.toLowerCase()==='content-type')){
-      try{ JSON.parse(body); headers['Content-Type'] = 'application/json'; }catch{}
-    }
-
-    const proxy = $('#proxyPrefix').value.trim();
-    const targetUrl = proxy ? proxy + finalUrl : finalUrl;
-
-    showLoader(true); sendBtn.disabled = true;
+    showLoader(true); $('#sendBtn').disabled = true;
     const started = performance.now();
     let res, text;
     try{
-      res = await fetch(targetUrl, { method, headers, body: (method==='GET'||method==='HEAD')?undefined:body });
-      text = await res.text(); // fetch не бросает на 4xx/5xx — это ок
+      res = await fetch(proxy ? (proxy + finalUrl) : finalUrl, { method, headers, body: (method==='GET'||method==='HEAD')?undefined:body });
+      text = await res.text();
     }catch(e){
-      renderResponse(null, String(e), performance.now()-started, finalUrl);
+      const ms = performance.now()-started;
+      renderResponse(null, String(e), ms, finalUrl);
       const postCode = postTA.value.trim();
       if (postCode){
         try{ const ctxPost = makePostCtx({request:{method,url:finalUrl,headers,body}, response:null, error:String(e)}); runUserScript(postCode, ctxPost); }catch(_){}
       }
-      showLoader(false); sendBtn.disabled = false;
+      // сохранить ошибочный response
+      saveReqState(CURRENT_REQ_ID, { response: { status:0, statusText:'Network error', headers:{}, bodyText:String(e), url:finalUrl, timeMs:ms }});
+      showLoader(false); $('#sendBtn').disabled = false;
       return;
     }
 
-    // POST
+    // POST script
     const postCode = postTA.value.trim();
     if (postCode){
       try{
@@ -600,25 +641,52 @@ function openRequest(item){
         });
         runUserScript(postCode, ctxPost);
         if (ctxPost.response && typeof ctxPost.response.bodyText === 'string') text = ctxPost.response.bodyText;
-      }catch(e){ /* не блокируем рендер */ }
+      }catch(e){ /* ignore */ }
     }
 
-    renderResponse(res, text, performance.now()-started, finalUrl);
-    showLoader(false); sendBtn.disabled = false;
+    const ms = performance.now()-started;
+    renderResponse(res, text, ms, finalUrl);
+
+    // сохранить response
+    const respObj = {
+      status: res.status,
+      statusText: res.statusText,
+      headers: Object.fromEntries(res.headers.entries()),
+      bodyText: text,
+      url: finalUrl,
+      timeMs: ms
+    };
+    saveReqState(CURRENT_REQ_ID, { response: respObj });
+
+    showLoader(false); $('#sendBtn').disabled = false;
   };
 
   // cURL
   $('#curlBtn').onclick = ()=>{
-    const m = methodSel.value;
+    const m = $('#methodSel').value;
     const params = tableToSimpleArray(paramsTable.tBodies[0]);
-    const finalUrl = safeBuildUrl(urlInput.value.trim(), params);
-    const headers  = Object.fromEntries(tableToSimpleArray(headersTable.tBodies[0]).map(p=>[p.key, resolveVars(p.value)]));
-    const body     = (m==='GET' || m==='HEAD') ? '' : resolveVars(bodyArea.value || '');
-    const hdrStr = Object.entries(headers).map(([k,v])=>` -H '${k}: ${String(v).replace(/'/g,"'\\''")}'`).join('');
+    const finalUrl = safeBuildUrl($('#urlInp').value.trim(), params);
+    const hdrs = Object.fromEntries(tableToSimpleArray(headersTable.tBodies[0]).map(p=>[p.key, resolveVars(p.value)]));
+    const authType = $('#authType').value;
+    const authToken = $('#authTokenInp').value.trim();
+    if (authType==='bearer' && authToken && !Object.keys(hdrs).some(h=>h.toLowerCase()==='authorization')){
+      hdrs['Authorization']='Bearer '+authToken;
+    } else if (GLOBAL_BEARER && !Object.keys(hdrs).some(h=>h.toLowerCase()==='authorization')){
+      hdrs['Authorization']='Bearer '+GLOBAL_BEARER;
+    }
+    const body     = (m==='GET' || m==='HEAD') ? '' : resolveVars($('#bodyRawArea').value || '');
+    const hdrStr = Object.entries(hdrs).map(([k,v])=>` -H '${k}: ${String(v).replace(/'/g,"'\\''")}'`).join('');
     const bodyStr = body ? ` --data '${String(body).replace(/'/g,"'\\''")}'` : '';
     const cmd = `curl -X ${m}${hdrStr}${bodyStr} '${finalUrl.replace(/'/g,"'\\''")}'`;
     navigator.clipboard.writeText(cmd); alert('cURL скопирован');
   };
+
+  // При открытии — показать сохранённый response, если был
+  if (response){
+    renderResponseSaved(response);
+  } else {
+    $('#resPane').innerHTML = '';
+  }
 }
 
 /* ==== sandbox for scripts ==== */
@@ -668,8 +736,28 @@ function renderResponse(res, text, ms, url){
     pane.append(card);
   }
 }
+function renderResponseSaved(resp){
+  const pane = $('#resPane'); pane.innerHTML = '';
+  const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Ответ (последний)'));
+  const head = el('div', {class:'actions'});
+  head.append(el('span', {class:'pill', style:`color:${resp.status && resp.status>=200 && resp.status<400 ? '#16a34a' : '#dc2626'}`}, `${resp.status||0} ${resp.statusText||''}`));
+  if (resp.timeMs!=null) head.append(el('span', {class:'pill'}, `Время: ${Math.round(resp.timeMs)} ms`));
+  if (resp.url) head.append(el('span', {class:'pill'}, `URL: ${resp.url}`));
+  card.append(head);
+  let formatted = resp.bodyText; try{ formatted = JSON.stringify(JSON.parse(resp.bodyText||''),null,2);}catch{}
+  card.append(el('pre', {}, formatted || (resp.bodyText || '—')));
+  if (resp.headers && Object.keys(resp.headers).length){
+    const hdrsCard = el('div', {class:'card'}); hdrsCard.append(el('h3', {}, 'Response headers'));
+    const table = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Header'), el('th', {}, 'Value'))));
+    const tb = el('tbody'); Object.entries(resp.headers).forEach(([k,v])=> tb.append(el('tr', {}, el('td', {}, k), el('td', {}, String(v)))));
+    table.append(tb); hdrsCard.append(el('div', {class:'kvs'}, table));
+    pane.append(card, hdrsCard);
+  }else{
+    pane.append(card);
+  }
+}
 
-/* ========= Authorize ========= */
+/* ========= Authorize (глобальный) ========= */
 function updateAuthUI(){
   const btn = $('#authBtn');
   if (GLOBAL_BEARER){
@@ -703,11 +791,74 @@ $('#authClear').addEventListener('click', ()=>{
   $('#authToken').value = '';
 });
 
+/* ========= Variables modal ========= */
+function buildVarsTableBody(){
+  const tb = $('#varsTable tbody');
+  tb.innerHTML = '';
+  const list = Array.isArray(ENV?.values) ? ENV.values : [];
+  list.forEach((v, i)=>{
+    const tr = document.createElement('tr');
+    const key = v.key ?? v.name ?? '';
+    const val = v.currentValue ?? v.value ?? '';
+    const enabled = v.enabled !== false;
+    tr.append(
+      el('td',{}, el('input',{value:key, 'data-idx':i, 'data-field':'key'})),
+      el('td',{}, el('input',{value:val, 'data-idx':i, 'data-field':'value'})),
+      el('td',{}, el('input',{type:'checkbox', checked:enabled, 'data-idx':i, 'data-field':'enabled'}))
+    );
+    tb.append(tr);
+  });
+  const trNew = document.createElement('tr');
+  trNew.append(
+    el('td',{}, el('input',{'data-idx':'new','data-field':'key', placeholder:'key'})),
+    el('td',{}, el('input',{'data-idx':'new','data-field':'value', placeholder:'value'})),
+    el('td',{}, el('input',{type:'checkbox','data-idx':'new','data-field':'enabled', checked:true}))
+  );
+  tb.append(trNew);
+}
+function readVarsTable(){
+  const rows = Array.from($('#varsTable tbody').querySelectorAll('tr'));
+  const out = [];
+  rows.forEach(tr=>{
+    const keyInp = tr.querySelector('input[data-field="key"]');
+    const valInp = tr.querySelector('input[data-field="value"]');
+    const enInp  = tr.querySelector('input[data-field="enabled"]');
+    const key = (keyInp?.value ?? '').trim();
+    const val = valInp?.value ?? '';
+    const enabled = !!(enInp?.checked);
+    if (key || val) out.push({ key, value: val, enabled });
+  });
+  return out;
+}
+$('#varsBtn').addEventListener('click', ()=>{
+  if (!ENV) ENV = { values: [] };
+  if (!Array.isArray(ENV.values)) ENV.values = [];
+  buildVarsTableBody();
+  $('#varsModal').hidden = false;
+});
+$('#varsCancel').addEventListener('click', ()=> $('#varsModal').hidden = true);
+$('#varsSave').addEventListener('click', ()=>{
+  const rows = readVarsTable();
+  ENV.values = rows.map(r=>({ key: r.key, value: r.value, enabled: r.enabled }));
+  try{ localStorage.setItem('pm_env', JSON.stringify(ENV)); }catch{}
+  buildVarMap();
+  renderTree($('#search').value||'');
+  const tp = $('#topPath'), urlInp = $('#urlInp');
+  if (tp && urlInp) tp.textContent = safeBuildUrl(urlInp.value, []);
+  $('#varsModal').hidden = true;
+});
+
 /* ========= Loaders & session ========= */
 $('#collectionFile').addEventListener('change', onCollectionUpload);
 $('#envFile').addEventListener('change', onEnvUpload);
 $('#clearBtn').addEventListener('click', ()=>{
-  localStorage.removeItem('pm_collection'); localStorage.removeItem('pm_env'); localStorage.removeItem('global_bearer');
+  localStorage.removeItem('pm_collection');
+  localStorage.removeItem('pm_env');
+  localStorage.removeItem('global_bearer');
+  // очистим все per-request ключи
+  Object.keys(localStorage).forEach(k=>{
+    if (k.startsWith('pm_req_') || k.startsWith('pm_scripts_')) localStorage.removeItem(k);
+  });
   COLLECTION=null; ENV=null; VARS={}; ITEMS_FLAT=[]; CURRENT_REQ_ID=null; GLOBAL_BEARER='';
   $('#tree').innerHTML=''; $('#reqPane').innerHTML=''; $('#resPane').innerHTML='';
   $('#loadedInfo').textContent = ''; updateAuthUI();
@@ -772,6 +923,7 @@ function autoOpenFirst(){
     renderTree('');
   }
 })();
+
 </script>
 </body>
 </html>
