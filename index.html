@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="uk">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -54,7 +54,7 @@
   .small{font-size:12px; color:var(--muted)} .muted{color:var(--muted)} .inline{display:flex; gap:8px; align-items:center}
   .rightInfo{font-size:12px; color:#475569}
 
-  /* Список API */
+  /* Sidebar / API list */
   .tree{margin-top:12px}
   .folder{color:#0b1220; font-weight:800; text-transform:none; letter-spacing:.2px; font-size:18px; margin:18px 10px 6px;}
   .op{display:flex; align-items:center; gap:12px; border-radius:8px; padding:10px 12px; margin:8px 6px; border:1px solid var(--divider); cursor:pointer; background:#ffffff; transition: transform .05s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease; box-shadow: 0 1px 0 rgba(15,23,42,.03);}
@@ -69,7 +69,7 @@
   .op.DELETE{background:#ffe5e7} .op.DELETE .op-method{background:#ffdadd; color:#c81e1e}
   .op.HEAD,.op.OPTIONS,.op.TRACE{background:#eaf2ff} .op.HEAD .op-method,.op.OPTIONS .op-method,.op.TRACE .op-method{background:#e2ecff; color:#0b6cff}
 
-  /* Редактор запроса */
+  /* Request editor */
   .reqHeader{display:grid; grid-template-columns: 140px 1fr auto; gap:12px; padding:12px 14px; background:#fff7e8; border-bottom:1px solid var(--divider)}
   .reqHeader select{padding:9px 10px; border-radius:8px; border:1px solid var(--divider); background:#fff}
   .reqHeader input{padding:9px 10px; border-radius:8px; border:1px solid var(--divider); background:#fff}
@@ -80,7 +80,7 @@
   .tab.active{ border-color:#cfd7e3; background:#f9fafb }
   .tabPane{ display:none } .tabPane.active{ display:block }
 
-  /* Обновлённый стиль KV-таблиц */
+  /* Enhanced KV tables */
   .kvTable{ width:100%; border-collapse:separate; border-spacing:0; background:#fff; border:1px solid var(--divider); border-radius:10px; overflow:hidden }
   .kvTable thead th{ background:#f5f7fb; font-size:12px; letter-spacing:.3px; color:#475569; text-transform:uppercase; }
   .kvTable tbody tr:not(:last-child) td{ border-bottom:1px solid var(--divider) }
@@ -88,6 +88,7 @@
   .kvTable td .cell{ display:flex; align-items:center; padding:8px }
   .kvTable input{ width:100%; padding:9px 10px; border:1px solid transparent; outline:none; background:#fff; border-radius:6px }
   .kvTable input:focus{ border-color:#d6e2ff; background:#f8fbff }
+  .kvOn{ width:64px; text-align:center; }
   .kvHint{ font-size:12px; color:#64748b; padding:8px 2px }
 
   .scriptsSwitcher{ display:flex; gap:8px; padding:10px 12px; background:#f9fafb; border-bottom:1px solid var(--divider) }
@@ -97,8 +98,9 @@
   .scriptsArea textarea{ width:100%; min-height:160px; border:1px solid var(--divider); border-radius:8px; background:#ffffff; color:#0b1220; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding:10px }
 
   .reqBodyWrap{ padding:12px 14px; background:#fff7e8; color:#1d1408; border-top:1px solid var(--divider) }
-  .reqBodyToolbar{ display:flex; gap:8px; align-items:center; margin-bottom:8px }
+  .reqBodyToolbar{ display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap }
   .reqBodyToolbar .clear{ background:#ffd7cf; color:#7a1d16; border:1px solid #ffc0b6 }
+  .reqBodyToolbar .beautify{ background:#e8f7ff; color:#084c7f; border:1px solid #bfe2ff }
   .reqBodyWrap textarea{ width:100%; min-height:220px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px; border:1px solid #e6d7c8; border-radius:8px; padding:10px; background:#ffffff; color:#1d1408 }
 
   /* Authorization tab */
@@ -109,10 +111,10 @@
   .respHeader{display:flex; flex-wrap:wrap; gap:8px; padding:10px 12px; border-bottom:1px solid var(--divider); background:#f8fafc}
   .respBody{ max-height:480px; overflow:auto; padding:12px }
   .respBody pre{ margin:0; white-space:pre-wrap; word-wrap:break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  .respTools{ display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--divider); background:#fafafa; align-items:center }
+  .respTools{ display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--divider); background:#fafafa; align-items:center; flex-wrap:wrap }
   .respTools input{ padding:8px 10px; border:1px solid var(--divider); border-radius:8px; min-width:220px }
 
-  /* Authorize / Variables modal */
+  /* Modals */
   .modal{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:10000 }
   .modal[hidden]{ display:none }
   .modalCard{ width:720px; max-height:80vh; overflow:auto; background:#fff; border:1px solid var(--divider); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.08); padding:16px }
@@ -140,24 +142,24 @@
   <header>
     <h1>Driver team collections</h1>
     <div class="bar">
-      <label class="file" id="colLabel">Коллекция
+      <label class="file" id="colLabel">Collection
         <input id="collectionFile" type="file" accept=".json,application/json" />
       </label>
-      <label class="file" id="envLabel">Окружение
+      <label class="file" id="envLabel">Environment
         <input id="envFile" type="file" accept=".json,application/json" />
       </label>
-      <button id="clearBtn" title="Очистить всю локальную сессию">Reset</button>
-      <button id="authBtn" title="Глобальный Bearer">Authorize</button>
-      <button id="varsBtn" title="Postman environment">Postman Variables</button>
+      <button id="clearBtn" title="Clear all local data">Reset</button>
+      <button id="authBtn" title="Global Bearer token">Authorize</button>
+      <button id="varsBtn" title="Postman environment">Environment Variables</button>
       <span class="small muted">Proxy prefix:</span>
-      <input id="proxyPrefix" placeholder="например, http://localhost:8080/" style="width:280px;padding:8px;border-radius:8px;border:1px solid var(--divider);background:#fff;color:#111" />
+      <input id="proxyPrefix" placeholder="e.g. http://localhost:8080/" style="width:280px;padding:8px;border-radius:8px;border:1px solid var(--divider);background:#fff;color:#111" />
       <span id="loadedInfo" class="rightInfo"></span>
     </div>
   </header>
 
   <aside class="left">
     <div class="section">
-      <input id="search" class="search" placeholder="Поиск по названию/пути…" />
+      <input id="search" class="search" placeholder="Search by name/path…" />
       <div id="tree" class="tree"></div>
     </div>
   </aside>
@@ -165,10 +167,10 @@
   <main class="right">
     <div class="pane">
       <div class="card" id="welcomeCard">
-        <h3>Добро пожаловать</h3>
+        <h3>Welcome</h3>
         <div class="section">
-          Если в корне есть <code>postman_collection.json</code> и <code>postman_environment.json</code>, они автозагрузятся.
-          Иначе — загрузите вручную. Переопределить пути можно так: <code>?collection=./api/col.json&amp;env=./envs/dev.json</code>.
+          If <code>postman_collection.json</code> and <code>postman_environment.json</code> exist in root, they will auto-load.
+          Or load manually. You can override paths: <code>?collection=./api/col.json&amp;env=./envs/dev.json</code>.
         </div>
       </div>
 
@@ -208,11 +210,11 @@
       </div>
 
       <div class="modalActions">
-        <div class="varsHelp">Переменные сохраняются локально (в вашем браузере).</div>
+        <div class="varsHelp">Variables are stored locally (in your browser).</div>
         <div style="display:flex; gap:8px; align-items:center">
-          <label class="file" for="envImportFile">Импорт JSON<input id="envImportFile" type="file" accept=".json,application/json"/></label>
-          <button id="varsCancel">Отмена</button>
-          <button id="varsSave" class="auth-ok">Сохранить</button>
+          <label class="file" for="envImportFile">Import JSON<input id="envImportFile" type="file" accept=".json,application/json"/></label>
+          <button id="varsCancel">Cancel</button>
+          <button id="varsSave" class="auth-ok">Save</button>
         </div>
       </div>
     </div>
@@ -235,7 +237,6 @@ const el = (tag, attrs={}, ...children) => { const n=document.createElement(tag)
 }); children.forEach(c=>n.append(c)); return n; };
 function debounce(fn, ms=250){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
 function prettyJSON(x){ try{ return typeof x==='string'?JSON.stringify(JSON.parse(x),null,2):JSON.stringify(x,null,2);}catch{ return String(x);} }
-function sizeBytes(val){ try{ const b=(new TextEncoder()).encode(typeof val==='string'?val:JSON.stringify(val)).length; if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }catch{ return '—'; } }
 function showLoader(on){ const l = $('#loader'); if (!l) return; l.hidden = !on; }
 function pathOnly(u){
   if(!u) return '';
@@ -244,9 +245,7 @@ function pathOnly(u){
     const isAbs = /^https?:\/\//i.test(full);
     const urlObj = new URL(isAbs ? full : (location.origin + (full.startsWith('/')?full:'/'+full)));
     return urlObj.pathname || '/';
-  }catch{
-    return String(u).replace(/^https?:\/\/[^/]+/i,'') || '/';
-  }
+  }catch{ return String(u).replace(/^https?:\/\/[^/]+/i,'') || '/'; }
 }
 
 /* ========= State ========= */
@@ -309,12 +308,12 @@ function flattenItems(node, path=[]){
   if(!node) return;
   if(Array.isArray(node)){ node.forEach(n=>flattenItems(n, path)); return; }
   if(node.item){ const newPath = node.name ? path.concat(node.name) : path; node.item.forEach(child=>flattenItems(child, newPath)); return; }
-  if(node.request){ ITEMS_FLAT.push({ id: crypto.randomUUID(), path: path.join(' / '), name: node.name || '(без названия)', request: node.request }); }
+  if(node.request){ ITEMS_FLAT.push({ id: crypto.randomUUID(), path: path.join(' / '), name: node.name || '(untitled)', request: node.request }); }
 }
 function safeBuildUrl(url, queryArr){
   let u = resolveVars(url || '');
   const extra = new URLSearchParams();
-  (queryArr||[]).filter(x=>x.key).forEach(p=> extra.set(p.key, resolveVars(String(p.value??''))));
+  (queryArr||[]).filter(x=>x.key && x.enabled!==false).forEach(p=> extra.set(p.key, resolveVars(String(p.value??''))));
   const glue = u.includes('?') ? (u.endsWith('?') || u.endsWith('&') ? '' : '&') : (extra.toString()? '?' : '');
   const composed = u + (glue ? glue + extra.toString() : '');
   try{
@@ -341,7 +340,7 @@ function renderTree(filter = '') {
 
   Object.entries(groups).forEach(([folder, items]) => {
     const sec = el('div', { class: 'node' });
-    sec.append(el('div', { class: 'folder' }, folder === 'ROOT' ? 'Без папки' : folder));
+    sec.append(el('div', { class: 'folder' }, folder === 'ROOT' ? 'No folder' : folder));
 
     items.forEach(it => {
       const urlRaw = normalizeUrl(it.request.url);
@@ -362,18 +361,19 @@ function renderTree(filter = '') {
   });
 
   if (!tree.children.length) {
-    tree.append(el('div', { class: 'section muted small' }, 'Ничего не найдено'));
+    tree.append(el('div', { class: 'section muted small' }, 'Nothing found'));
   }
 }
 
-/* ========= KV helpers ========= */
+/* ========= KV tables (with On/Off) ========= */
 function buildKVTable(rows){
   const t = el('table', {class:'kvTable'});
-  t.append(el('thead', {}, el('tr', {}, el('th', {}, 'Key'), el('th', {}, 'Value'))));
+  t.append(el('thead', {}, el('tr', {}, el('th', {class:'kvOn'}, 'On'), el('th', {}, 'Key'), el('th', {}, 'Value'))));
   const tb = el('tbody');
   (rows||[]).forEach(r=>{
     const tr = el('tr');
     tr.append(
+      el('td', {class:'kvOn'}, el('div',{class:'cell'}, el('input',{type:'checkbox','data-field':'enabled', checked: r.enabled !== false}))),
       el('td', {}, el('div', {class:'cell'}, el('input', {value: r.key ?? '', 'data-field':'key'}))),
       el('td', {}, el('div', {class:'cell'}, el('input', {value: r.value ?? '', 'data-field':'value'})))
     );
@@ -381,6 +381,7 @@ function buildKVTable(rows){
   });
   const trNew = el('tr');
   trNew.append(
+    el('td', {class:'kvOn'}, el('div',{class:'cell'}, el('input',{type:'checkbox','data-field':'enabled', checked:true}))),
     el('td', {}, el('div', {class:'cell'}, el('input', {'data-field':'key', placeholder:'key'}))),
     el('td', {}, el('div', {class:'cell'}, el('input', {'data-field':'value', placeholder:'value'})))
   );
@@ -393,7 +394,8 @@ function tableToSimpleArray(tbody){
   Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
     const key = tr.querySelector('input[data-field="key"]')?.value?.trim() ?? '';
     const val = tr.querySelector('input[data-field="value"]')?.value ?? '';
-    if (key || val) out.push({key, value: val});
+    const en  = tr.querySelector('input[data-field="enabled"]')?.checked;
+    if (key || val) out.push({key, value: val, enabled: !!en});
   });
   return out;
 }
@@ -410,20 +412,22 @@ function getInitialStateForItem(item){
 
   const paramsInit = saved?.params ?? (
     (typeof item.request.url==='object' && Array.isArray(item.request.url.query))
-      ? item.request.url.query.map(q=>({key:q.key, value: resolveVars(q.value??'')})) : []
+      ? item.request.url.query.map(q=>({key:q.key, value: resolveVars(q.value??''), enabled: q.disabled!==true }))
+      : []
   );
   let headersInit = saved?.headers ?? (
     Array.isArray(item.request.header)
-      ? item.request.header.map(h=>({key:h.key, value: resolveVars(h.value??'')})) : []
+      ? item.request.header.map(h=>({key:h.key, value: resolveVars(h.value??''), enabled: h.disabled!==true }))
+      : []
   );
 
   if (!saved?.headers){
     if (GLOBAL_BEARER && !headersInit.some(h=>String(h.key||'').toLowerCase()==='authorization')){
-      headersInit.unshift({key:'Authorization', value:'Bearer '+GLOBAL_BEARER});
+      headersInit.unshift({key:'Authorization', value:'Bearer '+GLOBAL_BEARER, enabled:true});
     } else if (item.request.auth && item.request.auth.type==='bearer'){
       const token = (item.request.auth.bearer||[]).find(x=>x.key==='token')?.value || VARS.token || VARS.access_token || '';
       if (token && !headersInit.some(h=>String(h.key||'').toLowerCase()==='authorization')){
-        headersInit.unshift({key:'Authorization', value:'Bearer '+resolveVars(token)});
+        headersInit.unshift({key:'Authorization', value:'Bearer '+resolveVars(token), enabled:true});
       }
     }
   }
@@ -441,7 +445,6 @@ function getInitialStateForItem(item){
 
 function openRequest(item){
   CURRENT_REQ_ID = item.id;
-  const req = item.request;
 
   const {
     method, methodOrig, url, paramsInit, headersInit, bodyText, scripts, auth, response
@@ -450,7 +453,7 @@ function openRequest(item){
   const pane = $('#reqPane'); pane.innerHTML='';
   const card = el('div', {class:'card'});
 
-  // Шапка: Method + URL + API-method badge
+  // Header: Method + URL + API badge
   const header = el('div', {class:'reqHeader'},
     el('select', {id:'methodSel'},
       ...['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'].map(m=>el('option', {value:m, selected:m===method}, m))
@@ -474,13 +477,13 @@ function openRequest(item){
 
   // Params
   const paramsTable = buildKVTable(paramsInit);
-  paramsPane.append(el('div', {class:'kvs'}, paramsTable, el('div',{class:'kvHint'},'Добавьте или измените query-параметры')));
+  paramsPane.append(el('div', {class:'kvs'}, paramsTable, el('div',{class:'kvHint'},'Add or change query parameters')));
 
   // Headers
   const headersTable = buildKVTable(headersInit);
-  headersPane.append(el('div', {class:'kvs'}, headersTable, el('div',{class:'kvHint'},'Заголовки запроса')));
+  headersPane.append(el('div', {class:'kvs'}, headersTable, el('div',{class:'kvHint'},'Request headers')));
 
-  // Auth
+  // Authorization
   const authTypeSel = el('select', {id:'authType'},
     el('option', {value:'bearer', selected: (auth?.type||'bearer')==='bearer'}, 'Bearer Token')
   );
@@ -488,7 +491,7 @@ function openRequest(item){
   authPane.append(
     el('div', {class:'authRow'}, el('div', {class:'muted'}, 'Auth type'), authTypeSel),
     el('div', {class:'authRow'}, el('div', {class:'muted'}, 'Token'), authTokenInp),
-    el('div', {class:'kvHint'}, 'Если в Headers нет своего Authorization, при отправке будет добавлен "Authorization: Bearer {token}" (или глобальный).')
+    el('div', {class:'kvHint'}, 'If there is no "Authorization" header, the token will be added automatically (or global token).')
   );
 
   // Scripts
@@ -499,14 +502,15 @@ function openRequest(item){
   const preTA  = el('textarea', {id:'preScript'},  scripts?.pre || '');
   const postTA = el('textarea', {id:'postScript', style:'display:none'}, scripts?.post || '');
   const scriptsArea = el('div', {class:'scriptsArea'}, preTA, postTA);
-  const scriptsPaneInfo = el('div', {class:'small muted', style:'padding:0 12px 12px'}, 'Доступно: ctx.request (method,url,params,headers,body), ctx.response (status, headers, bodyText)');
+  const scriptsPaneInfo = el('div', {class:'small muted', style:'padding:0 12px 12px'}, 'Available: ctx.request (method,url,params,headers,body), ctx.response (status, headers, bodyText)');
   scriptsPane.append(sw, scriptsArea, scriptsPaneInfo);
 
   // Body
   const bodyWrap = el('div', {class:'reqBodyWrap'});
   const bodyToolbar = el('div', {class:'reqBodyToolbar'},
     el('span', {}, 'Request body'),
-    el('button', {class:'clear', onclick:()=>{ bodyArea.value=''; saveReqState(CURRENT_REQ_ID,{body:''}); }}, 'Очистить')
+    el('button', {class:'beautify', id:'beautifyBtn'}, 'Beautify JSON'),
+    el('button', {class:'clear', onclick:()=>{ bodyArea.value=''; saveReqState(CURRENT_REQ_ID,{body:''}); }}, 'Clear')
   );
   const bodyArea = el('textarea', {id:'bodyRawArea'}, bodyText || '');
   bodyWrap.append(bodyToolbar, bodyArea);
@@ -515,7 +519,7 @@ function openRequest(item){
   const actions = el('div', {class:'actions'});
   const sendBtn = el('button', {class:'send', id:'sendBtn'}, 'Send');
   const curlBtn = el('button', {id:'curlBtn'}, 'Copy cURL');
-  const resetBtn= el('button', {id:'resetBtn', class:'reset', title:'Сбросить локальные изменения текущего запроса'}, 'Reset to defaults');
+  const resetBtn= el('button', {id:'resetBtn', class:'reset', title:'Reset local changes for this request'}, 'Reset to defaults');
   actions.append(sendBtn, curlBtn, resetBtn);
 
   card.append(header, tabs, paramsPane, headersPane, authPane, scriptsPane, bodyWrap, actions);
@@ -540,7 +544,17 @@ function openRequest(item){
     postTA.style.display = which==='post'? '' : 'none';
   }
 
-  // Автосохранение
+  // Beautify JSON
+  $('#beautifyBtn').onclick = ()=>{
+    const src = bodyArea.value.trim();
+    try{
+      const obj = JSON.parse(src);
+      bodyArea.value = JSON.stringify(obj, null, 2);
+      saveReqState(CURRENT_REQ_ID, { body: bodyArea.value });
+    }catch{ alert('Body is not valid JSON'); }
+  };
+
+  // Autosave
   const debSave = debounce(()=> {
     const params = tableToSimpleArray(paramsTable.tBodies[0]);
     const headers= tableToSimpleArray(headersTable.tBodies[0]);
@@ -566,17 +580,17 @@ function openRequest(item){
     bodyWrap.addEventListener(ev, debSave);
   });
 
-  // Reset только текущего запроса
+  // Reset only current request
   $('#resetBtn').onclick = ()=>{
     clearReqState(CURRENT_REQ_ID);
-    openRequest(item); // заново открыть из коллекции
+    openRequest(item); // reopen from collection defaults
   };
 
   // ==== SEND ====
   $('#sendBtn').onclick = async ()=>{
     debSave();
     const params = tableToSimpleArray(paramsTable.tBodies[0]);
-    const hdrArr = tableToSimpleArray(headersTable.tBodies[0]);
+    const hdrArr = tableToSimpleArray(headersTable.tBodies[0]).filter(h=>h.enabled!==false);
     let headers  = Object.fromEntries(hdrArr.filter(x=>x.key).map(x=>[x.key, resolveVars(x.value)]));
     let method = $('#methodSel').value;
     let finalUrl = safeBuildUrl($('#urlInp').value.trim(), params);
@@ -584,15 +598,17 @@ function openRequest(item){
     const authType = $('#authType').value;
     const authToken = $('#authTokenInp').value.trim();
 
-    // Inject Authorization
+    // Inject Authorization if missing
     if (authType==='bearer' && authToken && !Object.keys(headers).some(h=>h.toLowerCase()==='authorization')){
       headers['Authorization'] = 'Bearer ' + authToken;
     } else if (GLOBAL_BEARER && !Object.keys(headers).some(h=>h.toLowerCase()==='authorization')){
       headers['Authorization'] = 'Bearer ' + GLOBAL_BEARER;
     }
 
-    if (body && !Object.keys(headers).some(h=>h.toLowerCase()==='content-type')){
-      try{ JSON.parse(body); headers['Content-Type'] = 'application/json'; }catch{}
+    // Auto Content-Type (if missing)
+    if (!Object.keys(headers).some(h=>h.toLowerCase()==='content-type')){
+      const ct = detectContentType(body);
+      if (ct) headers['Content-Type'] = ct;
     }
 
     const proxy = $('#proxyPrefix').value.trim();
@@ -663,7 +679,8 @@ function openRequest(item){
     const m = $('#methodSel').value;
     const params = tableToSimpleArray(paramsTable.tBodies[0]);
     const finalUrl = safeBuildUrl($('#urlInp').value.trim(), params);
-    const hdrs = Object.fromEntries(tableToSimpleArray(headersTable.tBodies[0]).map(p=>[p.key, resolveVars(p.value)]));
+    const hdrsArr = tableToSimpleArray(headersTable.tBodies[0]).filter(h=>h.enabled!==false);
+    const hdrs = Object.fromEntries(hdrsArr.map(p=>[p.key, resolveVars(p.value)]));
     const authType = $('#authType').value;
     const authToken = $('#authTokenInp').value.trim();
     if (authType==='bearer' && authToken && !Object.keys(hdrs).some(h=>h.toLowerCase()==='authorization')){
@@ -671,14 +688,18 @@ function openRequest(item){
     } else if (GLOBAL_BEARER && !Object.keys(hdrs).some(h=>h.toLowerCase()==='authorization')){
       hdrs['Authorization']='Bearer '+GLOBAL_BEARER;
     }
+    if (!Object.keys(hdrs).some(h=>h.toLowerCase()==='content-type')){
+      const ct = detectContentType($('#bodyRawArea').value || '');
+      if (ct) hdrs['Content-Type'] = ct;
+    }
     const body     = (m==='GET' || m==='HEAD') ? '' : resolveVars($('#bodyRawArea').value || '');
-    const hdrStr = Object.entries(hdrs).map(([k,v])=>` -H '${k}: ${String(v).replace(/'/g,"'\\''")}'`).join('');
+    const hdrStr = Object.entries(hdrs).filter(([k])=>k).map(([k,v])=>` -H '${k}: ${String(v).replace(/'/g,"'\\''")}'`).join('');
     const bodyStr = body ? ` --data '${String(body).replace(/'/g,"'\\''")}'` : '';
     const cmd = `curl -X ${m}${hdrStr}${bodyStr} '${finalUrl.replace(/'/g,"'\\''")}'`;
-    navigator.clipboard.writeText(cmd); alert('cURL скопирован');
+    navigator.clipboard.writeText(cmd); alert('cURL copied');
   };
 
-  // Показать сохранённый response
+  // Show saved response
   if (response){
     renderResponseSaved(response);
   } else {
@@ -686,7 +707,20 @@ function openRequest(item){
   }
 }
 
-/* ==== sandbox for scripts ==== */
+/* ==== Content-Type detection ==== */
+function detectContentType(body){
+  const s = (body||'').trim();
+  if (!s) return null;
+  // JSON
+  try{ JSON.parse(s); return 'application/json'; }catch{}
+  // urlencoded (simple heuristic)
+  if (/^[^=\s&]+=[^=&]*(?:&[^=\s&]+=[^=&]*)*$/.test(s)) return 'application/x-www-form-urlencoded';
+  // multipart (very rough; usually should be set by browser when using FormData)
+  if (/^--?[-\w]+/i.test(s) && /content-disposition/i.test(s)) return 'multipart/form-data';
+  return null;
+}
+
+/* ==== scripts sandbox ==== */
 function runUserScript(code, ctx){
   const fn = new Function('ctx', `"use strict"; const console = { log: (...a)=> (ctx._logs.push(a.map(String).join(' '))) }; ${code}`);
   fn(ctx);
@@ -711,28 +745,25 @@ function makePostCtx({request, response, error}){
   return ctx;
 }
 
-/* ========= Response rendering ========= */
+/* ========= Response ========= */
 function renderResponse(res, text, ms, url){
   const pane = $('#resPane'); pane.innerHTML = '';
-  const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Ответ'));
+  const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Response'));
   const head = el('div', {class:'respHeader'});
   const status = res ? `${res.status} ${res.statusText}` : 'Network error';
   head.append(el('span', {class:'pill', style:`color:${res ? (res.ok?'#16a34a':'#dc2626'):'#dc2626'}`}, status));
-  head.append(el('span', {class:'pill'}, `Время: ${ms.toFixed(0)} ms`));
+  head.append(el('span', {class:'pill'}, `Time: ${ms.toFixed(0)} ms`));
   head.append(el('span', {class:'pill'}, `URL: ${url}`));
   card.append(head);
 
-  // инструменты копирования
   const tools = buildRespTools(text);
   card.append(tools);
 
-  // тело
   const bodyWrap = el('div', {class:'respBody'});
   let formatted = text; try{ formatted = JSON.stringify(JSON.parse(text),null,2);}catch{}
   bodyWrap.append(el('pre', {id:'respPre'}, formatted || (text || '—')));
   card.append(bodyWrap);
 
-  // заголовки
   if (res){
     const hdrsCard = el('div', {class:'card'}); hdrsCard.append(el('h3', {}, 'Response headers'));
     const table = el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, 'Header'), el('th', {}, 'Value'))));
@@ -745,10 +776,10 @@ function renderResponse(res, text, ms, url){
 }
 function renderResponseSaved(resp){
   const pane = $('#resPane'); pane.innerHTML = '';
-  const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Ответ (последний)'));
+  const card = el('div', {class:'card'}); card.append(el('h3', {}, 'Response (last)'));
   const head = el('div', {class:'respHeader'});
   head.append(el('span', {class:'pill', style:`color:${resp.status && resp.status>=200 && resp.status<400 ? '#16a34a' : '#dc2626'}`}, `${resp.status||0} ${resp.statusText||''}`));
-  if (resp.timeMs!=null) head.append(el('span', {class:'pill'}, `Время: ${Math.round(resp.timeMs)} ms`));
+  if (resp.timeMs!=null) head.append(el('span', {class:'pill'}, `Time: ${Math.round(resp.timeMs)} ms`));
   if (resp.url) head.append(el('span', {class:'pill'}, `URL: ${resp.url}`));
   card.append(head);
 
@@ -772,7 +803,7 @@ function renderResponseSaved(resp){
 }
 function buildRespTools(rawText){
   const tools = el('div', {class:'respTools'});
-  const input = el('input', {id:'copyField', placeholder:'Поле для копирования (например, access_token или data.token)'});
+  const input = el('input', {id:'copyField', placeholder:'Field to copy (e.g., access_token or data.token)'});
   const btn   = el('button', {id:'copyBtn'}, 'Copy field');
   const btnAll= el('button', {id:'copyAllBtn'}, 'Copy body');
   tools.append(input, btn, btnAll);
@@ -782,11 +813,11 @@ function buildRespTools(rawText){
       const obj = JSON.parse(rawText||'{}');
       const path = (input.value||'').trim();
       const val = path ? getByPath(obj, path) : '';
-      if (val==null) { alert('Поле не найдено'); return; }
+      if (val==null) { alert('Field not found'); return; }
       navigator.clipboard.writeText(String(val));
       btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy field', 1000);
     }catch{
-      alert('Ответ не JSON');
+      alert('Response is not JSON');
     }
   };
   btnAll.onclick = ()=>{
@@ -797,11 +828,10 @@ function buildRespTools(rawText){
   return tools;
 }
 function getByPath(obj, path){
-  // path like "data.token" or "access_token"
   return path.split('.').reduce((acc, key)=> (acc!=null ? acc[key] : undefined), obj);
 }
 
-/* ========= Authorize (глобальный) ========= */
+/* ========= Authorize (global) ========= */
 function updateAuthUI(){
   const btn = $('#authBtn');
   if (GLOBAL_BEARER){
@@ -818,7 +848,7 @@ $('#authBtn').addEventListener('click', ()=>{
   $('#authModal').hidden = false;
   $('#authToken').value = GLOBAL_BEARER || '';
   $('#authState').style.display = GLOBAL_BEARER ? '' : 'none';
-  $('#authState').textContent = GLOBAL_BEARER ? 'Токен установлен' : '';
+  $('#authState').textContent = GLOBAL_BEARER ? 'Token is set' : '';
 });
 $('#authCancel').addEventListener('click', ()=> $('#authModal').hidden = true);
 $('#authSave').addEventListener('click', ()=>{
@@ -846,16 +876,16 @@ function buildVarsTableBody(){
     const val = v.currentValue ?? v.value ?? '';
     const enabled = v.enabled !== false;
     tr.append(
-      el('td',{}, el('input',{value:key, 'data-idx':i, 'data-field':'key'})),
-      el('td',{}, el('input',{value:val, 'data-idx':i, 'data-field':'value'})),
+      el('td',{}, el('input',{value:key, 'data-idx':i, 'data-field':'key', type:'text'})),
+      el('td',{}, el('input',{value:val, 'data-idx':i, 'data-field':'value', type:'text'})),
       el('td',{}, el('input',{type:'checkbox', checked:enabled, 'data-idx':i, 'data-field':'enabled'}))
     );
     tb.append(tr);
   });
   const trNew = document.createElement('tr');
   trNew.append(
-    el('td',{}, el('input',{'data-idx':'new','data-field':'key', placeholder:'key'})),
-    el('td',{}, el('input',{'data-idx':'new','data-field':'value', placeholder:'value'})),
+    el('td',{}, el('input',{'data-idx':'new','data-field':'key', placeholder:'key', type:'text'})),
+    el('td',{}, el('input',{'data-idx':'new','data-field':'value', placeholder:'value', type:'text'})),
     el('td',{}, el('input',{type:'checkbox','data-idx':'new','data-field':'enabled', checked:true}))
   );
   tb.append(trNew);
@@ -889,26 +919,25 @@ $('#varsSave').addEventListener('click', ()=>{
   renderTree($('#search').value||'');
   $('#varsModal').hidden = true;
 });
-// Импорт JSON env (Postman)
+// Import JSON env (Postman)
 $('#envImportFile').addEventListener('change', async (e)=>{
   const f = e.target.files[0]; if(!f) return;
   const txt = await f.text();
   try{
     const parsed = JSON.parse(txt);
-    // поддержка формата Postman (values: [{key,value,enabled}]) или простого объекта {K:V}
     if (Array.isArray(parsed?.values)) {
       ENV = { ...(ENV||{}), ...parsed };
     } else if (parsed && typeof parsed === 'object') {
       const values = Object.entries(parsed).map(([k,v])=>({key:k, value:String(v), enabled:true}));
       ENV = { name: 'Imported', values };
     } else {
-      throw new Error('Неизвестный формат env');
+      throw new Error('Unknown env format');
     }
     localStorage.setItem('pm_env', JSON.stringify(ENV));
     buildVarMap();
     buildVarsTableBody();
-    alert('Environment импортирован (локально).');
-  }catch(err){ alert('Ошибка импорта ENV: '+err.message); }
+    alert('Environment imported (local).');
+  }catch(err){ alert('Import error: '+err.message); }
 });
 
 /* ========= Loaders & session ========= */
@@ -925,7 +954,7 @@ $('#clearBtn').addEventListener('click', ()=>{
   $('#tree').innerHTML=''; $('#reqPane').innerHTML=''; $('#resPane').innerHTML='';
   $('#loadedInfo').textContent = ''; updateAuthUI();
   $('#colLabel').style.display=''; $('#envLabel').style.display='';
-  alert('Локальная сессия очищена');
+  alert('Local session cleared');
 });
 $('#search').addEventListener('input', debounce((e)=> renderTree(e.target.value), 200));
 
@@ -937,7 +966,7 @@ async function onCollectionUpload(e){
     ITEMS_FLAT = []; flattenItems(COLLECTION); buildVarMap(); renderTree($('#search').value||'');
     $('#loadedInfo').textContent = shortInfo();
     if (AUTO_OPEN_FIRST) autoOpenFirst();
-  }catch(err){ alert('Ошибка парсинга коллекции: '+err.message); }
+  }catch(err){ alert('Collection parse error: '+err.message); }
 }
 async function onEnvUpload(e){
   const f = e.target.files[0]; if(!f) return;
@@ -946,21 +975,21 @@ async function onEnvUpload(e){
     ENV = JSON.parse(txt); localStorage.setItem('pm_env', txt);
     buildVarMap(); renderTree($('#search').value||'');
     $('#loadedInfo').textContent = shortInfo();
-  }catch(err){ alert('Ошибка парсинга окружения: '+err.message); }
+  }catch(err){ alert('Environment parse error: '+err.message); }
 }
 function shortInfo(){
-  const name = COLLECTION?.info?.name || 'Коллекция';
+  const name = COLLECTION?.info?.name || 'Collection';
   const cnt = ITEMS_FLAT.length;
   const envName = ENV?.name || ENV?.info?.name || 'env';
   const hasEnv = ENV ? `, env: ${envName}` : '';
-  return `${name} (${cnt} запросов${hasEnv})`;
+  return `${name} (${cnt} requests${hasEnv})`;
 }
 function autoOpenFirst(){
   const first = ITEMS_FLAT[0];
   if (first){ $('#welcomeCard')?.remove(); openRequest(first); }
 }
 
-/* === Автозагрузка из корня (или путей из query) === */
+/* === Autoload from root (or query paths) === */
 (async function bootstrap(){
   updateAuthUI();
   let loadedSomething = false;
