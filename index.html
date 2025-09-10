@@ -14,7 +14,7 @@
   body{
     margin:0; font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;
     background:var(--bg); color:var(--fg);
-    display:grid; grid-template-columns: 320px 1fr; grid-template-rows: 56px calc(100dvh - 56px);
+    display:grid; grid-template-columns: 460px 1fr; grid-template-rows: 56px calc(100dvh - 56px);
     grid-template-areas: "top top" "left right";
   }
 
@@ -59,7 +59,12 @@
   .op:hover{ background:#f9fafb; border-color:#dbe3ed; transform: translateY(-1px); }
   .op.active{ outline:2px solid #2b8cff33; }
   .op .op-method{min-width:66px; text-align:center; font-weight:800; font-size:12px; padding:6px 8px; border-radius:6px; letter-spacing:.5px; border:1px solid rgba(0,0,0,.06);}
-  .op .op-path{flex:1; min-width:0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; color:#0b1220; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .op .op-path{
+    flex:1; min-width:0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size:13px; color:#0b1220;
+    white-space:normal; word-break:break-all; /* полный вывод пути, переносы разрешены */
+  }
   .op.GET{background:#e8f5ee} .op.GET .op-method{background:#dff3e7; color:#0a7c3a}
   .op.POST{background:#f3e9ff} .op.POST .op-method{background:#efe4ff; color:#7a3cff}
   .op.PUT{background:#f6f7dd} .op.PUT .op-method{background:#f2f4c9; color:#7a7f17}
@@ -118,9 +123,9 @@
       <label class="file" id="envLabel">Окружение
         <input id="envFile" type="file" accept=".json,application/json" />
       </label>
-      <button id="clearBtn" title="Очистить сессию">Сброс</button>
-
+      <button id="clearBtn" title="Очистить сессию">Reset</button>
       <button id="authBtn" title="Глобальный Bearer">Authorize</button>
+      <button id="varsBtn" title="postman environment">Postman Variables</button>
       <span class="small muted">Proxy prefix:</span>
       <input id="proxyPrefix" placeholder="например, http://localhost:8080/" style="width:280px;padding:8px;border-radius:8px;border:1px solid var(--divider);background:#fff;color:#111" />
       <span id="loadedInfo" class="rightInfo"></span>
@@ -157,13 +162,29 @@
         <input id="authToken" placeholder="Bearer token" />
       </div>
       <div class="modalActions">
-        <button id="authClear" class="auth-bad">Очистить</button>
-        <button id="authCancel">Отмена</button>
-        <button id="authSave" class="auth-ok">Сохранить</button>
+        <button id="authClear" class="auth-bad">Clear</button>
+        <button id="authCancel">Cancel</button>
+        <button id="authSave" class="auth-ok">Save</button>
       </div>
       <div id="authState" class="authState" style="display:none;"></div>
     </div>
   </div>
+<!-- Variables modal -->
+<div id="varsModal" class="modal" hidden>
+  <div class="modalCard" style="width:720px">
+    <h3>Environment variables</h3>
+    <div class="kvs" style="max-height:50vh; overflow:auto">
+      <table id="varsTable" class="kvTable">
+        <thead><tr><th>Key</th><th>Value</th><th style="width:80px">On</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="modalActions">
+      <button id="varsCancel">Отмена</button>
+      <button id="varsSave" class="auth-ok">Сохранить</button>
+    </div>
+  </div>
+</div>
 
   <div id="loader" class="loaderOverlay" hidden><div class="spinner"></div></div>
 
@@ -184,6 +205,80 @@ function debounce(fn, ms=250){ let t; return (...a)=>{ clearTimeout(t); t=setTim
 function prettyJSON(x){ try{ return typeof x==='string'?JSON.stringify(JSON.parse(x),null,2):JSON.stringify(x,null,2);}catch{ return String(x);} }
 function sizeBytes(val){ try{ const b=(new TextEncoder()).encode(typeof val==='string'?val:JSON.stringify(val)).length; if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }catch{ return '—'; } }
 function showLoader(on){ const l = $('#loader'); if (!l) return; l.hidden = !on; }
+function pathOnly(u){
+  if(!u) return '';
+  try{
+    const full = resolveVars(u);
+    const isAbs = /^https?:\/\//i.test(full);
+    const urlObj = new URL(isAbs ? full : (location.origin + (full.startsWith('/')?full:'/'+full)));
+    return urlObj.pathname || '/';
+  }catch{
+    // запасной вариант: выкинуть схему/хост руками
+    return String(u).replace(/^https?:\/\/[^/]+/i,'') || '/';
+  }
+}
+
+  function buildVarsTableBody(){
+  const tb = $('#varsTable tbody');
+  tb.innerHTML = '';
+  // источник — ENV.values; если нет, создаём пустой список
+  const list = Array.isArray(ENV?.values) ? ENV.values : [];
+  list.forEach((v, i)=>{
+    const tr = document.createElement('tr');
+    const key = v.key ?? v.name ?? '';
+    const val = v.currentValue ?? v.value ?? '';
+    const enabled = v.enabled !== false; // по умолчанию true
+    tr.append(
+      el('td',{}, el('input',{value:key, 'data-idx':i, 'data-field':'key'})),
+      el('td',{}, el('input',{value:val, 'data-idx':i, 'data-field':'value'})),
+      el('td',{}, el('input',{type:'checkbox', checked:enabled, 'data-idx':i, 'data-field':'enabled'}))
+    );
+    tb.append(tr);
+  });
+  // пустая строка для добавления
+  const trNew = document.createElement('tr');
+  trNew.append(
+    el('td',{}, el('input',{'data-idx':'new','data-field':'key', placeholder:'key'})),
+    el('td',{}, el('input',{'data-idx':'new','data-field':'value', placeholder:'value'})),
+    el('td',{}, el('input',{type:'checkbox','data-idx':'new','data-field':'enabled', checked:true}))
+  );
+  tb.append(trNew);
+}
+function readVarsTable(){
+  const rows = Array.from($('#varsTable tbody').querySelectorAll('tr'));
+  const out = [];
+  rows.forEach(tr=>{
+    const keyInp = tr.querySelector('input[data-field="key"]');
+    const valInp = tr.querySelector('input[data-field="value"]');
+    const enInp  = tr.querySelector('input[data-field="enabled"]');
+    const key = (keyInp?.value ?? '').trim();
+    const val = valInp?.value ?? '';
+    const enabled = !!(enInp?.checked);
+    if (key || val) out.push({ key, value: val, enabled });
+  });
+  return out;
+}
+// открыть модалку Variables
+$('#varsBtn').addEventListener('click', ()=>{
+  if (!ENV) ENV = { values: [] };
+  if (!Array.isArray(ENV.values)) ENV.values = [];
+  buildVarsTableBody();
+  $('#varsModal').hidden = false;
+});
+$('#varsCancel').addEventListener('click', ()=> $('#varsModal').hidden = true);
+$('#varsSave').addEventListener('click', ()=>{
+  const rows = readVarsTable();
+  // сохраняем обратно в ENV.values (Postman формат: key/value/enabled)
+  ENV.values = rows.map(r=>({ key: r.key, value: r.value, enabled: r.enabled }));
+  // persist и пересобрать карту переменных
+  try{ localStorage.setItem('pm_env', JSON.stringify(ENV)); }catch{}
+  buildVarMap();
+  renderTree($('#search').value||'');
+  // если открыт запрос — обновим верхний путь
+  const tp = $('#topPath'), urlInp = $('#urlInp');
+  if (tp && urlInp) tp.textContent = safeBuildUrl(urlInp.value, []); // обновит с новыми VARS
+  $('#varsModal').hidden = true;
+});
 
 /* ========= State ========= */
 let COLLECTION = null, ENV = null, VARS = {};
@@ -249,9 +344,12 @@ function safeBuildUrl(url, queryArr){
 
 /* ========= Sidebar ========= */
 function renderTree(filter = '') {
-  const tree = $('#tree'); tree.innerHTML = '';
+  const tree = $('#tree');
+  tree.innerHTML = '';
+
   const q = (filter || '').toLowerCase();
   const match = s => (s || '').toLowerCase().includes(q);
+
   const groups = {};
   ITEMS_FLAT.forEach(it => {
     const folder = it.path || 'ROOT';
@@ -259,24 +357,41 @@ function renderTree(filter = '') {
     if (q && !(match(it.name) || match(folder) || match(urlRaw))) return;
     (groups[folder] ||= []).push(it);
   });
+
   Object.entries(groups).forEach(([folder, items]) => {
     const sec = el('div', { class: 'node' });
     sec.append(el('div', { class: 'folder' }, folder === 'ROOT' ? 'Без папки' : folder));
+
     items.forEach(it => {
       const urlRaw = normalizeUrl(it.request.url);
       const urlResolved = resolveVars(urlRaw);
       const method = (it.request.method || 'GET').toUpperCase();
-      const row = el('div',
-        { class: 'op ' + method, onclick: () => openRequest(it), title: (it.name ? it.name + ' • ' : '') + (urlResolved || urlRaw || '') },
+
+      // показываем только путь без домена
+      const displayPath = pathOnly(urlResolved || urlRaw);
+
+      const row = el(
+        'div',
+        {
+          class: 'op ' + method,
+          onclick: () => openRequest(it),
+          title: (it.name ? it.name + ' • ' : '') + (urlResolved || urlRaw || '')
+        },
         el('div', { class: 'op-method' }, method),
-        el('div', { class: 'op-path' }, urlResolved || urlRaw || '(no url)')
+        el('div', { class: 'op-path' }, displayPath || '(no url)')
       );
+
       sec.append(row);
     });
+
     tree.append(sec);
   });
-  if (!tree.children.length) tree.append(el('div', { class:'section muted small' }, 'Ничего не найдено'));
+
+  if (!tree.children.length) {
+    tree.append(el('div', { class: 'section muted small' }, 'Ничего не найдено'));
+  }
 }
+
 
 /* ========= Request UI ========= */
 function buildKVTable(rows){
